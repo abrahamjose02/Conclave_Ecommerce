@@ -1,0 +1,54 @@
+<%- include('../layouts/header.ejs') %>
+
+
+    <%- include('../users/userHeader.ejs') %>
+
+
+
+
+
+        <main class="main h-75 mb-5 d-flex justify-content-center">
+            <div class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17 mt-2 mx-5 w-75 mb-4 h-100 d-flex justify-content-center"
+                style="background-image: url('img/login-bg.jpg');
+          ">
+                <div class="container m-5   bg-white">
+
+
+                    <div class="">
+
+                        <h3 class="text-center mt-5 mb-4 text- font-weight-bolder">FORGOT YOUR PASSWORD !</h3>
+
+                        <P class="text-center ">Enter your email address and we will send an otp
+                            to reset your
+                            password</P>
+
+                        <form class="d-flex flex-column  align-items-center mt-4" action="/forget"
+                            method="post">
+                            <label class="font-weight-bold" for="email"> YOUR REGISTERED EMAIL ADDRESS</label>
+
+                            <input class="mt-3" type="text" id="email" name="email">
+
+                            <button data-id="forgotPasswordBtn" class="btn btn-secondary mt-4 py-1 px-4"
+                                type="submit">send</button>
+                        </form>
+
+                    </div>
+
+
+
+                </div>
+
+
+
+            </div>
+            <!-- End .login-page section-bg -->
+        </main>
+        <!-- End .main -->
+
+
+
+
+            <%- include('../users/userFooter.ejs') %>
+            <script src="/js/forgotPasswordTimerButton.js"></script>
+
+            <%- include('../layouts/footer.ejs') %>

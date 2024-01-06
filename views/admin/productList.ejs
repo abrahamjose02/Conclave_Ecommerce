@@ -1,0 +1,194 @@
+<%- include('../layouts/header.ejs') %>
+
+    <%- include('../admin/adminHeader.ejs') %>
+
+        <!-- Breadcrumb Section Begin -->
+
+        <section class="breadcrumb-option">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="breadcrumb__text">
+                            <h4>Product List</h4>
+                            <div class="breadcrumb__links">
+                                <a href="./index.html">Home</a>
+                                <span>Product List</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <main class="main my-5">
+            <div class="container">
+
+                <a class="btn btn-outline-success mb-3" href="/admin/addProduct">Add New Products</a>
+
+                <div class="table-responsive" id="no-more-tables">
+                    <table class="table table-striped bg-white" id="myTable">
+                        <thead class=" ">
+                            <tr class="">
+                                <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col"
+                                    class="sorting ">
+                                    Name</th>
+                                <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col"
+                                    class="sorting">
+                                    Image
+                                </th>
+
+
+                                <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col"
+                                    class="sorting">
+                                    Category</th>
+
+                                <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col"
+                                    class="sorting">
+                                    Size
+                                </th>
+
+
+
+                                <th class="bg-dark text-white" text-center style="font-size: 15px;" scope="col"
+                                    class="sorting">
+                                    Stock
+                                </th>
+
+
+                                <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col">Price
+                                </th>
+
+
+                                <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col">Actions
+                                </th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (products.length > 0) { %>
+                                <% for (let i=0; i < products.length; i++) { %>
+                                    <tr data-id="<%= products[i]._id %>" class="text-center" style="font-size: medium;">
+                                        <td data-title="Name">
+                                            <%= products[i].name %>
+                                        </td>
+                                        <td data-title="Image">
+                                            <% if (products[i].images && products[i].images.length > 0) { %>
+                                                <img src="/uploads/<%=products[i].images[0] %>" alt="Product Image" width="50px" height="50px">
+                                            <% } else { %>
+                                                <img src="/img/no-image.webp" alt="No image available">
+                                            <% } %>
+                                            
+                                            
+                                          </td>
+                                          
+                                        
+                                        <td data-title="Category">
+                                            <%= products[i].category.name %>
+                                        </td>
+                                        <td data-title="Size">
+                                            <%= products[i].size %>
+                                        </td>
+                                        <td data-title="Stock">
+                                            <%= products[i].stockinCount %>
+                                        </td>
+                                        <td data-title="Price">
+                                            <%= products[i].price %>
+                                        </td>
+                                        <td data-title="Actions" class="d-flex justify-content-center align-items-center" style="font-size: 10px; height: 145px;">
+                                            <a class="btn btn-outline-primary btn-sm mx-3" href="/admin/editProduct/<%= products[i]._id %>">
+                                                Edit
+                                            </a>
+                                            <% if (!products[i].isDeleted) { %>
+                                                <form action="/admin/unlistProduct/<%= products[i]._id %>" method="post">
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm">Unlist</button>
+                                                </form>
+                                            <% } else { %>
+                                                
+                                                <form action="/admin/listProduct/<%= products[i]._id %>" method="post">
+                                                    <button type="submit" class="btn btn-outline-success btn-sm">List</button>
+                                                </form>
+                                            <% } %>
+                                             
+                                        </td>
+                                    </tr>
+                                <% } %>
+                            <% } else { %>
+                                <tr>
+                                    <td class="text-danger" colspan="7">Products Not Found</td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                        
+                        
+                    </table>
+                </div>
+            </div>
+        </main>
+
+
+
+        <%- include('../admin/adminFooter.ejs') %>
+
+            <script src="/js/dataTables.js"></script>
+
+            <script src="/js/admin/productList.js"></script>
+
+            <%- include('../layouts/footer.ejs') %>
+
+
+
+
+
+
+
+                <!-- <h1>Product List</h1>
+            <form action="/admin/addProduct" method="get">
+                <button type="submit">Add Category</button>
+              </form>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Serial No</th>
+                        <th>Product Name</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Price</th>
+                        <th>stockinCount</th>
+                        <th>Image</th>
+                        <th>Edit</th>
+                        <th>List/Unlist</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% products.forEach((product, index) => { %>
+                        <tr>
+                            <td><%= index + 1 %></td>
+                            <td><%= product.name %></td>
+                            <td><%= product.category.name %></td>
+                            <td><%= product.description %></td>
+                            <td>$<%= product.price %></td>
+                            <td><%= product.stockinCount %></td>
+                            <td><img src="<%= product.image %>" alt="<%= product.name %> Image" width="100"></td>
+                            <td>
+                                <form action="/admin/editProduct/<%= product._id %>" method="get">
+                                    <button type="submit">Edit</button>
+                                </form>
+                            </td>
+                            <td>
+                                <% if (product.isDeleted) { %>
+                                    <form action="/admin/listProduct/<%= product._id %>" method="post">
+                                        <button type="submit">List</button>
+                                    </form>
+                                <% } else { %>
+                                    <form action="/admin/unlistProduct/<%= product._id %>" method="post">
+                                        <button type="submit">Unlist</button>
+                                    </form>
+                                <% } %>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </body>
+        </html> -->

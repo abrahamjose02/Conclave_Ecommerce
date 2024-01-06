@@ -1,0 +1,110 @@
+
+<%- include('../layouts/header.ejs') %>
+
+<%- include('../admin/adminHeader.ejs') %>
+
+    <!-- Breadcrumb Section Begin -->
+
+    <section class="breadcrumb-option">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="breadcrumb__text">
+                        <h4>Users List</h4>
+                        <div class="breadcrumb__links">
+                            <a href="/admin/home">Home</a>
+                            <span>Users List</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <main class="main my-5">
+        <div class="container">
+            <div>
+                <table class="table table-striped bg-white" id="myTable">
+                    <thead class=" ">
+                        <tr class="text-center">
+                            <th class="bg-dark text-white" style="font-size: 15px;" scope="col" class="sorting ">
+                                Name</th>
+                            <th class="bg-dark text-white" style="font-size: 15px;" scope="col" class="sorting">
+                                Email</th>
+                            <th class="bg-dark text-white" style="font-size: 15px;" scope="col" class="sorting">
+                                Mobile</th>
+                            
+                            <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col">Actions
+                            </th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <% if(users.length>0){ %>
+                            <% for(let i=0; i < users.length ;i++) { %>
+
+
+                                <tr class="text-center" style="font-size: medium;">
+                                    <td data-title="Name">
+                                        <%= users[i].name %>
+                                    </td>
+                                    <td data-title="Email">
+                                        <%= users[i].email %>
+                                    </td>
+                                    <td data-title="Mobile">
+                                        <%= users[i].phone %>
+                                    </td>
+                                    
+
+                                    <td data-title="Actions " class="d-flex justify-content-center "
+                                        style="font-size: 10px;">
+
+                                        <a class="btn btn-outline-primary btn-sm mx-3 "
+                                        href="/admin/editUser?id=<%=users[i]._id%>">Edit</a>
+
+                                        <a class="btn btn-sm <%= users[i].isblocked ? 'btn-outline-success' : 'btn-outline-danger' %> mx-3"
+                                            href="/admin/<%= users[i].isblocked ? 'unblockUser' : 'blockUser' %>?id=<%= users[i]._id %>">
+                                            <%= users[i].isblocked ? 'Unblock' : 'Block' %>
+                                        </a>
+
+                                        <!-- <button class="btn  btn-sm btn-outline-danger" style="border-radius: 0;"
+                                            href="">remove</button> -->
+
+                                    </td>
+                                </tr>
+
+                                <% } %>
+                                    <% } else { %>
+
+                                        <tr>
+
+                                            <td class="text-danger" colspan="5">Users Not Found</td>
+                                        </tr>
+
+                                        <% } %>
+
+
+
+
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+
+
+
+    <%- include('../admin/adminFooter.ejs') %>
+
+        <script src="/js/dataTables.js"></script>
+        <script src="/js/admin/userList.js"></script>
+
+        <%- include('../layouts/footer.ejs') %>
+
+
+
+

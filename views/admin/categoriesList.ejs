@@ -1,0 +1,148 @@
+<%- include('../layouts/header.ejs') %>
+
+    <%- include('../admin/adminHeader.ejs') %>
+
+        <!-- Breadcrumb Section Begin -->
+
+        <section class="breadcrumb-option">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="breadcrumb__text">
+                            <h4>Category List</h4>
+                            <div class="breadcrumb__links">
+                                <a href="./index.html">Home</a>
+                                <span>Category List</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <main class="main my-5">
+            <div class="container">
+
+                <a class="btn btn-outline-success mb-3" href="/admin/addCategory">Add Category</a>
+
+                <div class="table-responsive" id="no-more-tables">
+                    <table class="table table-striped bg-white" id="myTable">
+                        <thead class=" ">
+                            <tr class="text-center">
+                                <th class="bg-dark text-white" style="font-size: 15px ; width: 300px;" scope="col"
+                                    class="sorting ">
+                                    Name</th>
+
+                                    <th class="bg-dark text-white" style="font-size: 15px ; width: 400px" scope="col"
+                                    class="sorting">
+                                    Image</th>
+
+                                <th class="bg-dark text-white" style="font-size: 15px ; width: 400px" scope="col"
+                                    class="sorting">
+                                    Description</th>
+
+                                    <th class="bg-dark text-white" style="font-size: 15px ; width: 400px" scope="col"
+                                    class="sorting">
+                                    Category Type</th>
+
+                                    <th class="bg-dark text-white" style="font-size: 15px ; width: 400px" scope="col"
+                                    class="sorting">
+                                    Date Created</th>
+         
+
+                                <th class="bg-dark text-white text-center" style="font-size: 15px; width: 300px"
+                                    scope="col">Actions
+                                </th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            <% if(categories.length>0){ %>
+                                <% for(let i=0; i < categories.length ;i++) { %>
+
+
+                                    <tr row-id="<%= categories[i]._id%>" class="text-center" style="font-size: medium;">
+                                        <td data-title="Name" style="width: 300px;">
+                                            <%= categories[i].name %>
+                                        </td>
+
+                                        <td data-title="Image">
+                                          <% if (categories[i].image) { %>
+                                            <img src="/uploads/<%= categories[i].image %>" alt="Category Image" width="50px" height="50px">
+                                          <% } else { %>
+                                            <img src="/img/no-image.webp" alt="No image available">
+                                          <% } %>
+                                        </td>
+
+                                        <td data-title="description" style="width: 400px;">
+                                            <%= categories[i].description %>
+                                        </td>
+
+                                        <td data-title="categoryType" style="width: 400px;">
+                                          <%= categories[i].categoryType %>
+                                      </td>
+
+                                      <td data-title="dateCreated" style="width: 400px;">
+                                        <%= categories[i].dateCreated.toDateString() %>
+                                    </td>
+
+                                        <td data-title="Actions" class="d-flex justify-content-center align-items-center" style="font-size: 10px; height: 145px;">
+                                          <a class="btn btn-outline-primary btn-sm mx-3" href="/admin/editCategory/<%= categories[i]._id %>">
+                                              Edit
+                                          </a>
+
+
+
+                                                <% if (!categories[i].isDeleted) { %>
+                                                  <form action="/admin/unlistCategory/<%= categories[i]._id %>" method="post">
+                                                      <button type="submit" class="btn btn-outline-danger btn-sm">Unlist</button>
+                                                  </form>
+                                              <% } else { %>
+                                                  
+                                                  <form action="/admin/listCategory/<%= categories[i]._id %>" method="post">
+                                                      <button type="submit" class="btn btn-outline-success btn-sm">List</button>
+                                                  </form>
+                                              <% } %>
+
+                                        </td>
+
+
+
+
+
+                                    </tr>
+
+                                    <% } %>
+                                        <% } else { %>
+
+                                            <tr>
+
+                                                <td class="text-danger" colspan="5">Categories Not Found</td>
+                                            </tr>
+
+                                            <% } %>
+
+
+
+
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+
+
+
+        <%- include('../admin/adminFooter.ejs') %>
+
+            <script src="/js/dataTables.js"></script>
+
+            <script src="/js/admin/categoryList.js"></script>
+
+            <%- include('../layouts/footer.ejs') %>
+
+

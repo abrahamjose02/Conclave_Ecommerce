@@ -1,0 +1,154 @@
+<%- include('../layouts/header.ejs') %>
+
+    <%- include('../admin/adminHeader.ejs') %>
+
+        <!-- Breadcrumb Section Begin -->
+
+        <section class="breadcrumb-option">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="breadcrumb__text">
+                            <h4>Edit Products</h4>
+                            <div class="breadcrumb__links">
+                                <a href="./index.html">Home</a>
+                                <span>Edit Products</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <main class="main my-5">
+            <div class="container">
+
+                <form class="container  w-50 my-5" action="/admin/editProduct/<%= product._id %>" method="post"
+                    enctype="multipart/form-data">
+
+
+                    <div class="form-outline mb-4">
+                        <label class="form-label mt-2" for="product-name">Product name </label>
+                        <input type="text" id="name" class="form-control" name="name" required
+                            value="<%= product.name%>" />
+                        
+                    </div>
+
+                    
+
+
+                    <div class="-outline mb-4 d-flex flex-column">
+                        <label for="category">Category:</label>
+                        <select id="category" name="category" required>
+                            <% categories.forEach(category => { %>
+                                <option value="<%= category._id %>" <% if (product && product.category.toString() === category._id.toString()) { %>selected<% } %>><%= category.name %></option>
+                            <% }) %>
+                        </select><br>
+                    </div>
+                    
+
+
+                    <div class="form-outline mb-4">
+                        <label class="form-label mt-2" for="size">Brand</label>
+
+                        <input type="text" id="brand" class="form-control" name="brand" required
+                            value="<%= product.brand%>" />
+                        
+                    </div>
+
+                    <div class="form-outline mb-4">
+                        <label class="form-label mt-2" for="color">Color</label>
+                        <input type="text" id="color" class="form-control" name="color" required
+                            value="<%= product.color%>" />
+                        
+
+                    </div>
+
+
+                    <div class="form-outline mb-4">
+                        <label class="form-label mt-2" for="price">Price</label>
+                        <input type="number" id="price" class="form-control" name="price" required
+                            value="<%= product.price%>" />
+                        
+
+                    </div>
+
+                    <div class="form-outline mb-4">
+                        <label class="form-label mt-2" for="stock">Stock no </label>
+                        <input type="number" id="stockinCount" class="form-control" name="stockinCount" required
+                            value="<%= product.stockinCount%>" />
+                        
+                    </div>
+
+
+                    <!-- <div class="form-outline mb-4 d-flex flex-column ">
+
+                        <select name="onSale" id="onSale">
+
+
+
+                            <option value="true" <%=product.onSale ? 'selected' :'' %> >
+                                True
+                            </option>
+
+                            <option value="false" <%=product.onSale? '' :' selected' %> >
+                                False
+                            </option>
+
+
+                        </select>
+
+                        <label class="   mt-2" for="onSale">onSale</label>
+
+                    </div>
+ -->
+
+
+
+                    
+                <div class="form-outline mb-2 w-100">
+                    <label class="form-label mt-2" for="description">Description</label>
+                    <textarea class=" w-100" style="width: auto;" name="description" id="description"
+                        required><%=product.description %></textarea>
+
+                </div>
+
+
+                    <!-- images upload -->
+
+
+                    <div class="input-group mb-4">
+                        <span class="input-group-text" >Upload</span>
+                        <div class="input-group-prepend">
+    
+                        </div>
+                        <div class="custom-file">
+                            <label class="custom-file-label" for="images"> Upload Images </label>
+                            <input type="file" class="custom-file-input" id="images" name="images"  multiple>
+    
+    
+    
+    
+                        </div>
+                    </div>
+
+
+
+
+                    <!-- Submit button -->
+                    <button type="submit" class="btn btn-dark btn-block mb-4"> Edit Product</button>
+
+
+                </form>
+
+
+            </div>
+        </main>
+
+
+
+
+        <%- include('../admin/adminFooter.ejs') %>
+
+            <%- include('../layouts/footer.ejs') %>

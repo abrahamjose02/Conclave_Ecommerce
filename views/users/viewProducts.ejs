@@ -1,0 +1,145 @@
+<%- include('../layouts/header.ejs') %>
+<%- include('../users/userHeader.ejs') %>
+
+
+<!-- Breadcrumb Section Begin -->
+<section class="breadcrumb-option">
+    <div class="container">
+        <!-- Your breadcrumb content -->
+        <div class="breadcrumb__text">
+            <h4>Shop - <%= categoryType %> - <%= categoryName %></h4>
+            <!-- Breadcrumb links -->
+            <div class="breadcrumb__links">
+                <a href="/home">Home</a>
+                <span>Shop - <%= categoryType %> - <%= categoryName %></span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Breadcrumb Section End -->
+
+<!-- Shop Section Begin -->
+<section class="shop spad" style="background-color: rgba(255, 255, 255, 0.557);">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3">
+                <!-- Filter Section -->
+                <div class="shop__sidebar">
+                    <!-- Filter options -->
+                    <div class="shop__sidebar__search">
+                        <form action="#" id="searchBar">
+                            <input type="text" placeholder="Search..." id="search">
+                            <button type="submit"><span class="icon_search"></span></button>
+                        </form>
+                    </div>
+
+                    <div class="shop__sidebar__size">
+                        <h6>Sizes</h6>
+                        <div class="size-options">
+                        <div class="size-option">
+                            <input type="checkbox" id="sizeS" name="sizeS">
+                            <label for="sizeS">S</label>
+                        </div>
+                        <div class="size-option">
+                            <input type="checkbox" id="sizeM" name="sizeM">
+                            <label for="sizeM">M</label>
+                        </div>
+                        <div class="size-option">
+                            <input type="checkbox" id="sizeL" name="sizeL">
+                            <label for="sizeL">L</label>
+                        </div>
+                        <div class="size-option">
+                            <input type="checkbox" id="sizeXL" name="sizeXL">
+                            <label for="sizeXL">XL</label>
+                        </div>
+                        <div class="size-option">
+                            <input type="checkbox" id="sizeXXL" name="sizeXXL">
+                            <label for="sizeXXL">XXL</label>
+                        </div>
+                        <div class="size-option">
+                            <input type="checkbox" id="sizeFree" name="sizeFree">
+                            <label for="sizeFree">Free Size</label>
+                        </div>
+                    </div>
+                </div>
+
+                    <div class="col-lg-3 col-md-3 col-sm-3 mt-1 d-flex justify-content-start ">
+
+                        <div class="shop__product__option__right  ">
+
+                            <select name="sortby" id="sortby" class="sortby">
+
+                                <option value="" <% if (!sortBy) { %> selected <% } %> disabled>Select
+                                </option>
+                                <option value="lowPrice" <% if (sortBy==='lowPrice' ) { %> selected <% } %>
+                                        >Price Low to High
+                                </option>
+                                <option value="highPrice" <% if (sortBy==='highPrice' ) { %> selected <% }
+                                        %>>Price High to Low
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            
+                       <!-- Product display -->
+                       <div class="col-lg-9">
+                        <div class="shop__product__option">
+                            <div class="row product__filter">
+                                <% if (products.length > 0) { %>
+                                    <% for (let i = 0; i < products.length; i++) { %>
+                                        <div class="col-lg-4 col-md-4 col-sm-6 mx-1 pl-0" style="max-width: 262px;">
+                                            <div class="product__item">
+                                                    <div class="product__item__pic set-bg" data-setbg="<%= products[i].images && products[i].images.length > 0 ? '/uploads/' + products[i].images[0] : '/img/no-image.webp' %>">
+                                                        <!-- Product image and hover elements -->
+                                                        <ul class="product__hover">
+                                                            <li><a href="#"><img src="img/icon/heart.png" alt=""></a></li>
+                                                        </ul>
+                                                    </div>
+                                                    <div class="product__item__text">
+                                                        <!-- Product details -->
+                                                        <h6><%= products[i].name %></h6>
+                                                        <!-- Other product information -->
+                                                        <button class="nav-link" onclick="addToCart('<%= products[i]._id %>')">
+                                                            <a class="">+ Add to cart</a>
+                                                        </button>
+                                                        <!-- Product rating -->
+                                                        <div class="rating">
+                                                            <!-- Rating stars -->
+                                                        </div>
+                                                        <h5>Rs.<%= products[i].price %></h5>
+                                                         
+                                                        </div>
+                                                        <a href="/productDetails?category=<%= categoryId %>&productId=<%= products[i]._id %>" class="product__link">View</a>
+
+                                                    </div>
+                                                </div>
+                                            
+                                                <% if ((i + 1) % 3 === 0 || i === products.length - 1) { %>
+                                                </div>
+                                                <div class="row">
+                                            <% } %>
+                                        <% } %>
+                                    <% } else { %>
+                                        <div class="col-12">
+                                            <h3 class="text-danger">No Product to show</h3>
+                                        </div>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+<!-- Pagination section -->
+<nav aria-label="Page navigation" id="pagination">
+    <!-- Pagination content -->
+</nav>
+
+<%- include('../users/userFooter.ejs') %>
+<script src="/js/user/searchAndBuy.js"></script>
+<%- include('../layouts/footer.ejs') %>

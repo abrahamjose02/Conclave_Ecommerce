@@ -1,0 +1,91 @@
+<%- include('../layouts/header.ejs') %>
+
+    <%- include('../admin/adminHeader.ejs') %>
+
+        <!-- Breadcrumb Section Begin -->
+
+        <section class="breadcrumb-option">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="breadcrumb__text">
+                            <h4>Add Category</h4>
+                            <div class="breadcrumb__links">
+                                <a href="./index.html">Home</a>
+                                <span>Add Category</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <main class="main my-5">
+            <div class="container">
+
+                <h2 class="text-center">Enter New Category Data</h2>
+
+                <% if (message) { %>
+                    <div class="alert alert-danger" role="alert">
+                        <%= message %>
+                    </div>
+                <% } %>
+
+                <form id="addCategoryForm" class="container  w-50 my-5" action="/admin/addCategory" method="post" enctype="multipart/form-data">
+
+                    
+                    <div class="form-outline mb-4">
+                        <label class="form-label" for="name">Category Name </label>
+                        <input type="text" id="name" class="form-control" name="name" />
+                        
+                    </div>
+
+
+                    <div class="form-outline mb-4">
+                        <label class="form-label" for="categoryType">Category Type: </label>
+                        <br>
+                        <select id="categoryType" name="categoryType" required>
+                            <option value="Men">Men</option>
+                            <option value="Women">Women</option>
+                            <option value="Kids">Kids</option>
+                            <option value="Beauty">Beauty</option>
+                        </select>
+                        
+                    </div>
+
+                    <div class="input-group mb-3">
+                        <label class="input-group-text" for="image">Upload Image</label>
+                        
+                        <input type="file" class="form-control" id="image" name="image"  required>
+                    </div>
+                    
+    
+
+                    
+                    <div class="form-outline mb-2 w-100">
+                        <label class="form-label" for="description">Description</label>
+                        <textarea class="w-100" name="description" id="description" cols="49" rows="2"></textarea>
+                        
+                    </div>
+
+
+                    <!-- Submit button -->
+                    <button type="submit" class="btn btn-dark btn-block mb-4"> Add Category</button>
+
+
+                </form>
+
+
+            </div>
+        </main>
+
+
+
+
+        <%- include('../admin/adminFooter.ejs') %>
+
+            <script src="/js/admin/addCategory.js"></script>
+
+            <%- include('../layouts/footer.ejs') %>
+

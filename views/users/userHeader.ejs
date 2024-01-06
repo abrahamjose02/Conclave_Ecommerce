@@ -1,0 +1,160 @@
+<!-- Offcanvas Menu Begin -->
+<!-- ... -->
+
+<!-- Header Section Begin -->
+<header class="header">
+    <div class="header__top">
+        <div class="container">
+            <div class="row">
+                <!-- Your header top content here -->
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 col-md-3">
+                <div class="header__logo">
+                    <a href="/home"><img src="/img/logo.png" alt=""></a>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6">
+                <nav class="header__menu mobile-menu">
+                    <ul>
+                        <li class=""><a href="/">Shop</a></li>
+                        <li class="">
+                            <a href="#" class="dropdown-toggle">Men</a>
+                            <ul class="dropdown">
+                                <% menCategories.forEach(category => { %>
+                                    <li>
+                                        <a href="/products?category=<%= category._id %>"><%= category.name %></a>
+                                    </li>
+                                <% }); %>
+                            </ul>
+                        </li>
+                        <li class="">
+                            <a href="#" class="dropdown-toggle">Women</a>
+                            <ul class="dropdown">
+                                
+                                <% womenCategories.forEach(category => { %>
+                                    <li>
+                                        <a href="/products?category=<%= category._id %>"><%= category.name %></a>
+                                    </li>
+                                <% }); %>
+                                
+                            </ul>
+                        </li>
+                        <li class="">
+                            <a href="#" class="dropdown-toggle">Kids</a>
+                            <ul class="dropdown">
+                                
+                                <% kidsCategories.forEach(category => { %>
+                                    <li>
+                                        <a href="/products?category=<%= category._id %>"><%= category.name %></a>
+                                    </li>
+                                <% }); %>
+                                
+                            </ul>
+                        </li>
+                        <li class="">
+                            <a href="#" class="dropdown-toggle">Beauty</a>
+                            <ul class="dropdown">
+                                
+                                <% beautyCategories.forEach(category => { %>
+                                    <li>
+                                        <a href="/products?category=<%= category._id %>"><%= category.name %></a>
+                                    </li>
+                                <% }); %>
+                                
+                            </ul>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+             <div class="col-lg-3 col-md-3">
+                <div class="header__nav__option ">
+
+                    <div style="padding-top: 3px;">
+
+                        <a href="#" class="search-switch"><img src="/img/icon/search.png" alt=""></a>
+
+                        <a href="/user/wishList"><img src="/img/icon/heart.png" alt=""></a>
+
+                        <a href="/user/cart"><img src="/img/icon/cart.png" alt=""></a>
+
+                        
+
+                        <% if (userID) { %> 
+                            
+                            <a class="font-weight-bolder text-dark" href="/user/profile">Profile</a>
+                            <a class="font-weight-bolder text-dark" href="/logout">Logout</a>
+                        <% } else { %> 
+                            
+                            <a class="font-weight-bolder text-dark" href="/">Login</a>
+                        <% } %>
+                        
+
+                    </div>
+
+
+                    <!-- <a href="#"><img src="img/icon/cart.png" alt=""> <span>0</span></a>
+                    <div class="price">$0.00</div> -->
+                </div>
+            </div>
+        </div>
+        <div class="canvas__open"><i class="fa fa-bars"></i></div>
+    </div>
+
+    <!-- Message Section -->
+    <% if (message) { %>
+        <!-- <div class="container alert alert-dismissible fade show alert-<%= message.type %>" role="alert">
+            <button class="btn-close" type="button" data-bs-dismiss='alert' aria-label="close"></button>
+            <strong class="container">
+                <%= message.message %>
+            </strong> -->
+        <div class="container d-flex justify-content-center mt-4">
+            <div class="alert alert-success text-center" role="alert">
+                <p class="font-weight-bold text-dark"><%= message %></p>
+            </div>
+        </div>
+    <% } %>
+    
+    <% if (message && message.verification) { %> 
+        <div class="container">
+            <a data-id="emailVerificationBtn" href="/user/emailVerification" type="submit" class="btn btn-outline-success">Verify Your Email</a>
+        </div>
+    <% } %>
+    
+
+    <!-- Notification Section -->
+    <div hidden id="notification-message" class="container notification">
+        <p id="messageLine"> </p>
+        <button class="close" id="notificationClose"><i class="fa-solid fa-xmark" style="color: #d2cfce;"></i></button>
+    </div>
+</header>
+<!-- Header Section End -->
+<!-- 
+<% if (userID) { %> -->
+    <!-- Render categories for Men, Women, Kids, Beauty for logged-in users -->
+    <!-- <ul class="categories">
+        <% menCategories.forEach(category => { %>
+            <li>
+                <a href="/products?category=<%= category._id %>"><%= category.name %></a>
+            </li>
+        <% }); %>
+        <% womenCategories.forEach(category => { %>
+            <li>
+                <a href="/products?category=<%= category._id %>"><%= category.name %></a>
+            </li>
+        <% }); %>
+        <% kidsCategories.forEach(category => { %>
+            <li>
+                <a href="/products?category=<%= category._id %>"><%= category.name %></a>
+            </li>
+        <% }); %>
+        <% beautyCategories.forEach(category => { %>
+            <li>
+                <a href="/products?category=<%= category._id %>"><%= category.name %></a>
+            </li>
+        <% }); %>
+    </ul> -->
+<!-- <% } %> -->
