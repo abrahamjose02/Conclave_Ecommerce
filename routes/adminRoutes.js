@@ -6,6 +6,8 @@ const path = require('path');
 const configuration = require('../config/configuration');
 const {isLogin,isLogout,nocache} = require('../middleware/adminAuth');
 const adminController = require('../controllers/adminController');
+const categoryController = require('../controllers/categoryController');
+const productController = require('../controllers/productController');
 
 
 admin_route.use(session({
@@ -73,22 +75,20 @@ admin_route.get('/editUser',adminController.editUserLoad);
 admin_route.post('/editUser', adminController.updateUser);
 admin_route.get('/unblockUser',adminController.unBlockUser);
 admin_route.get('/blockUser',adminController.blockUser);
-admin_route.get('/categoriesList',adminController.categoryList);
-admin_route.get('/addData',adminController.createSampleCategories);
-admin_route.get('/addCategory',adminController.loadaddCategory);
-admin_route.post('/addCategory',upload.single('image'),adminController.addCategory);
-admin_route.get('/editCategory/:id',adminController.loadEditCategory);
-admin_route.post('/editCategory/:id',upload.single('image'),adminController.editCategory);
-admin_route.post('/listCategory/:id',adminController.listCategories);
-admin_route.post('/unlistCategory/:id',adminController.unlistCategories);
-admin_route.get('/productList',adminController.loadProductList);
-admin_route.get('/sampleproducts',adminController.createSampleProducts);
-admin_route.get('/addProduct',adminController.loadaddProduct);
-admin_route.post('/addProduct',upload.array('images', 5), adminController.addProduct);
-admin_route.get('/editProduct/:id',adminController.loadEditProduct);
-admin_route.post('/editProduct/:id',upload.array('images',5),adminController.editProduct);
-admin_route.post('/listProduct/:id', adminController.listProduct);
-admin_route.post('/unlistProduct/:id', adminController.unlistProduct);
+admin_route.get('/categoriesList',categoryController.categoryList);
+admin_route.get('/addCategory',categoryController.loadaddCategory);
+admin_route.post('/addCategory',upload.single('image'),categoryController.addCategory);
+admin_route.get('/editCategory/:id',categoryController.loadEditCategory);
+admin_route.post('/editCategory/:id',upload.single('image'),categoryController.editCategory);
+admin_route.post('/listCategory/:id',categoryController.listCategories);
+admin_route.post('/unlistCategory/:id',categoryController.unlistCategories);
+admin_route.get('/productList',productController.loadProductList);
+admin_route.get('/addProduct',productController.loadaddProduct);
+admin_route.post('/addProduct',upload.array('images', 5), productController.addProduct);
+admin_route.get('/editProduct/:id',productController.loadEditProduct);
+admin_route.post('/editProduct/:id',upload.array('images',5),productController.editProduct);
+admin_route.post('/listProduct/:id', productController.listProduct);
+admin_route.post('/unlistProduct/:id', productController.unlistProduct);
 
 
 

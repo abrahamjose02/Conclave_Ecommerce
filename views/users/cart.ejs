@@ -1,0 +1,144 @@
+<%- include('../layouts/header.ejs') %>
+<%- include('../users/userHeader.ejs') %>
+
+
+<!-- Breadcrumb Section Begin -->
+<section class="breadcrumb-option">
+    <div class="container">
+        <!-- Your breadcrumb content -->
+        <div class="breadcrumb__text">
+            <h4>Cart</h4>
+            <!-- Breadcrumb links -->
+            <div class="breadcrumb__links">
+                <a href="/home">Home</a>
+                <span>Cart</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Breadcrumb Section End -->
+
+
+
+
+
+<section id="cart-container" class="container my-3">
+    <% if (itemsInCart && itemsInCart.length > 0) { %>
+        <!-- Table for displaying cart items -->
+        <table class="table table-striped bg-white" id="myTable">
+            <!-- Table headers -->
+            <thead class=" " >
+                <!-- Header row -->
+                <tr class="">
+                    <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col"
+                                    class="sorting ">
+                                    Image</th>
+                    <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col"
+                                    class="sorting ">
+                                    Product</th>
+                    <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col"
+                                    class="sorting ">
+                                    Size</th>
+                    <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col"
+                                    class="sorting ">
+                                    Price</th>
+                    <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col"
+                                    class="sorting ">
+                                    Quantity</th>
+                    <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col"
+                                    class="sorting ">
+                                    Total Price</th>
+                    <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col"
+                                    class="sorting ">
+                                    Action</th>
+
+                                    
+                </tr>
+            </thead>
+            <!-- Table body for cart items -->
+            <tbody>
+                <% itemsInCart.forEach(item => { %>
+                    <!-- Loop through each item in the cart -->
+                    <tr id="<%= item.product._id %>item">
+                        <!-- Display item details -->
+                        <td data-title="Image"><img src="/uploads/<%= item.product.images[0] %>" alt="product Image" style="width: 100px; height: 100px;"></td>
+                        <td data-title="Name">
+                            <h6><%= item.product.name %></h6>
+                        </td>
+                        <td data-title="Size">
+                            <h6><%= item.size %></h6>
+                        </td>
+                        <td data-title="Price">
+                            <h6><span>Rs.</span><span><%= item.price %></span></h6>
+                        </td>
+                        <td data-title="Quantity">
+                            <button class="cart-item-count" onclick="changeQuantity('<%= item._id %>','-1')"
+                                style="margin-right: 10px; background-color: black; color: white;">-</button>
+                            <span id="<%= item._id %>"><%= item.quantity %></span>
+                            <button class="cart-item-count" onclick="changeQuantity('<%= item._id %>','1')"
+                                style="margin-left: 10px; background-color: black; color: white;">+</button>
+                        </td>
+                        <td data-title="Total Price">
+                            <h6><span>Rs.</span><span id="total<%= item._id %>"><%= item.price * item.quantity %></span></h6>
+                        </td>
+                        <td data-title="Action">
+                            <button id="Remove" class="btn btn-danger" onclick="removeProduct('<%= item._id %>')">Remove</button>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+        <!-- End of table -->
+
+    <% } else { %>
+        <!-- Display message if cart is empty -->
+        <div class="row " style="display: flex; justify-content: center;">
+            <div class="col-12 col-md-6 m-3" style="width: 100%;">
+                <h1 class="text-center text-danger"><b>Cart is empty</b></h1>
+            </div>
+            <div class="col-12 col-md-6 mx-auto"><img src="/images/empty.png" style="width: 100%;" alt=""></div>
+        </div>
+    <% } %>
+</section>
+
+<section id="cart-bottom" class="container my-3">
+    <% if (itemsInCart && itemsInCart.length > 0) { %>
+        <div class="row justify-content-end">
+            <div class="col-md-4 d-flex justify-content-end">
+                <div class="total col-lg-8 col-md-8 col-12 bg-light p-4 rounded-lg">
+                    <h4 class="text-dark mb-4"><strong>CART TOTAL</strong></h4>
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="text-secondary"><strong>Total:</strong></h6>
+                        <!-- Display cart total from the backend -->
+                        <h6 class="text-success font-weight-bold"><span>Rs.</span><span id="grandTotal"><%= userCart.totalPrice %></span></h6>
+                    </div>
+
+                    <!-- Button to proceed to checkout -->
+                    <button class="ml-auto btn btn-success btn-block">
+                        <a href="/checkout" class="text-white text-decoration-none"><strong>PROCEED TO CHECKOUT</strong></a>
+                    </button>
+                </div>
+            </div>
+        </div>
+    <% } %>
+</section>
+
+
+
+
+
+
+
+
+<!-- Pagination section -->
+<nav aria-label="Page navigation" id="pagination">
+    <!-- Pagination content -->
+</nav>
+
+<%- include('../users/userFooter.ejs') %>
+<script src="/js/user/searchAndBuy.js"></script>
+<%- include('../layouts/footer.ejs') %>
+
+

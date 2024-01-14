@@ -1,20 +1,19 @@
 <%- include('../layouts/header.ejs') %>
 
     <%- include('../users/userHeader.ejs') %>
-        <section class="breadcrumb-option">
-            <div class="container">
-                <!-- Your breadcrumb content -->
-                <div class="breadcrumb__text">
-                    <h4>Shop - <%= categoryType %> - <%= categoryName %>
-                    </h4>
-                    <!-- Breadcrumb links -->
-                    <div class="breadcrumb__links">
-                        <a href="/home">Home</a>
-                        <span>Shop - <%= categoryType %> - <%= categoryName %> - productDetails</span>
-                    </div>
+    <section class="breadcrumb-option">
+        <div class="container">
+            <!-- Your breadcrumb content -->
+            <div class="breadcrumb__text">
+                <h4>Shop - <%= categoryType %> - <%= categoryName %></h4>
+                <!-- Breadcrumb links -->
+                <div class="breadcrumb__links">
+                    <a href="/home">Home</a>
+                    <span>Shop - <%= categoryType %> - <%= categoryName %></span>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
         <section>
             <div class="row mt-5">
                 <% if (products && products.length > 0) { %>
@@ -56,24 +55,27 @@
                                                 </div>
                                                 <p><%= product.description %></p>
                                                 <h6 class="my-4"><strong>Select Size:</strong></h6>
-                                                <div class="sizes-container ">
+                                                <div class="sizes-container">
                                                     <% if (product.size && Array.isArray(product.size)) { %>
                                                         <% product.size.forEach((size) => { %>
-                                                            <div class="size-box">
-                                                                <%= size %>
-                                                            </div>
+                                                            <button class="size-box" onclick="handleSizeSelection('<%= size %>')"> <%= size %> </button>
                                                         <% }) %>
                                                     <% } else { %>
                                                         <!-- Handle case where sizes are not available -->
                                                         <div>No sizes available</div>
                                                     <% } %>
                                                 </div>
+                                                
                                                 <br>
 
                                                 <!-- Product Price -->
                                                 <h4><strong>Price: <%= product.price %></strong></h4>
                                                 <!-- Add to Cart Button -->
-                                                <button class="btn btn-primary mt-3">Add to Cart</button>
+                                                <!-- Inside the section where the products are displayed -->
+                                                <button class="btn btn-primary mt-3" onclick="selectSizeAndAddToCart('<%= product._id %>')">Add to Cart</button>
+
+
+                                                <button class="btn btn-warning mt-3 mx-3">Add to wishlist</button>
                                                 <!-- Other Details -->
                                                 <div class="other-details mt-4">
                                                     <table>
@@ -498,6 +500,8 @@
             </div>
         </section>
 
+        
+        
 
         <%- include('../users/userFooter.ejs') %>
 

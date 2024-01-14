@@ -103,9 +103,7 @@
                                                         <!-- Product details -->
                                                         <h6><%= products[i].name %></h6>
                                                         <!-- Other product information -->
-                                                        <button class="nav-link" onclick="addToCart('<%= products[i]._id %>')">
-                                                            <a class="">+ Add to cart</a>
-                                                        </button>
+                                                        <button class="nav-link" onclick="viewProductDetails('<%= categoryId %>', '<%= products[i]._id %>')"><a class="">View</a></button>
                                                         <!-- Product rating -->
                                                         <div class="rating">
                                                             <!-- Rating stars -->
@@ -113,7 +111,14 @@
                                                         <h5>Rs.<%= products[i].price %></h5>
                                                          
                                                         </div>
-                                                        <a href="/productDetails?category=<%= categoryId %>&productId=<%= products[i]._id %>" class="product__link">View</a>
+                                                        
+
+                                                        <script>
+                                                            function viewProductDetails(categoryId, productId) {
+                                                                window.location.href = `/productDetails?category=${categoryId}&productId=${productId}`;
+                                                            }
+                                                        </script>
+                                                        
 
                                                     </div>
                                                 </div>

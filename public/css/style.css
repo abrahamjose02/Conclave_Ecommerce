@@ -250,20 +250,37 @@ ol {
 
 .size-box {
     display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 50px; 
-        height: 50px; 
-        border: 1px solid #ccc;
-        border-radius: 15px;
-        transition: background-color 0.3s, color 0.3s;
-        cursor: pointer;
+    justify-content: center;
+    align-items: center;
+    width: 50px;
+    height: 50px;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    transition: background-color 0.3s, color 0.3s;
+    cursor: pointer;
+}
+
+.size-box.selected {
+    background-color: black;
+    color: white;
 }
 
 .size-box:hover {
-	background-color: #f0f0f0;
-	color: #333;
+    background-color: #f0f0f0;
+    color: #333;
 }
+
+.address-entry {
+	position: relative;
+}
+
+.edit-remove-buttons {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	margin: 10px;
+}
+
 
 
 .primary-btn {

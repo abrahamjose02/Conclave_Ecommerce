@@ -1,0 +1,79 @@
+<%-include('.. /layouts/header.ejs') %>
+    <%-include('.. /users/userHeader.ejs') %>
+
+        <!-- Edit Address Modal -->
+        <div class="modal fade" id="editAddressModal" tabindex="-1" aria-labelledby="editAddressModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editAddressModalLabel">Edit Address</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editAddressForm">
+                            <!-- Add a hidden input field to store the address ID -->
+                            <input type="hidden" id="editAddressId" name="addressId" value="">
+
+                            <div class="mb-3">
+                                <label for="editFullName" class="form-label">Full Name</label>
+                                <input type="text" class="form-control" id="editFullName" name="fullName" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="editCountry" class="form-label">Country</label>
+                                <input type="text" class="form-control" id="editCountry" name="country" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="editAddressLine" class="form-label">Address</label>
+                                <textarea class="form-control" id="editAddressLine" name="addressLine" rows="3"
+                                    required></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="editLocality" class="form-label">Locality</label>
+                                <input type="text" class="form-control" id="editLocality" name="locality" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="editCity" class="form-label">Town/City/District</label>
+                                <input type="text" class="form-control" id="editCity" name="city" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="editState" class="form-label">State</label>
+                                <input type="text" class="form-control" id="editState" name="state" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="editPinCode" class="form-label">Postcode / ZIP</label>
+                                <input type="number" class="form-control" id="editPinCode" name="pinCode" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="editPhone" class="form-label">Phone</label>
+                                <input type="number" class="form-control" id="editPhone" name="phone" required>
+                            </div>
+
+                            <div class="text-center">
+                                <button type="button" class="btn btn-dark" onclick="submitEditAddressForm()">Save
+                                    Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-outline-dark btn-sm mx-1"
+            onclick="editAddress('<%= Addresses[i]._id %>')">Edit</button>
+
+        <%-include('.. /layouts/header.ejs') %>
+            <%-include('.. /users/userFooter.ejs') %>
+
+            <script>
+                function editAddress(){
+                    $('#editAddressModal').modal('show');
+                }
+            </script>

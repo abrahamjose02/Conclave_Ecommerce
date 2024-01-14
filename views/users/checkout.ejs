@@ -1,0 +1,553 @@
+<%- include('../layouts/header.ejs') %>
+    <%- include('../users/userHeader.ejs') %>
+
+        <!-- Breadcrumb Section Begin -->
+        <section class="breadcrumb-option">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="breadcrumb__text">
+                            <h4>Check Out</h4>
+                            <div class="breadcrumb__links">
+
+                                <a href="/home">Shop</a>
+                                <span>Check Out</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+
+        <div class="container">
+            <form action="" id="checkout-form" name="check">
+                <div class="row">
+                    <div class="col-md-4 order-md-2 mb-4 mt-2" id="payDiv">
+                        <!-- Your existing payment and order summary section -->
+                        <div class="checkout__order">
+                            <h4 class="order__title">Your order</h4>
+                            <div class="checkout__order__products font-weight-bold">Product <span>Total</span></div>
+                            <ul class="checkout__total__products">
+                                <% if (itemsInCart.length> 0) { %>
+                                    <% for (let i=0; i < itemsInCart.length; i++) { %>
+                                        <li class="justify-content-start">
+                                            <div class="d-flex">
+                                                <div style="width: 74%;">
+                                                    <%= i + 1 %>. <%= itemsInCart[i].product.name %> (
+                                                            <%= itemsInCart[i].quantity %> )
+                                                </div>
+                                                <div style="width: 26%;" class="text-right d-inline-block">
+                                                    ₹ <%= productTotal[i] %>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <% } %>
+                                            <% } else { %>
+                                                <li>Your cart is empty</li>
+                                                <% } %>
+                            </ul>
+                            <ul class="checkout__total__all">
+                                <li class="mb-3">
+                                    <p><strong>Discount Applied: </strong><span id="appliedDiscount">- ₹ 0</span></p>
+                                </li>
+
+                                <li> <strong>Total</strong><span class="text-dark font-weight-bolder">₹ <%=
+                                            totalPriceOfCart %></span></li>
+                            </ul>
+
+                            <div class="d-flex justify-content-center mb-3">
+                                <input id="couponApplied" class="w-10 p-2 rounded" type="text" name="couponApplied"
+                                    placeholder="Enter Coupon Code">
+                                <button type="button" class="btn btn-dark ml-2 rounded" id="applyCouponBtn">Apply
+                                    Coupon</button>
+                            </div>
+
+
+                            <div class="mt-4 mb-3">
+                                <p class="font-weight-bold"><strong>Choose Your Mode Of Payment</strong></p>
+                                <div>
+                                    <input class="paymentMethod" type="radio" value="cod" name="paymentMethod">
+                                    <label for="">COD</label>
+                                </div>
+                                <div>
+                                    <input class="paymentMethod" type="radio" value="onlinePayment"
+                                        name="paymentMethod">
+                                    <label for="">Pay Now</label>
+                                </div>
+                            </div>
+
+                            <button class="btn w-100 text-white" id="placeOrder" style="background-color: black"
+                                type="button">PLACE ORDER</button>
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-8 order-md-10 mb-8 mt-2" id="addressDiv">
+                        <!-- Address list section -->
+                        <div class="card mb-4 bg-light">
+                            <div id="addressList">
+                                <h5 class="text-secondary border-bottom py-2 px-2 mb-2">Select delivery address</h5>
+                                <% if (Addresses.length> 0) { %>
+                                    <div class="w-100" style="margin-bottom: 2rem;">
+                                        <div class="custom-selected w-100">
+                                            <button
+                                                class="select-button font-weight-bold d-flex justify-content-between px-4 align-items-center w-100">
+                                                <span>Select Your Delivery Address</span><i
+                                                    class="fa-solid fa-caret-down ml-3"></i>
+                                            </button>
+                                        </div>
+                                        <ul class="select-options border-0 position-relative ml-3" style="width: 98%;">
+                                            <% for (let i=0; i < Addresses.length; i++) { %>
+                                                <div class="mt-4 font-weight-bold address-entry"
+                                                    style="background-color: #f3f2ee; padding: 1rem;">
+                                                    <input class="addressRadio align-self-start" type="radio"
+                                                        id="<%= i %>" name="order-address"
+                                                        value="<%= Addresses[i]._id %>">
+                                                    <label class="ml-2" for="<%= i %>">
+                                                        <div class="d-flex justify-content-between">
+                                                            <div class="ml-4">
+                                                                <p class="mb-0"
+                                                                    style="font-family:'Times New Roman', Times, serif; font-weight: bold;">
+                                                                    <%= Addresses[i].fullName %>
+                                                                </p>
+
+                                                                <p class=" mb-0"
+                                                                    style="font-family:'Times New Roman', Times, serif; font-weight: bold;">
+                                                                    <%=Addresses[i].addressLine%>
+                                                                </p>
+                                                                <p class=" mb-0"
+                                                                    style="font-family:'Times New Roman', Times, serif; font-weight: bold;">
+                                                                    <%=Addresses[i].locality%>
+                                                                </p>
+                                                                <p class=" mb-0"
+                                                                    style="font-family:'Times New Roman', Times, serif; font-weight: bold;">
+                                                                    <%=Addresses[i].city%>
+                                                                </p>
+                                                                <p class=" mb-0"
+                                                                    style="font-family:'Times New Roman', Times, serif; font-weight: bold;">
+                                                                    <%=Addresses[i].state%>
+                                                                </p>
+                                                                <p class=" mb-0"
+                                                                    style="font-family:'Times New Roman', Times, serif; font-weight: bold;">
+                                                                    <%=Addresses[i].country%>
+                                                                </p>
+                                                                <p class=" mb-0"
+                                                                    style="font-family:'Times New Roman', Times, serif; font-weight: bold;">
+                                                                    Pincode:
+                                                                    <%=Addresses[i].pinCode%>
+                                                                </p>
+                                                                <p class=" mb-0"
+                                                                    style="font-family:'Times New Roman', Times, serif; font-weight: bold;">
+                                                                    phone:
+                                                                    <%=Addresses[i].phone%>
+                                                                </p>
+
+                                                            </div>
+                                                            <div class="edit-remove-buttons">
+                                                                <button type="button"
+                                                                    class="btn btn-outline-dark btn-sm mx-1"
+                                                                    onclick="editAddress('<%= Addresses[i]._id %>')">Edit</button>
+                                                                <button type="button"
+                                                                    class="btn btn-outline-danger btn-sm"
+                                                                    onclick="removeAddress('<%= Addresses[i]._id %>')">Remove</button>
+                                                            </div>
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                                <% } %>
+                                        </ul>
+                                    </div>
+                                    <% } %>
+                            </div>
+                            <div class="modal fade" id="addAddressModal" tabindex="-1"
+                                aria-labelledby="addAddressModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header ">
+                                            <h5 class="modal-title font-weight-bold" id="addAddressModalLabel">
+                                                <strong>Add New Address</strong>
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form id="addAddressForm" action="/saveAddress" method="post">
+                                                <div class="mb-3">
+                                                    <label for="fullName" class="form-label">Full Name<span
+                                                            class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control" id="fullName"
+                                                        name="fullName" required>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="country" class="form-label">Country<span
+                                                            class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control" id="country" name="country"
+                                                        required>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="addressLine" class="form-label">Address<span
+                                                            class="text-danger">*</span></label>
+                                                    <textarea class="form-control" id="addressLine" name="addressLine"
+                                                        rows="3" required></textarea>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="locality" class="form-label">Locality<span
+                                                            class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control" id="locality"
+                                                        name="locality" required>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="city" class="form-label">Town/City/District<span
+                                                            class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control" id="city" name="city"
+                                                        required>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="state" class="form-label">State<span
+                                                            class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control" id="state" name="state"
+                                                        required>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="pinCode" class="form-label">Postcode / ZIP<span
+                                                            class="text-danger">*</span></label>
+                                                    <input type="number" class="form-control" id="pinCode"
+                                                        name="pinCode" required>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="phone" class="form-label">Phone<span
+                                                            class="text-danger">*</span></label>
+                                                    <input type="number" class="form-control" id="phone" name="phone"
+                                                        required>
+                                                </div>
+
+                                                <div class="text-center">
+                                                    <button type="submit" id="newAddressSubmitBtn" class="btn btn-dark"
+                                                        onclick="submitAddressForm()">Save Address</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Button to trigger the modal -->
+                            <button type="button" class="btn text-white" style="background-color: #44007c"
+                                onclick="openAddAddressModal()">
+                                Add new address
+                            </button>
+
+                            <!-- Edit Address Modal -->
+                            <div class="modal fade" id="editAddressModal" tabindex="-1"
+                                aria-labelledby="editAddressModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="editAddressModalLabel">Edit Address</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form id="editAddressForm">
+                                                <!-- Add a hidden input field to store the address ID -->
+                                                <input type="hidden" id="editAddressId" name="addressId" value="">
+
+                                                <div class="mb-3">
+                                                    <label for="editFullName" class="form-label">Full Name</label>
+                                                    <input type="text" class="form-control" id="editFullName"
+                                                        name="fullName" required>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="editCountry" class="form-label">Country</label>
+                                                    <input type="text" class="form-control" id="editCountry"
+                                                        name="country" required>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="editAddressLine" class="form-label">Address</label>
+                                                    <textarea class="form-control" id="editAddressLine"
+                                                        name="addressLine" rows="3" required></textarea>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="editLocality" class="form-label">Locality</label>
+                                                    <input type="text" class="form-control" id="editLocality"
+                                                        name="locality" required>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="editCity" class="form-label">Town/City/District</label>
+                                                    <input type="text" class="form-control" id="editCity" name="city"
+                                                        required>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="editState" class="form-label">State</label>
+                                                    <input type="text" class="form-control" id="editState" name="state"
+                                                        required>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="editPinCode" class="form-label">Postcode / ZIP</label>
+                                                    <input type="number" class="form-control" id="editPinCode"
+                                                        name="pinCode" required>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="editPhone" class="form-label">Phone</label>
+                                                    <input type="number" class="form-control" id="editPhone"
+                                                        name="phone" required>
+                                                </div>
+
+                                                <div class="text-center">
+                                                    <button type="button" class="btn btn-dark"
+                                                        onclick="submitEditAddressForm()">Save
+                                                        Changes</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <%- include('../users/userFooter.ejs') %>
+            <script src="/js/user/searchAndBuy.js"></script>
+            <%- include('../layouts/footer.ejs') %>
+
+                <script>
+                    // Function to open the add address modal
+                    function openAddAddressModal() {
+                        $('#addAddressModal').modal('show');
+                    }
+
+                    function editAddressModal() {
+                        $('#editAddressModal').modal('show');
+                    }
+                    // Function to handle form submission
+                    function submitAddressForm() {
+                        // Validate form fields (you can use additional validation libraries if needed)
+
+                        // Get form data
+                        const formData = {
+                            fullName: $('#fullName').val(),
+                            country: $('#country').val(),
+                            addressLine: $('#addressLine').val(),
+                            locality: $('#locality').val(),
+                            city: $('#city').val(),
+                            state: $('#state').val(),
+                            pinCode: $('#pinCode').val(),
+                            phone: $('#phone').val()
+
+                        };
+
+                        // Perform AJAX POST request to submit the form data
+                        $.ajax({
+                            type: 'POST',
+                            url: '/saveAddress', // Update the URL based on your server route
+                            data: formData,
+                            success: function (response) {
+                                if (response.status === 'success') {
+                                    console.log(response);
+
+                                    $('#addAddressForm')[0].reset();
+                                    $('#addAddressModal').modal('hide');
+                                }
+                            },
+                            error: function (error) {
+                                // Handle the error (e.g., show error message, update UI)
+                                console.error(error);
+                            }
+                        });
+                    }
+
+                    // function to remove an address
+
+                    function removeAddress(addressId) {
+                        $.ajax({
+                            type: 'POST',
+                            url: '/removeAddress',
+                            data: { addressId: addressId },
+                            success: function (response) {
+                                console.log(response);
+                                if (response.status === 'success') {
+                                    location.reload();
+                                }
+                                else {
+                                    console.log('Failed to remove the Address')
+                                }
+
+                            },
+                            error: function (error) {
+                                console.error(error);
+                            }
+                        });
+                    }
+
+                    // function to edit the address to current address details.
+
+                    function editAddress(addressId) {
+
+                        $.ajax({
+                            type: 'GET',
+                            url: `/getAddress/${addressId}`, // Replace with your server route to fetch address details
+                            success: function (response) {
+                                // Check if the request was successful and data is available
+                                if (response.status === 'success' && response.address) {
+                                    // Set the current values in the edit form
+                                    const address = response.address;
+
+                                    $('#editAddressId').val(address._id);
+                                    $('#editFullName').val(address.fullName);
+                                    $('#editCountry').val(address.country);
+                                    $('#editAddressLine').val(address.addressLine);
+                                    $('#editLocality').val(address.locality);
+                                    $('#editCity').val(address.city);
+                                    $('#editState').val(address.state);
+                                    $('#editPinCode').val(address.pinCode);
+                                    $('#editPhone').val(address.phone);
+
+                                    // Open the edit address modal
+                                    $('#editAddressModal').modal('show');
+                                } else {
+                                    console.log('Failed to fetch address details');
+                                }
+                            },
+                            error: function (error) {
+                                console.error(error);
+                            }
+                        });
+                    }
+
+                    //function to edit and submit the edited form
+
+                    function submitEditAddressForm() {
+                        // Validate form fields (you can use additional validation libraries if needed)
+
+                        // Get form data
+                        const formData = {
+                            addressId: $('#editAddressId').val(),
+                            fullName: $('#editFullName').val(),
+                            country: $('#editCountry').val(),
+                            addressLine: $('#editAddressLine').val(),
+                            locality: $('#editLocality').val(),
+                            city: $('#editCity').val(),
+                            state: $('#editState').val(),
+                            pinCode: $('#editPinCode').val(),
+                            phone: $('#editPhone').val()
+                        };
+
+                        $.ajax({
+                            type: 'POST',
+                            url: '/updateAddress', // Update the URL based on your server route for updating addresses
+                            data: formData,
+                            success: function (response) {
+                                if (response.status === 'success') {
+                                    console.log(response);
+
+                                    // Close the edit address modal
+                                    $('#editAddressModal').modal('hide');
+                                    location.reload();
+                                } else {
+                                    console.log('Failed to update the address');
+                                }
+                            },
+                            error: function (error) {
+                                // Handle the error (e.g., show error message, update UI)
+                                console.error(error);
+                            }
+                        });
+                    }
+
+
+
+                    $(document).ready(function () {
+    console.log('Script loaded and executed.');
+
+    $('#placeOrder').on('click', function () {
+        // Get the selected address and payment method
+        const selectedAddress = $('input[name="order-address"]:checked').val();
+        const selectedPaymentMethod = $('input[name="paymentMethod"]:checked').val();
+
+        // Validate if an address and payment method are selected
+        if (!selectedAddress || !selectedPaymentMethod) {
+            console.log('Please select both an address and a payment method.');
+            return;
+        }
+
+        const itemsInCart = [];
+        $('.checkout__total__products li').each(function () {
+            const itemDetails = $(this).text().split('(');
+            const nameAndQuantity = itemDetails[0].split('.');
+            const productName = nameAndQuantity[1].trim();
+            const quantity = parseInt(nameAndQuantity[0]);
+
+            // Adjust the structure to match the expected format on the server
+            itemsInCart.push({ product: { name: productName, _id: null }, quantity: quantity });
+        });
+
+        // Get total price from the page and parse it as a number
+        const totalPriceText = $('.checkout__total__all li:last span').text().trim();
+        const totalPriceOfCart = parseFloat(totalPriceText.replace(/[^\d.]/g, ''));
+
+        if (isNaN(totalPriceOfCart)) {
+            console.error('Invalid totalPriceOfCart:', totalPriceOfCart);
+            return;
+        }
+
+        // Perform AJAX POST request to place the order
+        $.ajax({
+            url: '/placeOrder',
+            method: 'post',
+            data: {
+                addressId: selectedAddress,
+                paymentMethod: selectedPaymentMethod,
+                itemsInCart: itemsInCart,
+                totalPriceOfCart: totalPriceOfCart
+            },
+            success: function (response) {
+                console.log('AJAX success:', response);
+                if (response.status === 'success') {
+                    Swal.fire(
+                        'Success',
+                        'Your order is placed',
+                        'success'
+                    ).then(() => {
+                        location.href = '/orderPlaced'; // Update the redirect URL
+                    });
+                } else { // Removed condition here
+                    console.error('AJAX error:', response);
+                    Swal.fire(
+                        'Error',
+                        'Failed to place the order',
+                        'error'
+                    );
+                }
+            },
+            error: function (error) {
+                console.error('AJAX request error:', error);
+                // Handle the error (e.g., show error message, update UI)
+            }
+        });
+    });
+});
+
+
+
+
+                </script>
