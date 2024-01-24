@@ -4,54 +4,56 @@ const bcrypt = require('bcrypt');
 const Category = require('../models/categoryModel');
 const Product = require('../models/productModel');
 const nodemailer = require('nodemailer');
+const Order = require('../models/orderModel');
 const { emailUser, emailPassword } = require('../config/configuration');
+const { name } = require('ejs');
 
 
 
 
-const loadSignin = async(req,res)=>{
-    try{
-      const message = 'Welcome to Admin Login'
-        res.render('adminLogin',{message});
-    }catch(error){
-        console.log(error.message);
-        res.status(500).json({error:'Cannot Load Login page'});
-    }
+const loadSignin = async (req, res) => {
+  try {
+    const message = 'Welcome to Admin Login'
+    res.render('adminLogin', { message });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: 'Cannot Load Login page' });
+  }
 }
 
 // login with admin details
 
-const insertSignin = async(req,res)=>{
-    try {
-        const email = req.body.email;
-        const password = req.body.password;
+const insertSignin = async (req, res) => {
+  try {
+    const email = req.body.email;
+    const password = req.body.password;
 
-        console.log("Entered Email :",email);
-        console.log("Entered password :",password);
+    console.log("Entered Email :", email);
+    console.log("Entered password :", password);
 
-        const userData = await User.findOne({email:email});
-        
-        console.log('UserData :',userData);
+    const userData = await User.findOne({ email: email });
 
-        if(userData){
-            const passwordMatch = await bcrypt.compare(password,userData.password);
+    console.log('UserData :', userData);
 
-            if(passwordMatch){
-                if(userData.isadmin === 0){
-                    res.render('adminLogin',{message:'Entered Email and password is incorrect'});
-                }else{
-                  req.session.user_id = userData._id;
-                    res.redirect('/admin/home');
-                }
-            }else{
-                res.render('adminLogin',{message:'Entered Email and password is incorrect'});
-            }
-        }else{
-            res.render('adminLogin',{message:'Entered Email and password is Incorrect.'});
+    if (userData) {
+      const passwordMatch = await bcrypt.compare(password, userData.password);
+
+      if (passwordMatch) {
+        if (userData.isadmin === 0) {
+          res.render('adminLogin', { message: 'Entered Email and password is incorrect' });
+        } else {
+          req.session.user_id = userData._id;
+          res.redirect('/admin/home');
         }
-    } catch (error) {
-        console.log(error.message);
+      } else {
+        res.render('adminLogin', { message: 'Entered Email and password is incorrect' });
+      }
+    } else {
+      res.render('adminLogin', { message: 'Entered Email and password is Incorrect.' });
     }
+  } catch (error) {
+    console.log(error.message);
+  }
 }
 
 
@@ -59,8 +61,8 @@ const insertSignin = async(req,res)=>{
 const loadHome = async (req, res) => {
   try {
     if (!req.session.user_id) {
-      
-      return res.redirect('/admin'); 
+
+      return res.redirect('/admin');
     }
     const userData = await User.findById(req.session.user_id);
     if (!userData) {
@@ -68,7 +70,7 @@ const loadHome = async (req, res) => {
     }
     let message = '';
 
-    res.render('adminHome', { admin: userData,message });
+    res.render('adminHome', { admin: userData, message });
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
@@ -76,235 +78,235 @@ const loadHome = async (req, res) => {
 };
 
 
-const logout = async(req,res)=>{
-    try {
-        req.session.destroy();
-        res.redirect('/admin');
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).json({error:'An Error has Occured'})
-    }
+const logout = async (req, res) => {
+  try {
+    req.session.destroy();
+    res.redirect('/admin');
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: 'An Error has Occured' })
+  }
 }
 
 
-        //load forget password page:
-   
-  const loadforgot = async(req,res)=>{
-    try {
-      let message =''
-      res.render('adminForget',{message});
-    } catch (error) {
-      console.log(error.message);
-      res.status(500).json({error:'Cannot Load the reset page'})
-    }
-  }
+//load forget password page:
 
-  // create a transporter
-
-  const transporter = nodemailer.createTransport({
-    service:'Gmail',
-    auth:{
-      user:emailUser,
-      pass:emailPassword
-    }
-  });
-
-
-
-  // function to define genrate otp:
-  function generateOTP(){
-    return Math.floor(100000 + Math.random() * 900000)
-  }
-
-  // sending OTP by email;
-
-  const sendOTPByEmail = async(email,OTP)=>{
-    try {
-      const mailOptions ={
-        from:emailUser,
-        to:email,
-        subject:'You OTP for Reseting Password',
-        text:`Your OTP for Reset is ${OTP}`
-      };
-      const sendMailResult = await transporter.sendMail(mailOptions);
-      console.log('Email sent with OTP Successfully');
-
-    } catch (error) {
-      console.log(error.message);
-    }
-  }
-
-  //Entering the reset email and send otp for verification 
-
-  const resetOTP = async(req,res)=>{
-    try {
-      const email = req.body.email;
-      
-      
-      const generatedOTP = generateOTP();
-
-      req.session.userData = {
-        email,
-        OTP: generatedOTP
-      };
-      
-
-      console.log(req.session.userData);
-
-      await sendOTPByEmail(email,generatedOTP);
-
-      res.redirect('/admin/forgot_verify');
-
-    } catch (error) {
-      console.log(error.message);
-      res.status(500).json({error:'Cannot send OTP'})
-      
-    }
-  }
-
-  // Render the Reset password verification page
-
-  const loadResetVerify = async(req,res)=>{
-    try {
-      let message = ''
-      res.render('adminForgot_verify',{message});
-    } catch (error) {
-      console.log(error.message);
-      res.status(500).json({error:'Cannot load Verification page'})
-    }
-  }
-
-// reset otp verification
-
-  const otpVerify = async(req,res)=>{
-    try {
-      console.log(req.body);
-      const{email,enteredOTP} = req.body;
-
-      const userData = req.session.userData;
-
-      console.log("Entered OTP:",enteredOTP);
-      console.log("Stored OTP:",userData.OTP);
-
-      const cleanedEnteredOTP = String(enteredOTP).trim();
-      const cleanedStoredOTP = String(userData.OTP).trim();
-
-      if(cleanedStoredOTP === cleanedEnteredOTP){
-        
-        res.redirect('/admin/reset_password');
-      }else{
-        let message='Entered OTP is Invalid. Kindly reenter the OTP'
-        res.status(400).render('adminForgot_verify',{message});
-       
-      }
-    } catch (error) {
-      console.log(error.message);
-      let message="Invalid Server Error"
-      res.status(500).render('adminForgot_verify',{message});
-    }
-  }
-
-  //Load the reset password page
-
-  const loadResetPassword = async(req,res)=>{
-    try {
-      let message=''
-        res.render('adminReset_password',{message});
-    } catch (error) {
-      console.log(error.message);
-      res.status(500).json({error:'Cannot load Reset password page'})
-    }
-  }
-  
-
-  const resetPassword = async(req,res)=>{
-    try {
-      
-      const{new_password, confirm_password} = req.body;
-      if(new_password !== confirm_password){
-        return res.status(400).render('adminReset_password',{message:'Password are not same'});
-      }
-
-      const {email} = req.session.userData;
-      
-      
-      const user = await User.findOne({email:email});
-
-      if(!user){
-        return res.status(404).json({error:'User not found'});
-      }
-
-      const hashedPassword = await hashPassword(new_password);
-
-      user.password = hashedPassword;
-      
-      await user.save();
-
-      req.session.userData = null;
-
-      res.redirect('/admin')
-
-    } catch (error) {
-      console.log(error.message);
-      res.status(500).json({error:'Invalid Session Error'});
-    }
-  }
-
-  //load userList
-
-  const userList = async (req, res) => {
-    try {
-      let message ='';
-        const userData = await User.find({ isadmin: 0 });
-      console.log(userData);
-        res.render('userList', { users: userData ,message });
-    } catch (error) {
-        console.log(error.message);
-    }
-};
-
-
-const searchUser = async(req,res)=>{
+const loadforgot = async (req, res) => {
   try {
-    const query = req.query.query;
-    const users = await User.find({
-      $and:[
-        {
-          $or:[
-            {name:{$regex : query, $options : 'i'}},
-            {email:{$regex: query, $options : 'i'}},
-          ],
-        },
-        {isadmin:{$ne:1}},
+    let message = ''
+    res.render('adminForget', { message });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: 'Cannot Load the reset page' })
+  }
+}
 
-      ],
+// create a transporter
 
-    });
-    res.render('userList',{users:users});
+const transporter = nodemailer.createTransport({
+  service: 'Gmail',
+  auth: {
+    user: emailUser,
+    pass: emailPassword
+  }
+});
+
+
+
+// function to define genrate otp:
+function generateOTP() {
+  return Math.floor(100000 + Math.random() * 900000)
+}
+
+// sending OTP by email;
+
+const sendOTPByEmail = async (email, OTP) => {
+  try {
+    const mailOptions = {
+      from: emailUser,
+      to: email,
+      subject: 'You OTP for Reseting Password',
+      text: `Your OTP for Reset is ${OTP}`
+    };
+    const sendMailResult = await transporter.sendMail(mailOptions);
+    console.log('Email sent with OTP Successfully');
+
   } catch (error) {
     console.log(error.message);
   }
 }
 
-const editUserLoad = async(req,res)=>{
+//Entering the reset email and send otp for verification 
+
+const resetOTP = async (req, res) => {
+  try {
+    const email = req.body.email;
+
+
+    const generatedOTP = generateOTP();
+
+    req.session.userData = {
+      email,
+      OTP: generatedOTP
+    };
+
+
+    console.log(req.session.userData);
+
+    await sendOTPByEmail(email, generatedOTP);
+
+    res.redirect('/admin/forgot_verify');
+
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: 'Cannot send OTP' })
+
+  }
+}
+
+// Render the Reset password verification page
+
+const loadResetVerify = async (req, res) => {
+  try {
+    let message = ''
+    res.render('adminForgot_verify', { message });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: 'Cannot load Verification page' })
+  }
+}
+
+// reset otp verification
+
+const otpVerify = async (req, res) => {
+  try {
+    console.log(req.body);
+    const { email, enteredOTP } = req.body;
+
+    const userData = req.session.userData;
+
+    console.log("Entered OTP:", enteredOTP);
+    console.log("Stored OTP:", userData.OTP);
+
+    const cleanedEnteredOTP = String(enteredOTP).trim();
+    const cleanedStoredOTP = String(userData.OTP).trim();
+
+    if (cleanedStoredOTP === cleanedEnteredOTP) {
+
+      res.redirect('/admin/reset_password');
+    } else {
+      let message = 'Entered OTP is Invalid. Kindly reenter the OTP'
+      res.status(400).render('adminForgot_verify', { message });
+
+    }
+  } catch (error) {
+    console.log(error.message);
+    let message = "Invalid Server Error"
+    res.status(500).render('adminForgot_verify', { message });
+  }
+}
+
+//Load the reset password page
+
+const loadResetPassword = async (req, res) => {
+  try {
+    let message = ''
+    res.render('adminReset_password', { message });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: 'Cannot load Reset password page' })
+  }
+}
+
+
+const resetPassword = async (req, res) => {
+  try {
+
+    const { new_password, confirm_password } = req.body;
+    if (new_password !== confirm_password) {
+      return res.status(400).render('adminReset_password', { message: 'Password are not same' });
+    }
+
+    const { email } = req.session.userData;
+
+
+    const user = await User.findOne({ email: email });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const hashedPassword = await hashPassword(new_password);
+
+    user.password = hashedPassword;
+
+    await user.save();
+
+    req.session.userData = null;
+
+    res.redirect('/admin')
+
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: 'Invalid Session Error' });
+  }
+}
+
+//load userList
+
+const userList = async (req, res) => {
+  try {
+    let message = '';
+    const userData = await User.find({ isadmin: 0 });
+    console.log(userData);
+    res.render('userList', { users: userData, message });
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+
+
+const searchUser = async (req, res) => {
+  try {
+    const query = req.query.query;
+    const users = await User.find({
+      $and: [
+        {
+          $or: [
+            { name: { $regex: query, $options: 'i' } },
+            { email: { $regex: query, $options: 'i' } },
+          ],
+        },
+        { isadmin: { $ne: 1 } },
+
+      ],
+
+    });
+    res.render('userList', { users: users });
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
+const editUserLoad = async (req, res) => {
   try {
     const id = req.query.id;
-    const userData = await User.findById({_id:id});
+    const userData = await User.findById({ _id: id });
 
-    if(userData){
-      res.render('editUser',{user:userData});
+    if (userData) {
+      res.render('editUser', { user: userData });
     }
-    else{
+    else {
       res.redirect('/admin/userList');
     }
   } catch (error) {
     console.log(error.message);
   }
 }
-  
-const updateUser = async(req,res)=>{
+
+const updateUser = async (req, res) => {
   try {
-    const userData = await User.findByIdAndUpdate({_id:req.body._id},{$set:{name:req.body.name,email:req.body.email,phone:req.body.phone}});
+    const userData = await User.findByIdAndUpdate({ _id: req.body._id }, { $set: { name: req.body.name, email: req.body.email, phone: req.body.phone } });
     res.redirect('/admin/userList');
   } catch (error) {
     console.log(error.message)
@@ -315,12 +317,12 @@ const updateUser = async(req,res)=>{
 
 const blockUser = async (req, res) => {
   try {
-      const userId = req.query.id; 
-      await User.findByIdAndUpdate(userId, { isblocked: true });
-      res.redirect('/admin/userList');
+    const userId = req.query.id;
+    await User.findByIdAndUpdate(userId, { isblocked: true });
+    res.redirect('/admin/userList');
   } catch (error) {
-      console.log(error.message);
-      res.redirect('/admin/userList'); 
+    console.log(error.message);
+    res.redirect('/admin/userList');
   }
 };
 
@@ -328,34 +330,98 @@ const blockUser = async (req, res) => {
 
 const unBlockUser = async (req, res) => {
   try {
-      const userId = req.query.id; 
-      await User.findByIdAndUpdate(userId, { isblocked: false });
-      res.redirect('/admin/userList');
+    const userId = req.query.id;
+    await User.findByIdAndUpdate(userId, { isblocked: false });
+    res.redirect('/admin/userList');
   } catch (error) {
-      console.log(error.message);
-      res.redirect('/admin/userList'); 
+    console.log(error.message);
+    res.redirect('/admin/userList');
   }
 };
 
 
+// order management 
+
+const loadOrderPage = async (req, res) => {
+  try {
+    let message = '';
+
+    const orders = await Order.find().sort({ orderDate: -1 }).populate('user');
+    if (orders.length === 0) {
+      return res.status(500).json({ message: 'Order not found' });
+    }
+
+    res.render('orderManagement', { order: orders, message });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ message: 'Invalid Session Error' });
+  }
+}
+
+
+const loadOrderDetails = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    let message = '';
+
+    const order = await Order.findById(orderId).populate('user').populate({
+      path: 'items.product',
+      model: 'product'
+    }).exec();
+
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    res.render('orderDetails', { message, orderInfo: order });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ message: 'Invalid Session Error' });
+  }
+}
+
+
+const changeOrderStatus = async (req, res) => {
+  try {
+
+    const orderId = req.params.orderId;
+    const newStatus = req.body.orderStatus;
+
+    const updatedOrder = await Order.findByIdAndUpdate(orderId, { orderStatus: newStatus }, { new: true });
+
+    if (!updatedOrder) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    res.redirect('/admin/orderDetails/' + orderId);
+
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({ message: 'Invalid Session Error' });
+  }
+}
 
 
 
 module.exports = {
-    loadSignin,
-    insertSignin,
-    logout,
-    loadforgot,
-    resetOTP,
-    loadResetVerify,
-    otpVerify,
-    loadResetPassword,
-    resetPassword,
-    loadHome,
-    userList,
-    searchUser,
-    editUserLoad,
-    updateUser,
-    blockUser,
-    unBlockUser
+  loadSignin,
+  insertSignin,
+  logout,
+  loadforgot,
+  resetOTP,
+  loadResetVerify,
+  otpVerify,
+  loadResetPassword,
+  resetPassword,
+  loadHome,
+  userList,
+  searchUser,
+  editUserLoad,
+  updateUser,
+  blockUser,
+  unBlockUser,
+  loadOrderPage,
+  loadOrderDetails,
+  changeOrderStatus
 }

@@ -1,0 +1,286 @@
+<%- include('../layouts/header.ejs') %>
+<%- include('../admin/adminHeader.ejs') %>
+
+<!-- Breadcrumb Section Begin -->
+<section class="breadcrumb-option">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="breadcrumb__text">
+          <h4>Order Details</h4>
+          <div class="breadcrumb__links">
+            <a href="/admin/home">Home</a>
+            <span>OrderDetails</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<% if (orderInfo.orderStatus === 'cancelled') { %>
+    <div class="card p-3 bg-light my-2" style="border-radius: 0;" id="item">
+      <h6 class="text-danger border-bottom py-2 mb-2 font-weight-bold"><strong>Order Status: Cancelled</strong></h6>
+      
+
+    <div class="container" style="background-color: #f8f9fa;">
+        <div class="table-responsive">
+          <table class="table table-secondary table-striped my-2">
+    
+            <thead>
+              <tr>
+                <td scope="row" colspan="4"> <h3 class="font-weight-bold"><strong>Order Details</strong></h3></td>
+              </tr>
+              <tr>
+                <td scope="row" colspan="4">User Name : <strong><%= orderInfo.user.name %></strong></td>
+              </tr>
+            </thead>
+            <tbody>
+    
+              <tr>
+                <th>Order ID</th>
+                <td><%= orderInfo._id %></td>
+                <th>Items</th>
+                <td><%= orderInfo.items.length %></td>
+              </tr>
+              <tr>
+                <th>Order Status</th>
+                <td><%= orderInfo.orderStatus %></td>
+                <th>Sub Total</th>
+                <td>₹<%= orderInfo.totalPrice %></td>
+              </tr>
+              <tr>
+                <th>Payment Method</th>
+                <td><%= orderInfo.paymentMethod %></td>
+              </tr>
+    
+              <tr>
+                <th>Total</th>
+                <td>₹<%= orderInfo.totalPrice %></td>
+              </tr>
+    
+            </tbody>
+          </table>
+        </div>
+    
+        <div class="table-responsive" style="background-color: #f8f9fa;">
+          <table class="table table-secondary table-striped my-3">
+    
+            <thead>
+              <tr>
+                <td scope="row" colspan="7"><strong>Delivery Address</strong></td>
+              </tr>
+            </thead>
+            <thead>
+    
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Address</th>
+                <th scope="col">City</th>
+                <th scope="col">Locality</th>
+                <th scope="col">State</th>
+                <th scope="col">PinCode</th>
+                <th scope="col">Phone</th>
+              </tr>
+    
+            </thead>
+            <tbody>
+    
+              <tr>
+                <td><%= orderInfo.address.fullName %> </td>
+                <td><%= orderInfo.address.addressLine %></td>
+                <td><%= orderInfo.address.city %></td>
+                <td><%= orderInfo.address.locality %></td>
+                <td><%= orderInfo.address.state %></td>
+                <td><%= orderInfo.address.pinCode %></td>
+                <td><%= orderInfo.address.phone  %></td>
+              </tr>
+    
+            </tbody>
+    
+          </table>
+        </div>
+    
+        
+        <div class="table-responsive" style="background-color: #f8f9fa;">
+          <table class="table table-secondary table-striped my-2">
+            <thead>
+              <tr>
+                <td scope="row" colspan="6"><strong>Product Details</strong></td>
+              </tr>
+            </thead>
+            <thead>
+              <tr>
+                <th scope="col">NO</th>
+                <th scope="col">Image</th>
+                <th scope="col">Name</th>
+                <th scope="col">Price</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% orderInfo.items.forEach((item, index) => { %>
+                <tr>
+                  <th scope="row"><%= index + 1 %></th>
+                  <td><img style="height: 50px; width: 50px;" src="/uploads/<%= item.product.images[0] %>"></td>
+                  <td><%= item.product.name %></td>
+                  <td>₹<%= item.product.price %></td>
+                  <td><%= item.quantity %></td>
+                  <td>₹<%= item.price * item.quantity %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="text-danger font-weight-bold">This order has been cancelled.</p>
+    </div>
+
+  <% } else { %>
+
+<section class="mt-5">
+  <% if (message) { %>
+  <div class="alert alert-dismissible fade show alert-<%= message.type %>" role="alert">
+    <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+    <strong>
+      <%= message.message %>
+    </strong>
+  </div>
+  <% } %>
+  <div class="container" style="background-color: #f8f9fa;">
+    <div class="table-responsive">
+      <table class="table table-secondary table-striped my-2">
+
+        <thead>
+          <tr>
+            <td scope="row" colspan="4"> <h3 class="font-weight-bold"><strong>Order Details</strong></h3></td>
+          </tr>
+          <tr>
+            <td scope="row" colspan="4">User Name : <strong><%= orderInfo.user.name %></strong></td>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr>
+            <th>Order ID</th>
+            <td><%= orderInfo._id %></td>
+            <th>Items</th>
+            <td><%= orderInfo.items.length %></td>
+          </tr>
+          <tr>
+            <th>Order Status</th>
+            <td><%= orderInfo.orderStatus %></td>
+            <th>Sub Total</th>
+            <td>₹<%= orderInfo.totalPrice %></td>
+          </tr>
+          <tr>
+            <th>Payment Method</th>
+            <td><%= orderInfo.paymentMethod %></td>
+          </tr>
+
+          <tr>
+            <th>Total</th>
+            <td>₹<%= orderInfo.totalPrice %></td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-responsive" style="background-color: #f8f9fa;">
+      <table class="table table-secondary table-striped my-3">
+
+        <thead>
+          <tr>
+            <td scope="row" colspan="7"><strong>Delivery Address</strong></td>
+          </tr>
+        </thead>
+        <thead>
+
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Address</th>
+            <th scope="col">City</th>
+            <th scope="col">Locality</th>
+            <th scope="col">State</th>
+            <th scope="col">PinCode</th>
+            <th scope="col">Phone</th>
+          </tr>
+
+        </thead>
+        <tbody>
+
+          <tr>
+            <td><%= orderInfo.address.fullName %> </td>
+            <td><%= orderInfo.address.addressLine %></td>
+            <td><%= orderInfo.address.city %></td>
+            <td><%= orderInfo.address.locality %></td>
+            <td><%= orderInfo.address.state %></td>
+            <td><%= orderInfo.address.pinCode %></td>
+            <td><%= orderInfo.address.phone  %></td>
+          </tr>
+
+        </tbody>
+
+      </table>
+    </div>
+
+    
+    <div class="table-responsive" style="background-color: #f8f9fa;">
+      <table class="table table-secondary table-striped my-2">
+        <thead>
+          <tr>
+            <td scope="row" colspan="6"><strong>Product Details</strong></td>
+          </tr>
+        </thead>
+        <thead>
+          <tr>
+            <th scope="col">NO</th>
+            <th scope="col">Image</th>
+            <th scope="col">Name</th>
+            <th scope="col">Price</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% orderInfo.items.forEach((item, index) => { %>
+            <tr>
+              <th scope="row"><%= index + 1 %></th>
+              <td><img style="height: 50px; width: 50px;" src="/uploads/<%= item.product.images[0] %>"></td>
+              <td><%= item.product.name %></td>
+              <td>₹<%= item.product.price %></td>
+              <td><%= item.quantity %></td>
+              <td>₹<%= item.price * item.quantity %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if (orderInfo.orderStatus !== "cancelled") { %>
+        <div class="card p-3 bg-light my-2" style="border-radius: 0;" id="item">
+          <h6 class="text-success border-bottom py-2 mb-2 font-weight-bold"><strong>Change Order Status</strong></h6>
+          <form action="/admin/changeOrderStatus/<%= orderInfo._id %>" method="POST">
+            <div class="mb-3">
+              <label for="orderStatus" class="form-label">Select Order Status</label>
+              <select class="form-select" id="orderStatus" name="orderStatus" required>
+                <option value="pending" <%= orderInfo.orderStatus === 'pending' ? 'selected' : '' %>>Pending</option>
+                <option value="shipped" <%= orderInfo.orderStatus === 'shipped' ? 'selected' : '' %>>Shipped</option>
+                <option value="delivered" <%= orderInfo.orderStatus === 'delivered' ? 'selected' : '' %>>Delivered</option>
+                <option value="cancelled" <%= orderInfo.orderStatus === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Update Status</button>
+          </form>
+        </div>
+      <% } %>
+      
+</section>
+
+<% } %>
+
+<%- include('../admin/adminFooter.ejs') %>
+<%- include('../layouts/footer.ejs') %>

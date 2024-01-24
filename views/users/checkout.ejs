@@ -31,19 +31,20 @@
                             <div class="checkout__order__products font-weight-bold">Product <span>Total</span></div>
                             <ul class="checkout__total__products">
                                 <% if (itemsInCart.length> 0) { %>
-                                    <% for (let i=0; i < itemsInCart.length; i++) { %>
-                                        <li class="justify-content-start">
+                                    < <% itemsInCart.forEach((cartItem, index)=> { %>
+                                        <li class="justify-content-start "
+                                            data-cart-item="<%= JSON.stringify(cartItem) %>">
                                             <div class="d-flex">
                                                 <div style="width: 74%;">
-                                                    <%= i + 1 %>. <%= itemsInCart[i].product.name %> (
-                                                            <%= itemsInCart[i].quantity %> )
+                                                    <%= index + 1 %>. <%= cartItem.product.name %> (
+                                                            <%= cartItem.quantity %> )
                                                 </div>
                                                 <div style="width: 26%;" class="text-right d-inline-block">
-                                                    ₹ <%= productTotal[i] %>
+                                                    ₹ <%= productTotal[index] %>
                                                 </div>
                                             </div>
                                         </li>
-                                        <% } %>
+                                        <% }) %>
                                             <% } else { %>
                                                 <li>Your cart is empty</li>
                                                 <% } %>
@@ -68,7 +69,7 @@
                             <div class="mt-4 mb-3">
                                 <p class="font-weight-bold"><strong>Choose Your Mode Of Payment</strong></p>
                                 <div>
-                                    <input class="paymentMethod" type="radio" value="cod" name="paymentMethod">
+                                    <input class="paymentMethod" type="radio" value="COD" name="paymentMethod">
                                     <label for="">COD</label>
                                 </div>
                                 <div>
@@ -80,6 +81,7 @@
 
                             <button class="btn w-100 text-white" id="placeOrder" style="background-color: black"
                                 type="button">PLACE ORDER</button>
+
 
                         </div>
                     </div>
@@ -173,7 +175,7 @@
                                                 aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body">
-                                            <form id="addAddressForm" action="/saveAddress" method="post">
+                                            <form id="addAddressForm">
                                                 <div class="mb-3">
                                                     <label for="fullName" class="form-label">Full Name<span
                                                             class="text-danger">*</span></label>
@@ -326,228 +328,7 @@
             </form>
         </div>
 
+
         <%- include('../users/userFooter.ejs') %>
             <script src="/js/user/searchAndBuy.js"></script>
             <%- include('../layouts/footer.ejs') %>
-
-                <script>
-                    // Function to open the add address modal
-                    function openAddAddressModal() {
-                        $('#addAddressModal').modal('show');
-                    }
-
-                    function editAddressModal() {
-                        $('#editAddressModal').modal('show');
-                    }
-                    // Function to handle form submission
-                    function submitAddressForm() {
-                        // Validate form fields (you can use additional validation libraries if needed)
-
-                        // Get form data
-                        const formData = {
-                            fullName: $('#fullName').val(),
-                            country: $('#country').val(),
-                            addressLine: $('#addressLine').val(),
-                            locality: $('#locality').val(),
-                            city: $('#city').val(),
-                            state: $('#state').val(),
-                            pinCode: $('#pinCode').val(),
-                            phone: $('#phone').val()
-
-                        };
-
-                        // Perform AJAX POST request to submit the form data
-                        $.ajax({
-                            type: 'POST',
-                            url: '/saveAddress', // Update the URL based on your server route
-                            data: formData,
-                            success: function (response) {
-                                if (response.status === 'success') {
-                                    console.log(response);
-
-                                    $('#addAddressForm')[0].reset();
-                                    $('#addAddressModal').modal('hide');
-                                }
-                            },
-                            error: function (error) {
-                                // Handle the error (e.g., show error message, update UI)
-                                console.error(error);
-                            }
-                        });
-                    }
-
-                    // function to remove an address
-
-                    function removeAddress(addressId) {
-                        $.ajax({
-                            type: 'POST',
-                            url: '/removeAddress',
-                            data: { addressId: addressId },
-                            success: function (response) {
-                                console.log(response);
-                                if (response.status === 'success') {
-                                    location.reload();
-                                }
-                                else {
-                                    console.log('Failed to remove the Address')
-                                }
-
-                            },
-                            error: function (error) {
-                                console.error(error);
-                            }
-                        });
-                    }
-
-                    // function to edit the address to current address details.
-
-                    function editAddress(addressId) {
-
-                        $.ajax({
-                            type: 'GET',
-                            url: `/getAddress/${addressId}`, // Replace with your server route to fetch address details
-                            success: function (response) {
-                                // Check if the request was successful and data is available
-                                if (response.status === 'success' && response.address) {
-                                    // Set the current values in the edit form
-                                    const address = response.address;
-
-                                    $('#editAddressId').val(address._id);
-                                    $('#editFullName').val(address.fullName);
-                                    $('#editCountry').val(address.country);
-                                    $('#editAddressLine').val(address.addressLine);
-                                    $('#editLocality').val(address.locality);
-                                    $('#editCity').val(address.city);
-                                    $('#editState').val(address.state);
-                                    $('#editPinCode').val(address.pinCode);
-                                    $('#editPhone').val(address.phone);
-
-                                    // Open the edit address modal
-                                    $('#editAddressModal').modal('show');
-                                } else {
-                                    console.log('Failed to fetch address details');
-                                }
-                            },
-                            error: function (error) {
-                                console.error(error);
-                            }
-                        });
-                    }
-
-                    //function to edit and submit the edited form
-
-                    function submitEditAddressForm() {
-                        // Validate form fields (you can use additional validation libraries if needed)
-
-                        // Get form data
-                        const formData = {
-                            addressId: $('#editAddressId').val(),
-                            fullName: $('#editFullName').val(),
-                            country: $('#editCountry').val(),
-                            addressLine: $('#editAddressLine').val(),
-                            locality: $('#editLocality').val(),
-                            city: $('#editCity').val(),
-                            state: $('#editState').val(),
-                            pinCode: $('#editPinCode').val(),
-                            phone: $('#editPhone').val()
-                        };
-
-                        $.ajax({
-                            type: 'POST',
-                            url: '/updateAddress', // Update the URL based on your server route for updating addresses
-                            data: formData,
-                            success: function (response) {
-                                if (response.status === 'success') {
-                                    console.log(response);
-
-                                    // Close the edit address modal
-                                    $('#editAddressModal').modal('hide');
-                                    location.reload();
-                                } else {
-                                    console.log('Failed to update the address');
-                                }
-                            },
-                            error: function (error) {
-                                // Handle the error (e.g., show error message, update UI)
-                                console.error(error);
-                            }
-                        });
-                    }
-
-
-
-                    $(document).ready(function () {
-    console.log('Script loaded and executed.');
-
-    $('#placeOrder').on('click', function () {
-        // Get the selected address and payment method
-        const selectedAddress = $('input[name="order-address"]:checked').val();
-        const selectedPaymentMethod = $('input[name="paymentMethod"]:checked').val();
-
-        // Validate if an address and payment method are selected
-        if (!selectedAddress || !selectedPaymentMethod) {
-            console.log('Please select both an address and a payment method.');
-            return;
-        }
-
-        const itemsInCart = [];
-        $('.checkout__total__products li').each(function () {
-            const itemDetails = $(this).text().split('(');
-            const nameAndQuantity = itemDetails[0].split('.');
-            const productName = nameAndQuantity[1].trim();
-            const quantity = parseInt(nameAndQuantity[0]);
-
-            // Adjust the structure to match the expected format on the server
-            itemsInCart.push({ product: { name: productName, _id: null }, quantity: quantity });
-        });
-
-        // Get total price from the page and parse it as a number
-        const totalPriceText = $('.checkout__total__all li:last span').text().trim();
-        const totalPriceOfCart = parseFloat(totalPriceText.replace(/[^\d.]/g, ''));
-
-        if (isNaN(totalPriceOfCart)) {
-            console.error('Invalid totalPriceOfCart:', totalPriceOfCart);
-            return;
-        }
-
-        // Perform AJAX POST request to place the order
-        $.ajax({
-            url: '/placeOrder',
-            method: 'post',
-            data: {
-                addressId: selectedAddress,
-                paymentMethod: selectedPaymentMethod,
-                itemsInCart: itemsInCart,
-                totalPriceOfCart: totalPriceOfCart
-            },
-            success: function (response) {
-                console.log('AJAX success:', response);
-                if (response.status === 'success') {
-                    Swal.fire(
-                        'Success',
-                        'Your order is placed',
-                        'success'
-                    ).then(() => {
-                        location.href = '/orderPlaced'; // Update the redirect URL
-                    });
-                } else { // Removed condition here
-                    console.error('AJAX error:', response);
-                    Swal.fire(
-                        'Error',
-                        'Failed to place the order',
-                        'error'
-                    );
-                }
-            },
-            error: function (error) {
-                console.error('AJAX request error:', error);
-                // Handle the error (e.g., show error message, update UI)
-            }
-        });
-    });
-});
-
-
-
-
-                </script>

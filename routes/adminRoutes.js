@@ -86,10 +86,13 @@ admin_route.get('/productList',productController.loadProductList);
 admin_route.get('/addProduct',productController.loadaddProduct);
 admin_route.post('/addProduct',upload.array('images', 5), productController.addProduct);
 admin_route.get('/editProduct/:id',productController.loadEditProduct);
+admin_route.get('/deleteImage/:id/:imageIndex',productController.deleteImage);
 admin_route.post('/editProduct/:id',upload.array('images',5),productController.editProduct);
 admin_route.post('/listProduct/:id', productController.listProduct);
 admin_route.post('/unlistProduct/:id', productController.unlistProduct);
-
+admin_route.get('/orderList',adminController.loadOrderPage);
+admin_route.get('/orderDetails/:orderId', adminController.loadOrderDetails)
+admin_route.post('/changeOrderStatus/:orderId',adminController.changeOrderStatus);
 
 
 

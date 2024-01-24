@@ -63,7 +63,11 @@ const userSchema = new mongoose.Schema({
             type:Number,
             required:true
         }
-    }]
-})
+    }],
+    joinedDate:{
+        type:Date,
+        default:Date.now,
+    }
+});
 
 module.exports = mongoose.model('user',userSchema);

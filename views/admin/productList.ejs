@@ -73,13 +73,39 @@
                                             <%= products[i].name %>
                                         </td>
                                         <td data-title="Image">
-                                            <% if (products[i].images && products[i].images.length > 0) { %>
-                                                <img src="/uploads/<%=products[i].images[0] %>" alt="Product Image" width="50px" height="50px">
-                                            <% } else { %>
-                                                <img src="/img/no-image.webp" alt="No image available">
-                                            <% } %>
-                                            
-                                            
+                                            <button type="button" class="btn btn-outline-secondary btn-sm" data-toggle="modal" data-target="#viewImagesModal<%= i %>">
+                                                View Images
+                                            </button>
+                                            <!-- View Images Modal -->
+                                            <div class="modal fade" id="viewImagesModal<%= i %>" tabindex="-1" role="dialog" aria-labelledby="viewImagesModalLabel<%= i %>" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="viewImagesModalLabel<%= i %>">View Images</h5>
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <!-- Display all product images here -->
+                                                            <div class="d-flex justify-content-center flex-wrap">
+                                                                <% if (products[i].images && products[i].images.length > 0) { %>
+                                                                    <% products[i].images.forEach((image, index) => { %>
+                                                                        <div class="mx-2 my-2" style="flex-shrink: 0; max-width: 200px;">
+                                                                            <img src="/uploads/<%= image %>" alt="Product Image" class="img-fluid" style="width: 100%; height: auto; max-height: 150px; object-fit: cover;">
+                                                                        </div>
+                                                                    <% }); %>
+                                                                <% } else { %>
+                                                                    <p>No images available.</p>
+                                                                <% } %>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                           </td>
                                           
                                         
@@ -99,6 +125,7 @@
                                             <a class="btn btn-outline-primary btn-sm mx-3" href="/admin/editProduct/<%= products[i]._id %>">
                                                 Edit
                                             </a>
+                                           
                                             <% if (!products[i].isDeleted) { %>
                                                 <form action="/admin/unlistProduct/<%= products[i]._id %>" method="post">
                                                     <button type="submit" class="btn btn-outline-danger btn-sm">Unlist</button>

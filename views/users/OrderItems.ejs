@@ -1,0 +1,275 @@
+<%- include('../layouts/header.ejs') %>
+  <%- include('../users/userHeader.ejs') %>
+
+    <!-- Breadcrumb Section Begin -->
+    <section class="breadcrumb-option">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="breadcrumb__text">
+              <h4>Orders</h4>
+              <div class="breadcrumb__links">
+                <a href="./index.html">Home</a>
+                <span>Orders</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container mt-4">
+      <div class="row">
+        <div class="col-lg-3 my-lg-0 my-md-1">
+          <%- include('../users/sidebar') %>
+        </div>
+        <div class="col-lg-9 my-lg-0 my-1" style="background-color:#f8f9fa;">
+          <div id="main-content" class="" style="background-color: #f8f9fa">
+
+            <div class="row" id="ordered-items">
+              <!-- <div class="border p-2 mt-2" id=""> -->
+              <div id="">
+                <h5 class="text-dark border-bottom py-2 mb-2 font-weight-bold">View Order</h5>
+
+                <% orderInfo.forEach((order)=> { %>
+                  <% if (order.orderStatus==="cancelled" ) { %>
+                    <div class="bg-danger p-3">
+                      <h5 class="text-white text-center text-uppercase m-3"> Order is cancelled</h5>
+                    </div>
+
+                    <div class="card p-3 bg-light my-2" style="border-radius: 0;" id="item">
+                      <h6 class="text-secondary border-bottom py-2 mb-2 font-weight-bold"><strong>Delivery
+                          Address</strong></h6>
+                      <p>
+                        <%= order.address.fullName %> <br>
+                          <%= order.address.addressLine %> <br>
+                            <%= order.address.city %> <br>
+                              <%= order.address.state %> <br>
+                                <%= order.address.pinCode %>
+                      </p>
+                    </div>
+
+                    <div class="card p-3 bg-light my-2" style="border-radius: 0;" id="item">
+                      <h6 class="text-secondary border-bottom py-2 mb-2 font-weight-bold"><strong>Products</strong></h6>
+                      <div class="table-responsive">
+                        <table class="table table-secondary table-striped my-2">
+                          <tbody>
+                            <% order.items.forEach((item, index)=> { %>
+                              <tr>
+                                <td class="text-center"><img
+                                    style="height: 50px; width: 50px; box-shadow: none; border-radius: 0;"
+                                    src="/uploads/<%= item.product.images[0] %>"></td>
+                                <td class="text-center">
+                                  <%= item.product.name %>
+                                </td>
+                                <td class="text-center">₹<%= item.price %> x <%= item.quantity %>
+                                </td>
+                                <td class="text-center">
+                                  <%= item.price*item.quantity %>
+                                </td>
+                                <td class="text-center">
+                                  <% if (order.orderStatus !=="cancelled" ) { %>
+                                    <a href="/cancel-order/<%= order._id %>/<%= index %>">
+                                      <button type="button" class="btn btn-danger btn-sm">Cancel</button>
+                                    </a>
+                                    <% } %>
+
+                                </td>
+                              </tr>
+                              <% }) %>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    <div class="card p-3 bg-light my-2" style="border-radius: 0;" id="item">
+                      <h6 class="text-secondary border-bottom py-2 mb-2 font-weight-bold"> <strong>Bill Details</strong>
+                      </h6>
+                      <div class="table-responsive">
+                        <table class="table table-secondary table-striped my-2">
+                          <tbody>
+                            <tr>
+                              <td>Order ID</td>
+                              <td>
+                                <%= order._id %>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>Payment Status</td>
+                              <td>
+                                <%= order.paymentMethod %>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>Sub Total</td>
+                              <td>₹<%= order.totalPrice %>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>Payment Method</td>
+                              <td>
+                                <%= order.paymentMethod %>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>Total</td>
+                              <td><b> ₹<%= order.totalPrice %></b></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                    <p class="text-danger font-weight-bold">This order has been cancelled.</p>
+                    <% } else { %>
+                      <div class="card p-3 bg-light my-2" style="border-radius: 0;" id="item">
+                        <h6 class="text-secondary border-bottom py-2 mb-2 font-weight-bold"><strong>Delivery
+                            Address</strong></h6>
+                        <p>
+                          <%= order.address.fullName %> <br>
+                            <%= order.address.addressLine %> <br>
+                              <%= order.address.city %> <br>
+                                <%= order.address.state %> <br>
+                                  <%= order.address.pinCode %>
+                        </p>
+                      </div>
+
+                      <div class="card p-3 bg-light my-2" style="border-radius: 0;" id="item">
+                        <h6 class="text-secondary border-bottom py-2 mb-2 font-weight-bold"><strong>Products</strong>
+                        </h6>
+                        <div class="table-responsive">
+                          <table class="table table-secondary table-striped my-2">
+                            <tbody>
+                              <% order.items.forEach((item, index)=> { %>
+                                <tr>
+                                  <td class="text-center"><img
+                                      style="height: 50px; width: 50px; box-shadow: none; border-radius: 0;"
+                                      src="/uploads/<%= item.product.images[0] %>"></td>
+                                  <td class="text-center">
+                                    <%= item.product.name %>
+                                  </td>
+                                  <td class="text-center">₹<%= item.price %> x <%= item.quantity %>
+                                  </td>
+                                  <td class="text-center">₹<%= item.price*item.quantity %>
+                                  </td>
+                                  <td class="text-center">
+                                    <% if (order.orderStatus !=="delivered" ) { %>
+                                      <a href="/cancel-product/<%= order._id %>/<%= index %>">
+                                        <button type="button" class="btn btn-danger btn-sm">Cancel</button>
+                                      </a>
+                                      <% } else { %>
+                                        <a href="/returnProduct/<%= order._id %>/<%= index %>">
+                                          <button type="button" class="btn btn-success btn-sm"
+                                            style="width: 120px;">Return Product</button>
+                                        </a>
+                                        <% } %>
+                                  </td>
+                                </tr>
+                                <% }) %>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      <div class="card p-3 bg-light my-2" style="border-radius: 0;" id="item">
+                        <h6 class="text-secondary border-bottom py-2 mb-2 font-weight-bold"> <strong>Bill
+                            Details</strong></h6>
+                        <div class="table-responsive">
+                          <table class="table table-secondary table-striped my-2">
+                            <tbody>
+                              <tr>
+                                <td>Order ID</td>
+                                <td>
+                                  <%= order._id %>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>Payment Status</td>
+                                <td>
+                                  <%= order.paymentMethod %>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>Sub Total</td>
+                                <td>₹<%= order.totalPrice %>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>Payment Method</td>
+                                <td>
+                                  <%= order.paymentMethod %>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>Total</td>
+                                <td><b> ₹<%= order.totalPrice %></b></td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      <% if (order.orderStatus==="delivered" ) { %>
+                        <!-- Show only return button -->
+                        <div class="card p-3 bg-light my-2" style="border-radius: 0;" id="item">
+                          <h6 class="text-secondary border-bottom py-2 mb-2 font-weight-bold"><strong>Return
+                              Product</strong></h6>
+                          <p>You can return your product here.</p>
+                          <a href="/returnProduct/<%= order._id %>">
+                            <button type="button" class="btn btn-success btn-sm" style="width: 120px;">Return
+                              Product</button>
+                          </a>
+                        </div>
+                        <% } else { %>
+                          <!-- Show only cancel button -->
+                          <div class="card p-3 bg-light my-2" style="border-radius: 0;" id="item">
+                            <h6 class="text-secondary border-bottom py-2 mb-2 font-weight-bold"><strong>Cancel
+                                Order</strong></h6>
+                            <p>You can cancel your order here. But you can't revert it.</p>
+                            <a href="/cancelOrder/<%= order._id %>">
+                              <button type="button" class="btn btn-danger btn-sm" style="width: 120px;">Cancel
+                                Order</button>
+                            </a>
+                          </div>
+                          <% } %>
+
+
+                            <% } %>
+                              <% }) %>
+
+              </div>
+              <!-- </div> -->
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <script>
+      $(document).ready(function () {
+        $('.cancel-product-btn').on('click', function (e) {
+          e.preventDefault();
+
+          const orderId = $(this).data('order');
+          const index = $(this).data('index');
+
+          // Perform AJAX request to cancel the product
+          $.ajax({
+            url: `/cancel-product/${orderId}/${index}`, // Adjust the route accordingly
+            method: 'POST', // Assuming you use POST method
+            success: function (response) {
+              console.log('Product cancelled successfully:', response);
+              // Optionally, you can update the UI to reflect the cancelled product
+            },
+            error: function (error) {
+              console.error('Error cancelling product:', error);
+              // Handle the error, show a message to the user, etc.
+            }
+          });
+        });
+      });
+    </script>
+
+    <%- include('../users/userFooter.ejs') %>
+      <%- include('../layouts/footer.ejs') %>

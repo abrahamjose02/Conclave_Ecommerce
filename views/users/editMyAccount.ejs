@@ -1,0 +1,41 @@
+
+<%-include('.. /layouts/header.ejs') %>
+    <%-include('.. /users/userHeader.ejs') %>
+    
+
+    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Form for editing details goes here -->
+                    <form id="editMyAccount">
+                        <!-- Add input fields for editing details -->
+                        <div class="mb-3">
+                            <label for="editName" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="editName" name="name" value="<%= user.name || '' %>">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPhone" class="form-label">Phone Number</label>
+                            <input type="text" class="form-control" id="editPhone" name="phone" value="<%= user.phone || '' %>">
+                        </div>
+                        
+                        <!-- Add other input fields as needed -->
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-dark" onclick="submitEditMyAccount()">Save
+                                    Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+
+
+<%-include('.. /layouts/header.ejs') %>
+<%-include('.. /users/userFooter.ejs') %>

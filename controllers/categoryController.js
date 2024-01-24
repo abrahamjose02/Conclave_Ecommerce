@@ -72,14 +72,9 @@ const addCategory = async (req, res) => {
     try {
       const categoryId = req.params.id; 
       let message='';
-  
-      const existingCategory = await Category.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } });
-  
-      if (existingCategory) {
-        return res.status(400).render('addCategory', { message: 'Category with the same name already exists.' });
-      }
-      
+
       const category = await Category.findById(categoryId);
+      console.log(category);
   
       if (category) {
         res.render('editCategory', { category,message }); 
@@ -93,41 +88,48 @@ const addCategory = async (req, res) => {
   };
   
   // Editing the category option.
-  
   const editCategory = async (req, res) => {
     try {
-      const categoryId = req.params.id; 
-      const { name, description, categoryType } = req.body; 
-      const categoryImage = req.file;
-      
-      const category = await Category.findById(categoryId);
-      if (!category) {
-        return res.status(404).send('Category not found');
-      }
-  
-      if(name.toLowerCase() !== category.name.toLowerCase()){
-        const existingCategory = await Category.findOne({name:{$regex: new RegExp(`^${name}$`,'i')}});
-        if(existingCategory){
-          return res.status(400).render('editCategory',{message:'Category name already Exist'})
+        const categoryId = req.params.id;
+        const { name, description, categoryType } = req.body;
+        const categoryImage = req.file;
+
+        const category = await Category.findById(categoryId);
+
+        if (!category) {
+            return res.status(404).render('editCategory', { message: 'Category not found' });
         }
-      }
-  
-      category.name = name;
-      category.description = description;
-      category.categoryType = categoryType;
-  
-      if (categoryImage) {
-        category.image = categoryImage.filename;
-      }
-  
-      const updatedCategory = await category.save();
-      res.redirect('/admin/categoriesList');
-  
+
+        // Validation: Category name should not be empty, start with a space, and should be unique
+        if (!name.trim() || name.trim().startsWith(' ')) {
+            return res.status(400).render('editCategory', { message: 'Category name should not be empty or start with a space', category });
+        }
+
+        if (name.toLowerCase() !== category.name.toLowerCase()) {
+            const existingCategory = await Category.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } });
+            if (existingCategory) {
+                return res.status(400).render('editCategory', { message: 'Category name already exists', category });
+            }
+        }
+
+        category.name = name;
+        category.description = description;
+        category.categoryType = categoryType;
+
+        if (categoryImage) {
+            category.image = categoryImage.filename;
+        }
+
+        const updatedCategory = await category.save();
+        res.redirect('/admin/categoriesList');
     } catch (error) {
-      console.error(error.message);
-      res.status(500).send('Internal Server Error');
+        console.error(error.message);
+        res.status(500).render('editCategory', { message: 'Internal Server Error', category });
     }
-  };
+};
+
+
+
   
   
   //unlist the categories 

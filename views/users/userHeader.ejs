@@ -84,11 +84,10 @@
                         
 
                         <% if (userID) { %> 
+                            <a class="font-weight-bolder text-dark" href="/myAccount">Profile</a>
+                            <a class="font-weight-bolder text-dark" href="/logout">Logout</a> <br><br>
                             
-                            <a class="font-weight-bolder text-dark" href="/user/profile">Profile</a>
-                            <a class="font-weight-bolder text-dark" href="/logout">Logout</a>
                         <% } else { %> 
-                            
                             <a class="font-weight-bolder text-dark" href="/">Login</a>
                         <% } %>
                         
@@ -105,7 +104,7 @@
     </div>
 
     <!-- Message Section -->
-    <% if (message) { %>
+    <% if (message && (message.type || message.message)) { %>
         <!-- <div class="container alert alert-dismissible fade show alert-<%= message.type %>" role="alert">
             <button class="btn-close" type="button" data-bs-dismiss='alert' aria-label="close"></button>
             <strong class="container">
@@ -117,13 +116,6 @@
             </div>
         </div>
     <% } %>
-    
-    <% if (message && message.verification) { %> 
-        <div class="container">
-            <a data-id="emailVerificationBtn" href="/user/emailVerification" type="submit" class="btn btn-outline-success">Verify Your Email</a>
-        </div>
-    <% } %>
-    
 
     <!-- Notification Section -->
     <div hidden id="notification-message" class="container notification">

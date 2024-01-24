@@ -24,6 +24,12 @@
         <main class="main my-5">
             <div class="container">
 
+                <% if (message) { %>
+                    <div class="alert alert-danger" role="alert">
+                        <%= message %>
+                    </div>
+                <% } %>
+
                 <form class="container  w-50 my-5" action="/admin/editProduct/<%= product._id %>" method="post"
                     enctype="multipart/form-data">
 
@@ -116,7 +122,21 @@
 
 
                     <!-- images upload -->
-
+                    <div class="mb-4">
+                        <label class="form-label mt-2">Existing Images</label>
+                        <div class="row">
+                            <% if (product.images?.length > 0) { %>
+                                <% product.images.forEach((image, index) => { %>
+                                    <div class="col-4 mb-2">
+                                        <img src="/uploads/<%= image %>" alt="Product Image" class="img-fluid">
+                                        <a href="/admin/deleteImage/<%= product._id %>/<%= index %>" class="btn btn-sm btn-danger mt-2">Delete</a>
+                                    </div>
+                                <% }) %>
+                            <% } else { %>
+                                <p>No images available</p>
+                            <% } %>
+                        </div>
+                    </div>
 
                     <div class="input-group mb-4">
                         <span class="input-group-text" >Upload</span>

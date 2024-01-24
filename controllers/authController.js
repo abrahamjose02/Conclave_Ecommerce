@@ -12,16 +12,33 @@ const Order = require('../models/orderModel');
 
 
 
+const getCategoryiesByType = async (categoryType) => {
+  try {
+    const categories = await Category.aggregate([
+      {
+        $match: {
+          categoryType: categoryType,
+          isDeleted: false
+        },
+      },
+    ]);
+    return categories;
+  } catch (error) {
+    console.error('Error', error);
+    throw error;
+  }
+}
+
 const loadsignup = async (req, res) => {
   try {
 
-    const menCategories = await Category.find({ categoryType: 'Men', isDeleted: false });
-    const womenCategories = await Category.find({ categoryType: 'Women', isDeleted: false });
-    const kidsCategories = await Category.find({ categoryType: 'Kids', isDeleted: false });
-    const beautyCategories = await Category.find({ categoryType: 'Beauty', isDeleted: false });
+    const menCategories = await getCategoryiesByType('Men');
+    const womenCategories = await getCategoryiesByType('Women');
+    const kidsCategories = await getCategoryiesByType('Kids');
+    const beautyCategories = await getCategoryiesByType('Beauty');
 
     const userID = req.session.user_id || null;
-    const message = ' Welcome ! Please signup to create an Account';
+    const message = { welcome: 'Welcome! Please sign up to create an account' };
 
     res.render('signup', { menCategories, womenCategories, kidsCategories, beautyCategories, userID, message });
   } catch (error) {
@@ -174,7 +191,8 @@ const verifyOTP = async (req, res) => {
         email: userData.email,
         isadmin: userData.is_admin,
         phone: userData.phone,
-        password: hashedPassword
+        password: hashedPassword,
+        joinedDate: new Date(),
       });
 
       await newUser.save();
@@ -225,7 +243,11 @@ const loadlogin = async (req, res) => {
 
     const userID = req.session.user_id || null;
 
-    let message = 'Welcome ! Please login to your Account'
+    const message = { welcome: 'Welcome! Please Sign In to the account' };
+
+    if (req.query.isBlocked) {
+      message = { error: 'Your account has been blocked by the admin. Please sign in with a new account.' };
+    }
 
     res.render('login', { message, userID, menCategories, womenCategories, kidsCategories, beautyCategories });
   } catch (error) {
@@ -257,6 +279,7 @@ const loginUser = async (req, res) => {
     const userData = await User.findOne({ email: email });
     console.log('UserData :', userData);
 
+    const message = { welcome: 'Email and password is incorrect' };
     if (userData) {
       const passwordMatch = await bcrypt.compare(password, userData.password);
       console.log('Password Match :', passwordMatch);
@@ -266,14 +289,15 @@ const loginUser = async (req, res) => {
         res.redirect('/home');
 
       }
+
       else {
-        res.render('login', { message: 'Email and password is incorrect', userID, menCategories, womenCategories, kidsCategories, beautyCategories });
+        res.render('login', { message, userID, menCategories, womenCategories, kidsCategories, beautyCategories });
         console.log('Email and password is incorrect');
       }
 
     }
     else {
-      res.render('login', { message: 'Email and password is incorrect', userID, menCategories, womenCategories, kidsCategories, beautyCategories });
+      res.render('login', { message, userID, menCategories, womenCategories, kidsCategories, beautyCategories });
       console.log('Email and password is incorrect');
     }
 
@@ -293,7 +317,7 @@ const loadHome = async (req, res) => {
       const userData = await User.findById({ _id: req.session.user_id });
       if (userData) {
         if (userData.isblocked === true) {
-
+          message = 'Your account has been blocked by the admin. Please sign up with a new account.';
           return res.redirect('/blockedUser');
         }
 
@@ -309,7 +333,7 @@ const loadHome = async (req, res) => {
       }
     } else {
       message = 'Please log in to continue.'; // Prompt to log in for non-logged-in users
-      res.redirect('/signup');
+      res.redirect('/');
     }
   } catch (error) {
     console.log(error.message);
@@ -327,24 +351,26 @@ const blockedUser = async (req, res) => {
     const userData = await User.findById(userID);
 
     if (userData && userData.isblocked) {
+      let message = 'Your Account has been Blocked by the admin. Kindly Sign up with a different Account.';
+      const menCategories = await Category.find({ categoryType: 'Men', isBlocked: false });
+      const womenCategories = await Category.find({ categoryType: 'Women', isBlocked: false });
+      const kidsCategories = await Category.find({ categoryType: 'Kids', isBlocked: false });
+      const beautyCategories = await Category.find({ categoryType: 'Beauty', isBlocked: false });
 
-      let message = 'Your Account has been Blocked by the admin. Kindly Sign up with a different Account.'
-      const menCategories = await Category.find({ categoryType: 'Men', isblocked: false });
-      const womenCategories = await Category.find({ categoryType: 'Women', isblocked: false });
-      const kidsCategories = await Category.find({ categoryType: 'Kids', isblocked: false });
-      const beautyCategories = await Category.find({ categoryType: 'Beauty', isblocked: false });
+      // Destroy the user's session
 
-      res.render('blockedUser', { userID, message, menCategories, womenCategories, kidsCategories, beautyCategories });
-    }
-    else {
+      res.render('blockedUser', { userID, userData, message, menCategories, womenCategories, kidsCategories, beautyCategories });
+
+    } else {
       res.redirect('/home');
     }
-
-
   } catch (error) {
     console.log(error.message);
+    res.status(500).json({ error: 'Failed to load Blocked User Page' });
   }
-}
+};
+
+
 
 
 //logout page
@@ -474,7 +500,7 @@ const otpVerify = async (req, res) => {
       res.redirect('/reset_password');
     } else {
 
-      res.status(400).render('forgot_verify', { message: 'Invalid OTP. Please try again ' })
+      res.status(400).render('forget_verify', { message: 'Invalid OTP. Please try again ' });
 
     }
   } catch (error) {
@@ -549,13 +575,7 @@ const resetPassword = async (req, res) => {
   }
 }
 
-const loadUserAccount = async (req, res) => {
-  try {
-    res.render('myAccount');
-  } catch (error) {
-    console.log(error.message);
-  }
-}
+
 
 const loadCheckoutPage = async (req, res) => {
   try {
@@ -735,78 +755,266 @@ const updateAddress = async (req, res) => {
 }
 
 
-const placeOrder = async (req, res) => {
-  try {
-      const { addressId, paymentMethod, itemsInCart, totalPriceOfCart } = req.body;
-
-      const userId = req.session.user_id;
-
-      // Create an array to hold the items for the order
-      const orderItems = [];
-
-      // Iterate over itemsInCart and construct the order items array
-      for (const cartItem of itemsInCart) {
-          const product = await Product.findOne({ name: cartItem.product.name });
-
-          if (!product) {
-              console.error(`Product not found for name: ${cartItem.product.name}`);
-              return res.status(400).json({ status: 'error', message: 'Invalid product in cart' });
-          }
-
-          orderItems.push({
-              product: product._id,
-              quantity: cartItem.quantity,
-          });
-      }
-
-      const user = await User.findById(userId);
-      const selectedAddress = user.addresses.id(addressId);
-
-      const orderData = {
-          user: userId,
-          address: {
-              fullName: selectedAddress.fullName,
-              country: selectedAddress.country,
-              addressLine: selectedAddress.addressLine,
-              locality: selectedAddress.locality,
-              city: selectedAddress.city,
-              state: selectedAddress.state,
-              pinCode: selectedAddress.pinCode,
-              phone: selectedAddress.phone,
-          },
-          paymentMethod: paymentMethod,
-          items: orderItems,
-          totalPrice: totalPriceOfCart,
-          orderStatus: 'pending',
-          orderDate: new Date(),
-      };
-
-      const order = new Order(orderData);
-      const savedOrder = await order.save();
-
-      res.json({ status: 'success', order: savedOrder });
-  } catch (error) {
-      console.error('Error placing the order:', error);
-      res.status(500).json({ status: 'error', message: 'Failed to place the order' });
-  }
-};
-
-
-
-const loadOrderPlaced = async (req, res) => {
+const loadUserAccount = async (req, res) => {
   try {
     const userID = req.session.user_id;
+    let message = '';
+
+    const user = await User.findById(userID);
     const menCategories = await Category.find({ categoryType: 'Men', isDeleted: false });
     const womenCategories = await Category.find({ categoryType: 'Women', isDeleted: false });
     const kidsCategories = await Category.find({ categoryType: 'Kids', isDeleted: false });
-    const beautyCategories = await Category.find({ categoryType: 'Beauty', isDeleted: false });
+    const beautyCategories = await Category.find({ categoryType: 'beauty', isDeleted: false });
+    let title = 'Account';
+
+    res.render('myAccount', { menCategories, womenCategories, kidsCategories, beautyCategories, message, userID, user, title });
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
+const editMyAccount = async (req, res) => {
+  try {
+
+    const { name, phone } = req.body;
+    console.log(req.body);
+    const userID = req.session.user_id;
+    const user = await User.findByIdAndUpdate(userID, { $set: { name: name, phone: phone } }, { new: true });
+    res.json({ success: true, user });
+
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: 'Invalid Error Session ' })
+  }
+}
+
+const loadEditMyAccount = async (req, res) => {
+  try {
+    const userID = req.session.user_id;
     let message = '';
-    res.render('orderPlaced', { userID, menCategories, womenCategories, kidsCategories, beautyCategories, message });
+
+    const user = await User.findById(userID);
+    const menCategories = await Category.find({ categoryType: 'Men', isDeleted: false });
+    const womenCategories = await Category.find({ categoryType: 'Women', isDeleted: false });
+    const kidsCategories = await Category.find({ categoryType: 'Kids', isDeleted: false });
+    const beautyCategories = await Category.find({ categoryType: 'beauty', isDeleted: false });
+
+
+    res.render('editMyAccount', { menCategories, womenCategories, kidsCategories, beautyCategories, message, userID, user });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Invalid Error Session' });
+  }
+}
+
+const loadMyAddress = async (req, res) => {
+  try {
+
+    const menCategories = await Category.find({ categoryType: 'Men', isDeleted: false });
+    const womenCategories = await Category.find({ categoryType: 'Women', isDeleted: false });
+    const kidsCategories = await Category.find({ categoryType: 'Kids', isDeleted: false });
+    const beautyCategories = await Category.find({ categoryType: 'beauty', isDeleted: false });
+
+    let message = '';
+    const userID = req.session.user_id;
+    const user = await User.findById(userID);
+    const userAddresses = user ? user.addresses : [];
+
+    const Addresses = userAddresses.map((address, index) => ({
+      ...address.toObject(),
+      index,
+    }));
+
+    const title = 'Address'
+
+    res.render('myAddress', { user, userID, message, menCategories, womenCategories, kidsCategories, beautyCategories, Addresses, title });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Invalid Session Error' });
+  }
+}
+
+const loadMyOrders = async (req, res) => {
+  try {
+    const menCategories = await Category.find({ categoryType: 'Men', isDeleted: false });
+    const womenCategories = await Category.find({ categoryType: 'Women', isDeleted: false });
+    const kidsCategories = await Category.find({ categoryType: 'Kids', isDeleted: false });
+    const beautyCategories = await Category.find({ categoryType: 'beauty', isDeleted: false });
+
+    let message = '';
+    const userID = req.session.user_id;
+    const user = await User.findById(userID);
+    const title = 'Orders'
+    const orderInfo = await Order.find({ user: userID }).sort({ orderDate: -1 })
+    res.render('myOrders', { menCategories, womenCategories, kidsCategories, beautyCategories, message, user, userID, title, orderInfo })
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ message: 'Invalid Session Error' });
   }
 }
+
+const loadMyPassword = async (req, res) => {
+  try {
+
+    const menCategories = await Category.find({ categoryType: 'Men', isDeleted: false });
+    const womenCategories = await Category.find({ categoryType: 'Women', isDeleted: false });
+    const kidsCategories = await Category.find({ categoryType: 'Kids', isDeleted: false });
+    const beautyCategories = await Category.find({ categoryType: 'beauty', isDeleted: false });
+    let message = '';
+    const userID = req.session.user_id;
+    const user = await User.findById(userID);
+    const title = 'Settings'
+    res.render('myPassword', { userID, user, menCategories, womenCategories, kidsCategories, beautyCategories, title, message });
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ message: 'Invalid Session Error' });
+  }
+}
+
+const editMyPassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    console.log('Current Password:', currentPassword);
+    console.log('New Password:', newPassword);
+    console.log('Confirm Password:', confirmPassword);
+    const userID = req.session.user_id;
+    const user = await User.findById(userID);
+
+    const isPasswordMatch = await bcrypt.compare(currentPassword, user.password);
+    console.log('isPasswordMatch', isPasswordMatch)
+
+    if (!isPasswordMatch) {
+      return res.status(400).json({ status: 'error', message: 'Current Password is incorrect' })
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ status: 'error', message: 'New Password and confirm Password do not Match' })
+    }
+
+    const hashedPassword = await hashPassword(newPassword);
+    console.log("hashedPassword:", hashedPassword)
+
+
+    user.password = hashedPassword;
+    console.log('UserPassword: ', user.password);
+    await user.save();
+
+    res.json({ status: 'success', message: 'Password updated successfully' });
+
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ message: 'Invalid Session Error' })
+  }
+}
+
+const loadOrderedItems = async (req, res) => {
+  try {
+    const userID = req.session.user_id;
+    const user = await User.findById(userID);
+    const menCategories = await Category.find({ categoryType: 'Men', isDeleted: false });
+    const womenCategories = await Category.find({ categoryType: 'Women', isDeleted: false });
+    const kidsCategories = await Category.find({ categoryType: 'Kids', isDeleted: false });
+    const beautyCategories = await Category.find({ categoryType: 'beauty', isDeleted: false });
+    let message = '';
+
+    const orderId = req.params.orderId;
+    const orderInfo = await Order.findById(orderId).populate('items.product');
+    console.log(orderInfo);
+
+    const title = 'Orders';
+
+    if (!orderInfo) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+
+    // Check if orderInfo is an array before rendering the view
+    const orderInfoArray = Array.isArray(orderInfo) ? orderInfo : [orderInfo];
+
+    res.render('orderItems', { userID, user, menCategories, womenCategories, kidsCategories, beautyCategories, message, orderId, orderInfo, title, orderInfo: orderInfoArray });
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Invalid Session Error' });
+  }
+}
+
+const cancelOrder = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    if (order.orderStatus !== 'cancelled') {
+      order.orderStatus = 'cancelled';
+
+      await order.save();
+
+      return res.redirect(`/orderItems/${orderId}`);
+    } else {
+      return res.status(400).json({ message: 'Order is already Cancelled' });
+    }
+  } catch (error) {
+    console.log(error.message);
+    re.status(500).json('Invalid Session Error')
+  }
+}
+
+
+
+const cancelProductInOrder = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const index = parseInt(req.params.index);
+
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({ status: 'error', message: 'Order not found' });
+    }
+
+
+    if (order.orderStatus === 'cancelled') {
+      return res.status(400).json({ status: 'error', message: 'Order is already cancelled' });
+    }
+
+    // Check if the index is valid
+    if (index < 0 || index >= order.items.length) {
+      return res.status(400).json({ status: 'error', message: 'Invalid product index' });
+    }
+
+
+    console.log('Order ID:', orderId);
+    console.log('Product Index:', index);
+    console.log('Order Items:', order.items);
+
+
+    const canceledProduct = order.items[index];
+    const canceledProductValue = canceledProduct.price * canceledProduct.quantity;
+
+    // Use $pull to remove the product from the order's items array based on the index
+    order.items.pull({ _id: canceledProduct._id });
+
+    // Update the total price of the order
+    order.totalPrice -= canceledProductValue;
+
+    // Save the updated order
+    await order.save();
+
+    return res.redirect(`/orderItems/${orderId}`);
+  } catch (error) {
+    console.error('Error cancelling product:', error);
+    return res.status(500).json({ status: 'error', message: 'Failed to cancel product' });
+  }
+};
+
+
+
 
 
 
@@ -834,8 +1042,15 @@ module.exports = {
   removeAddress,
   getAddressDetails,
   updateAddress,
-  placeOrder,
-  loadOrderPlaced
+  editMyAccount,
+  loadEditMyAccount,
+  loadMyAddress,
+  loadMyOrders,
+  loadMyPassword,
+  editMyPassword,
+  loadOrderedItems,
+  cancelOrder,
+  cancelProductInOrder
 }
 
 

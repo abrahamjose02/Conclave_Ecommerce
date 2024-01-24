@@ -35,9 +35,9 @@ const loadCartDetails = async(req,res)=>{
 const addToCart = async (req, res) => {
     try {
         const productId = req.params.productId;
-        const size = req.query.size; // Assuming the size is provided as a query parameter
+        const size = req.query.size; 
 
-        // Fetch the product details from the database
+        
         const product = await Product.findById(productId);
         if (!product) {
             return res.status(404).json({ status: false, message: 'Product not found' });
@@ -59,15 +59,15 @@ const addToCart = async (req, res) => {
         const existingCartItem = userCart.items.find(item => String(item.product) === String(productId) && item.size === size);
 
         if (existingCartItem) {
-            // If the product with the same size already exists, increment quantity
+            
             existingCartItem.quantity += 1;
         } else {
-            // If not, add a new item to the cart
+            
             userCart.items.push({
                 product: productId,
                 size: size,
                 quantity: 1,
-                price: product.price // You might want to calculate the price here based on product details
+                price: product.price, // You might want to calculate the price here based on product details
             });
         }
 

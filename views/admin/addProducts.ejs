@@ -28,6 +28,12 @@
 
             <form class="container w-50 my-5" id="myForm" action="/admin/addProduct" method="post" enctype="multipart/form-data">
 
+                <% if (message) { %>
+                    <div class="alert alert-danger mt-3" role="alert">
+                        <%= message %>
+                    </div>
+                <% } %>
+            
 
                 <div class="form-outline mb-4">
                     <label class="form-label mt-2" for="name">Product name </label>

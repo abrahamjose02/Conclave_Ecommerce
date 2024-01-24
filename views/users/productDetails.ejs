@@ -1,35 +1,39 @@
 <%- include('../layouts/header.ejs') %>
 
     <%- include('../users/userHeader.ejs') %>
-    <section class="breadcrumb-option">
-        <div class="container">
-            <!-- Your breadcrumb content -->
-            <div class="breadcrumb__text">
-                <h4>Shop - <%= categoryType %> - <%= categoryName %></h4>
-                <!-- Breadcrumb links -->
-                <div class="breadcrumb__links">
-                    <a href="/home">Home</a>
-                    <span>Shop - <%= categoryType %> - <%= categoryName %></span>
+        <section class="breadcrumb-option">
+            <div class="container">
+                <!-- Your breadcrumb content -->
+                <div class="breadcrumb__text">
+                    <h4>Shop - <%= categoryType %> - <%= categoryName %>
+                    </h4>
+                    <!-- Breadcrumb links -->
+                    <div class="breadcrumb__links">
+                        <a href="/home">Home</a>
+                        <span>
+                            <%=productName%>
+                        </span>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
         <section>
             <div class="row mt-5">
                 <% if (products && products.length > 0) { %>
                     <% products.forEach((product, i) => { %>
                         <div class="col-lg-2 col-md-3 d-flex align-items-md-center justify-content-center">
-                            <ul class="nav nav-tabs" role="tablist">
+                            <ul class="nav nav-tabs ml-5" role="tablist">
                                 <% const productImages = product.images || []; %>
                                 <% productImages.forEach((image, j) => { %>
                                     <li class="nav-item">
-                                        <a class="nav-link <%= j === 0 ? 'active' : '' %>" data-toggle="tab" href="#tabs-<%= j + 1 %>" role="tab">
+                                        <a class="nav-link" data-toggle="tab" href="#" onclick="updateMainImage('/uploads/<%= image %>')">
                                             <img src="/uploads/<%= image || 'no-image.webp' %>" style="background-size: cover; background-repeat: no-repeat; height: 120px; width: 95px;" alt="Product Image <%= j + 1 %>">
                                         </a>
                                     </li>
                                 <% }) %>
                             </ul>
                         </div>
+        
                         <div class="col-lg-8 col-md-9 d-flex align-items-left justify-content-left">
                             <div class="tab-content">
                                 <% product.images.forEach((image, k) => { %>
@@ -37,9 +41,9 @@
                                         <!-- Display the product image and details in the same row -->
                                         <div class="row">
                                             <div class="col-lg-6 col-md-6">
-                                                <!-- Display the product image -->
+                                                <!-- Display the main product image with zoom and crop -->
                                                 <div class="product-image-container">
-                                                    <img class="zoom" src="/uploads/<%= image || 'no-image.webp' %>" style="height: 600px;" alt="Product Image <%= k + 1 %>">
+                                                    <img id="mainProductImage" class="zoom" src="/uploads/<%= product.images[0] || 'no-image.webp' %>" alt="Main Product Image">
                                                 </div>
                                             </div>
                                             <div class="col-lg-6 col-md-6">
@@ -65,16 +69,15 @@
                                                         <div>No sizes available</div>
                                                     <% } %>
                                                 </div>
-                                                
+        
                                                 <br>
-
+        
                                                 <!-- Product Price -->
                                                 <h4><strong>Price: <%= product.price %></strong></h4>
                                                 <!-- Add to Cart Button -->
                                                 <!-- Inside the section where the products are displayed -->
                                                 <button class="btn btn-primary mt-3" onclick="selectSizeAndAddToCart('<%= product._id %>')">Add to Cart</button>
-
-
+        
                                                 <button class="btn btn-warning mt-3 mx-3">Add to wishlist</button>
                                                 <!-- Other Details -->
                                                 <div class="other-details mt-4">
@@ -96,14 +99,12 @@
                                                         <tr>
                                                             <td>
                                                                 <div class="me-3 my-3">
-
                                                                     <i class="fa fa-truck"></i>
                                                                     <span>Free Shipping</span>
                                                                 </div>
                                                             </td>
                                                             <td>
                                                                 <div class="mx-5 my-3">
-
                                                                     <i class="fa fa-undo"></i>
                                                                     <span>Free Shipping & Returns</span>
                                                                 </div>
@@ -111,9 +112,6 @@
                                                         </tr>
                                                     </table>
                                                 </div>
-                                                
-                                                 
-                                                
                                             </div>
                                         </div>
                                     </div>
@@ -124,7 +122,7 @@
                 <% } %>
             </div>
         </section>
-        
+
         <div class="row">
             <div class="col-lg-12">
                 <div class="product__details__tab">
@@ -500,8 +498,34 @@
             </div>
         </section>
 
+        <script>
+            function updateMainImage(imageSrc) {
+                // Update the main product image source
+                $('#mainProductImage').attr('src', imageSrc);
+        
+                // Reinitialize Elevate Zoom for the updated image
+                initializeElevateZoom();
+            }
+        
+            function initializeElevateZoom() {
+                $('#mainProductImage').elevateZoom({
+                    zoomType: "inner",
+                    cursor: "crosshair",
+                    zoomWindowFadeIn: 500,
+                    zoomWindowFadeOut: 500
+                    // Add other ElevateZoom options as needed
+                });
+            }
+        
+            // Initialize Elevate Zoom on page load
+            $(document).ready(function () {
+                initializeElevateZoom();
+            });
+        </script>
         
         
+
+
 
         <%- include('../users/userFooter.ejs') %>
 

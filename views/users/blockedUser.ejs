@@ -1,9 +1,19 @@
 <%- include('../layouts/header.ejs') %>
 
 
-    <%- include('../users/userHeader.ejs') %>
+    <%- include('../users/userHeader.ejs',{ user: userData }) %>
 
-    
+    <main class="main">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <h2 class="text-danger font-weight-bold">Account Blocked</h2>
+            <p class="font-weight-bold"><%= message %></p>
+            <!-- Display other content or messages here -->
+          </div>
+        </div>
+      </div>
+    </main>
 
     <%- include('../users/userFooter.ejs') %>
   

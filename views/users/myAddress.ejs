@@ -1,0 +1,267 @@
+<%- include('../layouts/header.ejs') %>
+    <%- include('../users/userHeader.ejs') %>
+
+        <!-- Breadcrumb Section Begin -->
+        <section class="breadcrumb-option">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="breadcrumb__text">
+                            <h4>Profile</h4>
+                            <div class="breadcrumb__links">
+                                <a href="./index.html">Home</a>
+                                <span>Profile</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <div class="container">
+            <div class="row">
+
+                <div class="col-lg-3 my-lg-0 my-md-1">
+                    <%- include('../users/sidebar.ejs') %>
+                </div>
+
+                <div class="col-lg-9 mb-5" id="addressDiv">
+                    <!-- Address list section -->
+
+                    <div id="addressList">
+
+                        <% if (Addresses.length> 0) { %>
+                            <div class="w-100" style="margin-bottom: 2rem;">
+                                <div class="custom-selected w-100">
+                                    <h3 class="my-3 text-center font-weight-bold"><strong>Address Details</strong></h3>
+                                </div>
+                                <ul class="select-options border-0 position-relative ml-3" style="width: 98%;">
+                                    <% for (let i=0; i < Addresses.length; i++) { %>
+                                        <div class="mt-4 font-weight-bold address-entry"
+                                            style="background-color: #f3f2ee; padding: 1rem;">
+                                            <div class="d-flex justify-content-between">
+                                                <div class="ml-4">
+                                                    <p class="mb-0"
+                                                        style="font-family:'Times New Roman', Times, serif; font-weight: bold;">
+                                                        <span style="font-weight: bold; color: green;">Name:</span>
+                                                        <%= Addresses[i].fullName %>
+                                                    </p>
+
+                                                    <p class=" mb-0"
+                                                        style="font-family:'Times New Roman', Times, serif; font-weight: bold;">
+                                                        <span style="font-weight: bold; color: green;">Address:</span>
+                                                        <%=Addresses[i].addressLine%>
+                                                    </p>
+                                                    <p class=" mb-0"
+                                                        style="font-family:'Times New Roman', Times, serif; font-weight: bold;">
+                                                        <span style="font-weight: bold; color: green;">Locality:</span>
+                                                        <%=Addresses[i].locality%>
+                                                    </p>
+                                                    <p class=" mb-0"
+                                                        style="font-family:'Times New Roman', Times, serif; font-weight: bold;">
+                                                        <span style="font-weight: bold; color: green;">City:</span>
+                                                        <%=Addresses[i].city%>
+                                                    </p>
+                                                    <p class=" mb-0"
+                                                        style="font-family:'Times New Roman', Times, serif; font-weight: bold;">
+                                                        <span style="font-weight: bold; color: green;">State:</span>
+                                                        <%=Addresses[i].state%>
+                                                    </p>
+                                                    <p class=" mb-0"
+                                                        style="font-family:'Times New Roman', Times, serif; font-weight: bold;">
+                                                        <span style="font-weight: bold; color: green;">Country:</span>
+                                                        <%=Addresses[i].country%>
+                                                    </p>
+                                                    <p class=" mb-0"
+                                                        style="font-family:'Times New Roman', Times, serif; font-weight: bold;">
+                                                        <span style="font-weight: bold; color: green;">PinCode:</span>
+                                                        <%=Addresses[i].pinCode%>
+                                                    </p>
+                                                    <p class=" mb-0"
+                                                        style="font-family:'Times New Roman', Times, serif; font-weight: bold;">
+                                                        <span style="font-weight: bold; color: green;">Phone:</span>
+                                                        <%=Addresses[i].phone%>
+                                                    </p>
+
+                                                </div>
+                                                <div class="edit-remove-buttons">
+                                                    <button type="button" class="btn btn-outline-dark btn-sm mx-1"
+                                                        onclick="editAddress('<%= Addresses[i]._id %>')">Edit</button>
+                                                    <button type="button" class="btn btn-outline-danger btn-sm"
+                                                        onclick="removeAddress('<%= Addresses[i]._id %>')">Remove</button>
+                                                </div>
+                                            </div>
+                                            </label>
+                                        </div>
+                                        <% } %>
+                                </ul>
+                            </div>
+                            <% } %>
+                    </div>
+                    <div class="modal fade" id="addAddressModal" tabindex="-1"
+                    aria-labelledby="addAddressModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header ">
+                                <h5 class="modal-title font-weight-bold" id="addAddressModalLabel">
+                                    <strong>Add New Address</strong>
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="addAddressForm">
+                                    <div class="mb-3">
+                                        <label for="fullName" class="form-label">Full Name<span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="fullName"
+                                            name="fullName" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="country" class="form-label">Country<span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="country" name="country"
+                                            required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="addressLine" class="form-label">Address<span
+                                                class="text-danger">*</span></label>
+                                        <textarea class="form-control" id="addressLine" name="addressLine"
+                                            rows="3" required></textarea>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="locality" class="form-label">Locality<span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="locality"
+                                            name="locality" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="city" class="form-label">Town/City/District<span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="city" name="city"
+                                            required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="state" class="form-label">State<span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="state" name="state"
+                                            required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="pinCode" class="form-label">Postcode / ZIP<span
+                                                class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="pinCode"
+                                            name="pinCode" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="phone" class="form-label">Phone<span
+                                                class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="phone" name="phone"
+                                            required>
+                                    </div>
+
+                                    <div class="text-center">
+                                        <button type="submit" id="newAddressSubmitBtn" class="btn btn-dark"
+                                            onclick="submitAddressForm()">Save Address</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Button to trigger the modal -->
+                <button type="button" class="btn text-white mx-5" style="background-color: #44007c"
+                    onclick="openAddAddressModal()">
+                    Add new address
+                </button>
+
+                    <div class="modal fade" id="editAddressModal" tabindex="-1" aria-labelledby="editAddressModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="editAddressModalLabel">Edit Address</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="editAddressForm">
+                                        <!-- Add a hidden input field to store the address ID -->
+                                        <input type="hidden" id="editAddressId" name="addressId" value="">
+
+                                        <div class="mb-3">
+                                            <label for="editFullName" class="form-label">Full Name</label>
+                                            <input type="text" class="form-control" id="editFullName" name="fullName"
+                                                required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="editCountry" class="form-label">Country</label>
+                                            <input type="text" class="form-control" id="editCountry" name="country"
+                                                required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="editAddressLine" class="form-label">Address</label>
+                                            <textarea class="form-control" id="editAddressLine" name="addressLine"
+                                                rows="3" required></textarea>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="editLocality" class="form-label">Locality</label>
+                                            <input type="text" class="form-control" id="editLocality" name="locality"
+                                                required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="editCity" class="form-label">Town/City/District</label>
+                                            <input type="text" class="form-control" id="editCity" name="city" required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="editState" class="form-label">State</label>
+                                            <input type="text" class="form-control" id="editState" name="state"
+                                                required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="editPinCode" class="form-label">Postcode / ZIP</label>
+                                            <input type="number" class="form-control" id="editPinCode" name="pinCode"
+                                                required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="editPhone" class="form-label">Phone</label>
+                                            <input type="number" class="form-control" id="editPhone" name="phone"
+                                                required>
+                                        </div>
+
+                                        <div class="text-center">
+                                            <button type="button" class="btn btn-dark"
+                                                onclick="submitEditAddressForm()">Save
+                                                Changes</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+        <%- include('../users/userFooter.ejs') %>
+            <script src="/js/user/profilePasswordChange.js"></script>
+            <%- include('../layouts/footer.ejs') %>

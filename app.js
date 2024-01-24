@@ -24,7 +24,15 @@ app.set('views', ['./views/users', './views/admin']);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use((req, res, next) => {
+  // Set Cache-Control headers to prevent caching
+  res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+  res.header('Expires', '-1');
+  res.header('Pragma', 'no-cache');
 
+  // Continue to the next middleware
+  next();
+});
 
 //User Route
 const userRoute = require('./routes/authRoutes');
