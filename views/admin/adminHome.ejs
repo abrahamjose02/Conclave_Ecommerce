@@ -1,34 +1,261 @@
-
 <%- include('../layouts/header.ejs') %>
+<%- include('../admin/adminHeader.ejs') %>
 
-    <%- include('../admin/adminHeader.ejs') %>
+<section class="breadcrumb-option">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="breadcrumb__text">
+          <h4>Admin Dashboard</h4>
+          <div class="breadcrumb__links">
+            <a href="/admin/dashboard">Home</a>
+            <span>Dashboard</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-<div class="container">
-  <div class="welcome-message">
+<div class="container-fluid px-4 justify-content-center" style="width: 75%;" >
+  <div class="row g-3 my-2">
+    <div class="col-md-3">
+      <div class="p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
+        <div>
+          <h3 class="fs-3">
+            <%= salesData.length %>
+          </h3>
+          <p class="fs-4">Orders</p>
+        </div>
+        <i class="fas fa-shopping-cart fs-3 primary-text border rounded-full secondary-bg p-3"></i>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
+        <div>
+          <h3 class="fs-2">
+            <%= products.length %>
+          </h3>
+          <p class="fs-5">Products</p>
+        </div>
+        <i class="fas fa-laptop fs-3 primary-text border rounded-full secondary-bg p-3"></i>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
+        <div>
+          <h3 class="fs-2">
+            <%= categories.length %>
+          </h3>
+          <p class="fs-5">Categories</p>
+        </div>
+        <i class="fas fa-list fs-3 primary-text border rounded-full secondary-bg p-3"></i>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
+        <div>
+          <h3 class="fs-2">
+            <%= users.length %>
+          </h3>
+          <p class="fs-5">Users</p>
+        </div>
+        <i class="fas fa-user fs-3 primary-text border rounded-full secondary-bg p-3"></i>
+      </div>
+    </div>
+  </div>
 
-<h1 >Welcome , <%= admin.name %></h1>
-<div class="admin-details">
+  <div class="row justify-content-around mt-4" id="graphs">
+    <div class="card bg-white col-12 col-md-5 mt-2" id="payContainer">
+      <canvas id="payment_method" width="200" height="200" style="display: block; box-sizing: border-box; height: 200px; width: 200px;"></canvas>
+    </div>
+    <div class="card bg-white col-12 col-md-5 mt-2" id="orderContainer">
+      <canvas id="orders" width="200" height="200" style="display: block; box-sizing: border-box; height: 200px; width: 200px;"></canvas>
+    </div>
+    <div class="card bg-white col-12 col-md-5 mt-2" id="salesContainer">
+      <canvas id="sales" ></canvas>
+    </div>
+  </div>
+  
+  <div class="row my-5">
+    <h3 class="fs-4 mb-3 font-weight-bolder"><strong>Recent orders</strong></h3>
+    <div class="table-responsive">
+      <table class="table table-dark table-bordered table-striped">
+        <thead>
+          <tr>
+            <th scope="col">No.</th>
+            <th scope="col">Order ID</th>
+            <th scope="col">User</th>
+            <th scope="col">Number of items</th>
+            <th scope="col">Order date</th>
+            <th scope="col">Order status</th>
+            <th scope="col">Payment Method</th>
+            <th scope="col">Payment status</th>
+            <th scope="col">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% order.forEach(function (orders, index) { %>
+            <tr class="align-middle">
+              <th scope="row">
+                <%= index + 1 %>
+              </th>
+              <td>
+                <%= orders._id %>
+              </td>
+              <td>
+                <%= orders.user.name %>
+              </td>
+              <td>
+                <%= orders.items.length %>
+              </td>
+              <td><%= orders.orderDate.getDate() + '-' + (orders.orderDate.getMonth() + 1) + '-' + orders.orderDate.getFullYear() %></td>
+              <td>
+                <%= orders.orderStatus %>
+              </td>
+              <td>
+                <%= orders.payments.pay_method %>
+              </td>
+              <td>
+                <%= orders.payments.pay_status %>
+              </td>
 
-<table style="width: 30%;">
-  <tr>
-      <td>Name</td>
-      <td><%= admin.email %></td>
-  </tr>
-  <tr>
-      <td>Mobile</td>
-      <td><%= admin.phone %></td>
-  </tr>
+              <td>
+            <a href="/admin/orderDetails/<%= orders._id %>" class="text-success"><button type="button"
+                class="btn btn-secondary" style="width: 70px;">View</button></i></a>
 
-</table>
+          </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
-<div class="buttons">
 
-<a href="/admin/logout">logout</a>
-<br>
-<a href="/admin/UserList">Dashboard</a>
-</div>
-</div>
-</div>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var ctx1 = document.getElementById('payment_method').getContext('2d');
+    var payMethodData = {
+      labels: ['COD', 'onlinePayment'],
+      datasets: [{
+        label: 'Payment Method',
+        data: [`<%= codNum %>`, `<%= onlineNum %>`],
+        backgroundColor: ["#FAEBD7", "#DCDCDC"],
+        borderColor: ["#CDA776", "#989898"],
+        borderWidth: [1, 1],
+        hoverOffset: 4
+      }]
+    };
+    var options = {
+      responsive: true,
+      title: {
+        display: true,
+        position: "top",
+        text: "Payment Method",
+        fontSize: 18,
+        fontColor: "#111"
+      },
+      legend: {
+        display: true,
+        position: "bottom",
+        labels: {
+          fontColor: "#333",
+        }
+      }
+    };
+    var payMethodGraph = new Chart(ctx1, {
+      type: "doughnut",
+      data: payMethodData,
+      options: options
+    });
+  });
+  </script>
+  
+  <script>
+document.addEventListener('DOMContentLoaded', function() {
+  var ctx2 = document.getElementById('orders').getContext('2d');
+  var orderData = {
+    labels: ['Paid Orders', 'Payment Pending', 'Cancelled Orders', 'Pending Orders'],
+    datasets: [{
+      label: 'Order Data',
+      data: [`<%= paid %>`, `<%= paymentPending %>`, `<%= cancelledOrders %>`, `<%= pendingOrders %>`],
+      backgroundColor: [
+        "rgba(21, 255, 0, 0.5)",
+        "rgba(227, 255, 45, 0.5)",
+        "rgba(255, 0, 0, 0.5)",
+        "rgb(184, 225, 23, 0.5)",
+      ],
+      borderColor: ["#E9DAC6", "#CBCBCB", "#D88569", "#E4CDA2"],
+      borderWidth: [1, 1, 1, 1],
+      hoverOffset: 6
+    }]
+  };
+  var options = {
+    responsive: true,
+    title: {
+      display: true,
+      position: "top",
+      text: "Order Status",
+      fontSize: 18,
+      fontColor: "#111"
+    },
+    legend: {
+      display: true,
+      position: "bottom",
+      labels: {
+        fontColor: "#333",
+      }
+    }
+  };
+  var OrderGraph = new Chart(ctx2, {
+    type: "pie",
+    data: orderData,
+    options: options
+  });
+});
+</script>
+
+
+<script>
+
+   document.addEventListener('DOMContentLoaded', function() {
+    const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    var ctx3 = document.getElementById('sales').getContext('2d');
+    
+    // Ensure SalesCount is an array of numbers
+    var salesCountData = <%= JSON.stringify(SalesCount.map(d => d.count)) %>;
+    
+    var SalesData = {
+      labels: dayNames,
+      datasets: [{
+        label: 'Weekly Sales',
+        data: salesCountData,
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.1,
+        fill: false
+      }]
+    };
+    
+    var options = {
+      responsive: true,
+      title: {
+        display: true,
+        position: 'top',
+        text: 'Weekly Sales',
+        fontSize: 18,
+        fontColor: '#111'
+      },
+    };
+    
+    var salesGraph = new Chart(ctx3, {
+      type: 'line',
+      data: SalesData,
+      options: options
+    });
+  });
+  </script>
+  
+
 <%- include('../admin/adminFooter.ejs') %>
-
 <%- include('../layouts/footer.ejs') %>

@@ -8,6 +8,7 @@ const {isLogin,isLogout,nocache} = require('../middleware/adminAuth');
 const adminController = require('../controllers/adminController');
 const categoryController = require('../controllers/categoryController');
 const productController = require('../controllers/productController');
+const orderController = require('../controllers/orderController');
 
 
 admin_route.use(session({
@@ -61,7 +62,7 @@ const upload = multer({
 
 admin_route.get('/',isLogout,nocache,adminController.loadSignin);
 admin_route.post('/',adminController.insertSignin);
-admin_route.get('/home',isLogin,nocache,adminController.loadHome);
+admin_route.get('/dashboard',isLogin,nocache,adminController.loadDashboard);
 admin_route.get('/logout',isLogin,nocache,adminController.logout);
 admin_route.get('/forget',adminController.loadforgot);
 admin_route.post('/forget',adminController.resetOTP);
@@ -93,7 +94,7 @@ admin_route.post('/unlistProduct/:id', productController.unlistProduct);
 admin_route.get('/orderList',adminController.loadOrderPage);
 admin_route.get('/orderDetails/:orderId', adminController.loadOrderDetails)
 admin_route.post('/changeOrderStatus/:orderId',adminController.changeOrderStatus);
-
+admin_route.get('/salesReport',orderController.loadSalesReport);
 
 
 

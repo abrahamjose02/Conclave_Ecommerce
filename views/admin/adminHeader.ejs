@@ -73,7 +73,7 @@
             <div class="col-lg-7 col-md-6">
                 <nav class="header__menu mobile-menu">
                     <ul>
-                        <li class=""><a href="/">Home</a></li>
+                        <li class=""><a href="/admin/dashboard">Dashboard</a></li>
                         <li><a href="/admin/userList">Users</a></li>
                         <li><a href="/admin/orderList">Orders</a></li>
                         <li><a href="/admin/productList">Products</a> </li>
@@ -86,6 +86,7 @@
                                 style="background-color: #f3f2ee; color: black; border: 1px solid black;">
 
                                 <li><a style="color: rgb(4, 4, 4);" href="/admin/couponList">Coupons</a></li>
+                                <li><a style="color: rgb(4, 4, 4);" href="/admin/salesReport">Sales Report</a></li>
                                 <li><a style="color: rgb(4, 4, 4);" href="/admin/categoriesList">Categories</a></li>
 
                             </ul>
@@ -108,21 +109,13 @@
 </header>
 <!-- Header Section End -->
 
-<% if (message){%>
-
-    <div class=" container alert alert-dismissible fade show alert-<%=message.type %>" role="alert">
-
-        <button class="btn-close" type="button" data-bs-dismiss='alert' aria-label="close"></button>
-
-        <strong>
-
-            <div>
-                <%- message.message %>
-            </div>
-
-        </strong>
+<% if (typeof message !== 'undefined' && message) { %>
+    <div class="container alert alert-dismissible fade show alert-<%= message.type %>" role="alert">
+        <%= message.message %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-    <% } %>
+<% } %>
+
 
 
         <div hidden id="notification-message" class="container notification ">

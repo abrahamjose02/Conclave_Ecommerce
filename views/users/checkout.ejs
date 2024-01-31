@@ -20,6 +20,7 @@
         </section>
 
 
+                
 
         <div class="container">
             <form action="" id="checkout-form" name="check">
@@ -174,6 +175,14 @@
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                 aria-label="Close"></button>
                                         </div>
+                                        <% if (messages && messages.length > 0) { %>
+                                            <div class="mb-3 text-danger">
+                                              <% messages.forEach(message => { %>
+                                                <p><%= message %></p>
+                                              <% }); %>
+                                            </div>
+                                          <% } %>
+                                          
                                         <div class="modal-body">
                                             <form id="addAddressForm">
                                                 <div class="mb-3">

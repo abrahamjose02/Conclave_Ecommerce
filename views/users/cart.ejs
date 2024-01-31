@@ -19,9 +19,12 @@
 
 <!-- Breadcrumb Section End -->
 
-
-
-
+<% if (message && message.type === 'danger') { %>
+    <div class="alert alert-danger" role="alert">
+        <%= message.message %>
+    </div>
+<% } %>
+  
 
 <section id="cart-container" class="container my-3">
     <% if (itemsInCart && itemsInCart.length > 0) { %>
@@ -137,6 +140,18 @@
     <!-- Pagination content -->
 </nav>
 
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Check if the message is present on page load
+      var dangerMessage = document.querySelector('.alert-danger');
+      
+      // If the message exists, show it
+      if (dangerMessage) {
+        dangerMessage.style.display = 'block';
+      }
+    });
+  </script>
 <%- include('../users/userFooter.ejs') %>
 <script src="/js/user/searchAndBuy.js"></script>
 <%- include('../layouts/footer.ejs') %>

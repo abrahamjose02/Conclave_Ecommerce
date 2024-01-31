@@ -402,6 +402,14 @@ $(document).ready(function () {
         rzp1.on('payment.failed', function (response) {
             console.error('Razorpay Payment Failed Response:', response);
             
+            Swal.fire({
+                icon: 'error',
+                title: 'Payment Failed',
+                text: 'Sorry, your payment failed. Please try again or choose a different payment method.',
+            }).then(() => {
+                // Redirect to cart page
+                location.href = '/cart';
+            });
         });
     
         rzp1.open();

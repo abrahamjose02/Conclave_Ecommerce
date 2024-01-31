@@ -444,14 +444,14 @@ const editProduct = async (req, res) => {
     }
 
     // validate whether the product is unique or not
-    const existingProduct = await Product.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } });
-    if (existingProduct) {
-      return res.render('editProducts', {
-        message: 'Product with the same name already exists.',
-        product: { _id: productId, name, description, brand, stockinCount, price, category, color },
-        categories: await Category.find()
-      });
-    }
+    // const existingProduct = await Product.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } });
+    // if (existingProduct) {
+    //   return res.render('editProducts', {
+    //     message: 'Product with the same name already exists.',
+    //     product: { _id: productId, name, description, brand, stockinCount, price, category, color },
+    //     categories: await Category.find()
+    //   });
+    // }
 
 
     if (!brand || brand.trim().length === 0 || brand.trim().startsWith(' ')) {

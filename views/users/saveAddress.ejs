@@ -9,8 +9,27 @@
                 <h5 class="modal-title" id="addAddressModalLabel">Add New Address</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+
+            <% if (messages && messages.length > 0) { %>
+                <div class="mb-3 text-danger">
+                  <% messages.forEach(message => { %>
+                    <p><%= message %></p>
+                  <% }); %>
+                </div>
+              <% } %>
+            
             <div class="modal-body">
                 <form id="addAddressForm" action="/saveAddress" method="post">
+                    <!-- Add error message placeholders -->
+                    <div id="fullNameError" class="text-danger"></div>
+                    <div id="countryError" class="text-danger"></div>
+                    <div id="addressLineError" class="text-danger"></div>
+                    <div id="localityError" class="text-danger"></div>
+                    <div id="cityError" class="text-danger"></div>
+                    <div id="stateError" class="text-danger"></div>
+                    <div id="pinCodeError" class="text-danger"></div>
+                    <div id="phoneError" class="text-danger"></div>
+
                     <div class="mb-3">
                         <label for="fullName" class="form-label">Full Name<span>*</span></label>
                         <input type="text" class="form-control" id="fullName" name="fullName" required>

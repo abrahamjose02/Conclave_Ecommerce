@@ -10,7 +10,7 @@ const loadCartDetails = async(req,res)=>{
     try {
 
         let itemsInCart = [];
-    let message= '';
+    
     const menCategories = await Category.find({categoryType:'Men',isDeleted:false});
     const womenCategories = await Category.find({categoryType:'Women',isDeleted:false});
     const kidsCategories = await Category.find({categoryType:'Kids',isDeleted:false});
@@ -20,9 +20,19 @@ const loadCartDetails = async(req,res)=>{
 
     const userCart = await Cart.findOne({ user: userID }).populate('items.product');
 
+    
+
+     
+    let message = req.session.message || '';
+
+    
+    if (req.session.message && !req.session.message.fromRedirect) {
+      req.session.message = null;
+    }
+
      itemsInCart = userCart ? userCart.items : [];
 
-    res.render('cart',{message,menCategories,womenCategories,kidsCategories,beautyCategories,userID,itemsInCart,userCart});
+    res.render('cart',{message:req.session.message,menCategories,womenCategories,kidsCategories,beautyCategories,userID,itemsInCart,userCart});
     
     
     } catch (error) {

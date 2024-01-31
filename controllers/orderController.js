@@ -13,10 +13,46 @@ const instance = new razorpay({
 });
 const crypto = require('crypto');
 
+
+const getCategoryiesByType = async (categoryType) => {
+    try {
+      const categories = await Category.aggregate([
+        {
+          $match: {
+            categoryType: categoryType,
+            isDeleted: false
+          },
+        },
+      ]);
+      return categories;
+    } catch (error) {
+      console.error('Error', error);
+      throw error;
+    }
+  }
+
+
+
 const placeOrder = async (req, res) => {
     try {
         const { addressId, paymentMethod, itemsInCart } = req.body;
         const userId = req.session.user_id;
+
+
+        // Check stock availability
+        const isStockAvailable = itemsInCart.every(async (cartItem) => {
+            const product = await Product.findById(cartItem.product._id);
+            return product && product.stockinCount >= cartItem.quantity;
+        });
+
+        if (!isStockAvailable) {
+            req.session.message = {
+                type: 'danger',
+                message: 'Some products in your cart are out of stock.',
+            };
+            return res.status(400).json({ outOfStock: true });
+        }
+
 
         const orderItems = [];
         let totalPriceOfCart = 0;
@@ -43,6 +79,11 @@ const placeOrder = async (req, res) => {
             });
 
             totalPriceOfCart += itemPrice;
+
+            // reduce the stock count of the product
+
+            product.stockinCount -=cartItem.quantity;
+            await product.save();
         }
 
         const user = await User.findById(userId);
@@ -76,12 +117,6 @@ const placeOrder = async (req, res) => {
         const order = new Order(orderData);
         const savedOrder = await order.save();
 
-        const cartItemIds = itemsInCart.map(cartItem => cartItem.product._id);
-
-        console.log('Before updating cart:', userId, cartItemIds);
-        
-
-
         if (paymentMethod === 'COD') {
             // If payment is Cash on Delivery (COD)
             await Order.updateOne({_id: savedOrder._id}, {$set: {"payments.pay_id": "COD_" + savedOrder._id, "payments.pay_status": "success"}});
@@ -97,10 +132,11 @@ const placeOrder = async (req, res) => {
                     receipt: "" + savedOrder._id
                 };
                 console.log('Amount:', savedOrder.totalPrice * 100);
-                instance.orders.create(options, (err, order) => {
+                instance.orders.create(options, async(err, order) => {
                     if (err) {
                         console.log(err);
                     } else{
+                        await Cart.deleteOne({ user: userId });
                         return res.json(order);
                     }
                     
@@ -129,9 +165,7 @@ const verifyPayment = async (req, res) => {
     
           console.log('Signature matched. Updating order status to "placed".');
           await Order.updateOne({ _id: orderId }, { $set: { orderStatus: 'placed', "payments.pay_status": 'success', "payments.pay_id": req.body.payment.razorpay_payment_id } });
-    
-          console.log('Deleting user cart.');
-          await Cart.deleteOne({ user: userId });
+
     
           console.log('Payment verification successful. Sending response with status: true.');
           return res.json({ status: true });
@@ -170,9 +204,73 @@ const loadOrderPlaced = async (req, res) => {
 }
 
 
+const getSalesReport = async (timeframe) => {
+    try {
+        let filter = {};
+        
+        if (timeframe === 'daily') {
+            filter = {
+                orderDate: {
+                    $gte: new Date(new Date().setHours(0, 0, 0)),
+                    $lt: new Date(new Date().setHours(23, 59, 59)),
+                },
+            };
+        } else if (timeframe === 'weekly') {
+            filter = {
+                orderDate: {
+                    $gte: new Date(new Date().setDate(new Date().getDate() - 7)),
+                },
+            };
+        } else if (timeframe === 'monthly') {
+            filter = {
+                orderDate: {
+                    $gte: new Date(new Date().setMonth(new Date().getMonth() - 1)),
+                },
+            };
+        }
+
+        const salesData = await Order.find(filter).populate('user').sort({ orderDate: -1 });
+        return salesData;
+    } catch (error) {
+        console.error('Error fetching sales report:', error);
+        throw error;
+    }
+};
+
+const loadSalesReport = async (req, res) => {
+    try {
+        let message = '';
+        const menCategories = await getCategoryiesByType('Men');
+        const womenCategories = await getCategoryiesByType('Women');
+        const kidsCategories = await getCategoryiesByType('Kids');
+        const beautyCategories = await getCategoryiesByType('Beauty');
+
+        const timeframe = req.query.timeframe || 'daily';
+        const salesData = await getSalesReport(timeframe);
+
+        const grandTotal = salesData.reduce((total, val) => total + val.totalPrice, 0);
+
+        res.render('salesReport', {
+            menCategories,
+            womenCategories,
+            kidsCategories,
+            beautyCategories,
+            message,
+            salesData,
+            grandTotal,
+            calculateTotalPrice: (data) => data.reduce((total, val) => total + val.totalPrice, 0),
+        });
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({ message: 'Invalid Session Error' });
+    }
+};
+
+
 
 module.exports = {
     verifyPayment,
     placeOrder,
     loadOrderPlaced,
+    loadSalesReport
 }

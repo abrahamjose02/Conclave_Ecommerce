@@ -43,7 +43,7 @@ const insertSignin = async (req, res) => {
           res.render('adminLogin', { message: 'Entered Email and password is incorrect' });
         } else {
           req.session.user_id = userData._id;
-          res.redirect('/admin/home');
+          res.redirect('/admin/dashboard');
         }
       } else {
         res.render('adminLogin', { message: 'Entered Email and password is incorrect' });
@@ -58,24 +58,92 @@ const insertSignin = async (req, res) => {
 
 
 
-const loadHome = async (req, res) => {
+const loadDashboard = async (req, res) => {
   try {
-    if (!req.session.user_id) {
-
-      return res.redirect('/admin');
-    }
-    const userData = await User.findById(req.session.user_id);
-    if (!userData) {
-      return res.status(404).send('User data not found');
-    }
     let message = '';
+    const salesData = await Order.find()
+      .populate('user', 'name')
+      .sort({ orderDate: -1 });
 
-    res.render('adminHome', { admin: userData, message });
+    const products = await Product.find();
+    const categories = await Category.find();
+    const users = await User.find();
+
+    // Fetch and sort orders by the latest order date
+    const order = await Order.find().populate('user', 'name').sort({ orderDate: -1 }).limit(5);
+
+    const codNum = await Order.countDocuments({ 'payments.pay_method': 'COD' });
+    const onlineNum = await Order.countDocuments({ 'payments.pay_method': 'onlinePayment' });
+    const paid = await Order.countDocuments({ 'orderStatus': 'placed', 'payments.pay_status': 'success' });
+    const paymentPending = await Order.countDocuments({ 'orderStatus': 'placed', 'payments.pay_status': 'pending' });
+    const cancelledOrders = await Order.countDocuments({ 'orderStatus': 'cancelled' });
+    const pendingOrders = await Order.countDocuments({ 'orderStatus': 'pending' });
+
+    
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+
+   
+    const startOfWeek = new Date(currentDate);
+    startOfWeek.setDate(currentDate.getDate() - currentDate.getDay()); 
+
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6); 
+
+    
+    let salesChartDt = await Order.aggregate([
+      {
+        $match: {
+          orderStatus: 'placed',
+          orderDate: { $gte: startOfWeek, $lte: endOfWeek }
+        }
+      },
+      {
+        $group: {
+          _id: { day: { $dayOfWeek: "$orderDate" } },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $sort: { _id: 1 },
+      },
+    ]);
+
+    
+    let SalesCount = Array.from({ length: 7 }, (_, index) => ({
+      _id: { day: index + 1 },
+      count: 0
+    }));
+
+    
+    salesChartDt.forEach((data) => {
+      SalesCount[data._id.day - 1].count = data.count;
+    });
+
+    res.render('adminHome', {
+      title: 'Admin Panel',
+      page: 'Dashboard',
+      message,
+      order,
+      salesData,
+      products,
+      categories,
+      users,
+      codNum,
+      onlineNum,
+      paid,
+      paymentPending,
+      cancelledOrders,
+      pendingOrders,
+      SalesCount,
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).send('Internal Server Error');
+    console.log(error.message);
+    res.status(500).json({ message: 'Invalid Session Error' });
   }
 };
+
+
 
 
 const logout = async (req, res) => {
@@ -374,6 +442,8 @@ const loadOrderDetails = async (req, res) => {
       return res.status(404).json({ message: 'Order not found' });
     }
 
+    console.log('Order Info:', order);
+
     res.render('orderDetails', { message, orderInfo: order });
   } catch (error) {
     console.log(error.message);
@@ -414,7 +484,7 @@ module.exports = {
   otpVerify,
   loadResetPassword,
   resetPassword,
-  loadHome,
+  loadDashboard,
   userList,
   searchUser,
   editUserLoad,

@@ -283,6 +283,19 @@ ol {
 
 
 
+#payContainer,
+#orderContainer {
+  width: 450px !important; 
+  height: 400px !important; 
+}
+
+#payContainer canvas,
+#orderContainer canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+
 .primary-btn {
 	display: inline-block;
 	font-size: 13px;

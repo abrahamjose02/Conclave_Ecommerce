@@ -585,7 +585,9 @@ const loadCheckoutPage = async (req, res) => {
     const womenCategories = await Category.find({ categoryType: 'Women', isDeleted: false });
     const kidsCategories = await Category.find({ categoryType: 'Kids', isDeleted: false });
     const beautyCategories = await Category.find({ categoryType: 'Beauty', isDeleted: false });
-    let message = '';
+    let message = req.session.message || '';
+
+    req.session.message = null;
 
     const userCart = await Cart.findOne({ user: userID }).populate('items.product');
 
@@ -601,6 +603,18 @@ const loadCheckoutPage = async (req, res) => {
       ...address.toObject(),
       index,
     }));
+
+     // Check stock availability
+    const isStockAvailable = userCart.items.every(cartItem => cartItem.product.stockinCount >= cartItem.quantity);
+
+    if (!isStockAvailable) {
+      req.session.message = {
+        type: 'danger',
+        message: 'Some products in your cart are out of stock.',
+        fromRedirect: true,
+      };
+      return res.redirect('/cart');
+    }
 
     itemsInCart = userCart ? userCart.items : [];
     console.log('Items in cart:', itemsInCart);
@@ -646,6 +660,33 @@ const saveAddress = async (req, res) => {
     const userID = req.session.user_id;
     const { fullName, country, addressLine, locality, city, state, pinCode, phone } = req.body;
 
+    // Validate the form data
+    const validationErrors = [];
+
+    // Check if fields start with space
+    if (fullName.startsWith(' ') || country.startsWith(' ') || addressLine.startsWith(' ') || locality.startsWith(' ') || city.startsWith(' ') || state.startsWith(' ')) {
+      validationErrors.push('Fields should not start with space');
+    }
+
+    // Check pinCode format (numeric and 6 digits)
+    const pinCodeRegex = /^\d{6}$/;
+    if (!pinCodeRegex.test(pinCode)) {
+      validationErrors.push('Pincode should be a 6-digit number');
+    }
+
+    // Check phone format (numeric and 10 digits)
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(phone)) {
+      validationErrors.push('Phone number should be a 10-digit number');
+    }
+
+    // If there are validation errors, store them in flash and redirect
+    if (validationErrors.length > 0) {
+      req.flash('validationErrors', validationErrors);
+      return res.redirect('/addAddress'); // Adjust the route based on your setup
+    }
+
+    // If no validation errors, continue with saving the address
     const user = await User.findById(userID);
     if (!user) {
       return res.status(500).json({ message: 'User not found' });
@@ -660,15 +701,17 @@ const saveAddress = async (req, res) => {
       state,
       pinCode,
       phone
-    })
+    });
 
     await user.save();
-    res.status(200).json({ status: 'success', message: 'Address successfully updated.' })
+    res.status(200).json({ status: 'success', message: 'Address successfully updated.' });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ error: 'Invalid Session Error' })
+    return res.status(500).json({ error: 'Invalid Session Error' });
   }
 }
+
+
 
 
 const removeAddress = async (req, res) => {
@@ -845,6 +888,7 @@ const loadMyOrders = async (req, res) => {
     const userID = req.session.user_id;
     const user = await User.findById(userID);
     const title = 'Orders'
+    
     const orderInfo = await Order.find({ user: userID }).sort({ orderDate: -1 })
     res.render('myOrders', { menCategories, womenCategories, kidsCategories, beautyCategories, message, user, userID, title, orderInfo })
   } catch (error) {
