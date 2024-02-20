@@ -1,0 +1,30 @@
+<!-- addMoney.ejs -->
+
+<div id="addMoneyModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="addMoneyForm">
+          <div class="modal-header">
+            <h4 class="modal-title">Add Money</h4>
+            <button type="button" class="close" aria-label="Close" onclick="$('#addMoneyModal').modal('hide');">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <label for="amount">Amount:</label>
+            <input
+              type="number"
+              id="amount"
+              name="amount"
+              class="form-control"
+              required
+            />
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  

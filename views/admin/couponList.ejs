@@ -1,0 +1,139 @@
+
+<%-include('../layouts/header.ejs') %>
+<%-include('../admin/adminHeader.ejs') %>
+
+<section class="breadcrumb-option">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="breadcrumb__text">
+          <h4>Coupons List</h4>
+          <div class="breadcrumb__links">
+            <a href="/admin/home">Home</a>
+            <span>Coupon List</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<main class="main my-5">
+  <div class="container">
+
+      <a class="btn btn-outline-success mb-3" href="/admin/addCoupon">Add New Products</a>
+      <% if (message) { %>
+        <div class="alert alert-dismissible fade show alert-<%= message.type %>" role="alert">
+          <button class="btn-close" type="button" data-bs-dismiss="alert" aria-label="Close"></button>
+          <strong><%= message.message %> </strong>
+        </div>
+        <% } %>
+      <div class="table-responsive" id="no-more-tables">
+          <table class="table table-striped bg-white" id="myTable">
+              <thead class=" ">
+                  <tr class="">
+                      <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col"
+                          class="sorting ">
+                          Name</th>
+                      <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col"
+                          class="sorting">
+                          Code
+                      </th>
+
+
+                      <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col"
+                          class="sorting">
+                          Minimum Bill</th>
+
+                      <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col"
+                          class="sorting">
+                          Cap Amount
+                      </th>
+
+
+
+                      <th class="bg-dark text-white" text-center style="font-size: 15px;" scope="col"
+                          class="sorting">
+                          Discount (%)
+                      </th>
+
+
+                      <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col">Expiry
+                      </th>
+
+                      <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col">Status
+                      </th>
+
+
+                      <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col">Actions
+                      </th>
+
+                  </tr>
+              </thead>
+              <tbody>
+                  <% if (coupons.length > 0) { %>
+                      <% for (let i=0; i < coupons.length; i++) { %>
+                          <tr data-id="<%= coupons[i]._id %>" class="text-center" style="font-size: medium;">
+                              <td data-title="Name">
+                                  <%= coupons[i].name %>
+                              </td>
+                             
+                              <td data-title="Code">
+                                <%= coupons[i].code %>
+                            </td>
+                                
+                              
+                              <td data-title="Minimum Bill">
+                                  <%= coupons[i].min_bill %>
+                              </td>
+                              <td data-title="cap Amount">
+                                  <%= coupons[i].cap %>
+                              </td>
+                              <td data-title="discount">
+                                  <%= coupons[i].discount %>
+                              </td>
+                              <td data-title="Expiry">
+                                <%= coupons[i].expire.getDate() + "/" + (coupons[i].expire.getMonth() + 1) + "/" + coupons[i].expire.getFullYear() %>
+                              </td>
+                              <td>
+                                <% var expiryDate = new Date(coupons[i].expire); var currentDate = new Date(); if (expiryDate > currentDate) { %>
+                                <span class="active text-success ">Active</span>
+                                <% } else { %>
+                                <span class="expired text-danger">Expired</span>
+                                <% } %>
+                              </td>
+                              <td data-title="Actions" class="d-flex justify-content-center align-items-center" style="font-size: 10px; height: 145px;">
+                                  <a class="btn btn-outline-primary btn-sm mx-1" href="/admin/editCoupon/<%= coupons[i]._id %>">
+                                      Edit
+                                  </a>
+                                  <a class="btn btn-outline-danger btn-sm mx-3" href="/admin/deleteCoupon/<%= coupons[i]._id %>">
+                                    Delete
+                                </a>
+                              </td>
+                          </tr>
+                      <% } %>
+                  <% } else { %>
+                      <tr>
+                          <td class="text-danger" colspan="7">Products Not Found</td>
+                      </tr>
+                  <% } %>
+              </tbody>
+              
+              
+          </table>
+      </div>
+  </div>
+</main>
+
+
+<%-include('../admin/adminFooter.ejs') %>
+<%- include('../layouts/footer.ejs') %>
+
+
+<script>
+  $(document).ready(function(){
+    $('#myTable').DataTable();
+  });
+</script>

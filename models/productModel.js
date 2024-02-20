@@ -12,25 +12,25 @@ const productSchema = new mongoose.Schema({
         required:true,
         default:''
     },
-    size:{
-        type: [String],
-        enum: ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL','Single Size'], 
-        default: ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'],  
-        required: true
-    },
     brand:{
         type:String,
         required:true,
     },
-    stockinCount:{
-        type:Number,
-        required:true,
-        min:0,
-        max:255
-    },
     price:{
         type:Number,
         required:true,
+        default:0
+    },
+    oldPrice:{
+        type:Number,
+        default:0
+    },
+    discountPercentage:{
+        type:Number,
+        default:0
+    },
+    discountPrice:{
+        type:Number,
         default:0
     },
     color:{
@@ -42,7 +42,19 @@ const productSchema = new mongoose.Schema({
         ref:'category',
         required:true
     },
-    
+    sizes:[{
+        size:{
+            type:String,
+            enum:['XS','S','M','L','XL','XXL','Single Size'],
+            required:true
+        },
+        stock:{
+            type:Number,
+            required:true,
+            min:0,
+            max:255
+        }
+    }],
     images:
         {
             type:Array,
@@ -52,13 +64,13 @@ const productSchema = new mongoose.Schema({
         type:Boolean,
         default:false
     },
-    rating:{
-        type:Number,
-        default:0
-    },
-    isFeatured:{
+    isOfferApplied:{
         type:Boolean,
         default:false
+    },
+    offerType:{
+        type:String,
+        enum:['productOffer','categoryOffer']
     },
     dateCreated:{
         type:Date,

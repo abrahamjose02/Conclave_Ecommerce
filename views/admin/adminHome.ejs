@@ -137,13 +137,13 @@
   document.addEventListener('DOMContentLoaded', function() {
     var ctx1 = document.getElementById('payment_method').getContext('2d');
     var payMethodData = {
-      labels: ['COD', 'onlinePayment'],
+      labels: ['COD', 'Online Payment', 'Wallet'], 
       datasets: [{
         label: 'Payment Method',
-        data: [`<%= codNum %>`, `<%= onlineNum %>`],
-        backgroundColor: ["#FAEBD7", "#DCDCDC"],
-        borderColor: ["#CDA776", "#989898"],
-        borderWidth: [1, 1],
+        data: [`<%= codNum %>`, `<%= onlineNum %>`, `<%= walletNum %>`], 
+        backgroundColor: ["#FAEBD7", "#DCDCDC", "#ADD8E6"],
+        borderColor: ["#CDA776", "#989898", "#4682B4"], 
+        borderWidth: [1, 1, 1],
         hoverOffset: 4
       }]
     };
@@ -170,7 +170,8 @@
       options: options
     });
   });
-  </script>
+</script>
+
   
   <script>
 document.addEventListener('DOMContentLoaded', function() {

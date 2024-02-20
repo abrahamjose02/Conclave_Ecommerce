@@ -1,7 +1,6 @@
 <%- include('../layouts/header.ejs') %>
 <%- include('../users/userHeader.ejs') %>
 
-
 <!-- Breadcrumb Section Begin -->
 <section class="breadcrumb-option">
     <div class="container">
@@ -16,7 +15,6 @@
         </div>
     </div>
 </section>
-
 <!-- Breadcrumb Section End -->
 
 <% if (message && message.type === 'danger') { %>
@@ -24,46 +22,29 @@
         <%= message.message %>
     </div>
 <% } %>
-  
 
 <section id="cart-container" class="container my-3">
     <% if (itemsInCart && itemsInCart.length > 0) { %>
         <!-- Table for displaying cart items -->
         <table class="table table-striped bg-white" id="myTable">
             <!-- Table headers -->
-            <thead class=" " >
+            <thead class="">
                 <!-- Header row -->
-                <tr class="">
-                    <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col"
-                                    class="sorting ">
-                                    Image</th>
-                    <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col"
-                                    class="sorting ">
-                                    Product</th>
-                    <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col"
-                                    class="sorting ">
-                                    Size</th>
-                    <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col"
-                                    class="sorting ">
-                                    Price</th>
-                    <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col"
-                                    class="sorting ">
-                                    Quantity</th>
-                    <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col"
-                                    class="sorting ">
-                                    Total Price</th>
-                    <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col"
-                                    class="sorting ">
-                                    Action</th>
-
-                                    
+                <tr>
+                    <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col">Image</th>
+                    <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col">Product</th>
+                    <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col">Size</th>
+                    <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col">Price</th>
+                    <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col">Quantity</th>
+                    <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col">Total Price</th>
+                    <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col">Action</th>
                 </tr>
             </thead>
             <!-- Table body for cart items -->
             <tbody>
                 <% itemsInCart.forEach(item => { %>
                     <!-- Loop through each item in the cart -->
-                    <tr id="<%= item.product._id %>item">
+                    <tr id="<%= item.product._id %>item" class="<%= item.outOfStock ? 'out-of-stock' : '' %>">
                         <!-- Display item details -->
                         <td data-title="Image"><img src="/uploads/<%= item.product.images[0] %>" alt="product Image" style="width: 100px; height: 100px;"></td>
                         <td data-title="Name">
@@ -93,10 +74,9 @@
             </tbody>
         </table>
         <!-- End of table -->
-
     <% } else { %>
         <!-- Display message if cart is empty -->
-        <div class="row " style="display: flex; justify-content: center;">
+        <div class="row" style="display: flex; justify-content: center;">
             <div class="col-12 col-md-6 m-3" style="width: 100%;">
                 <h1 class="text-center text-danger"><b>Cart is empty</b></h1>
             </div>
@@ -128,18 +108,10 @@
     <% } %>
 </section>
 
-
-
-
-
-
-
-
 <!-- Pagination section -->
 <nav aria-label="Page navigation" id="pagination">
     <!-- Pagination content -->
 </nav>
-
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -151,9 +123,7 @@
         dangerMessage.style.display = 'block';
       }
     });
-  </script>
+</script>
 <%- include('../users/userFooter.ejs') %>
 <script src="/js/user/searchAndBuy.js"></script>
 <%- include('../layouts/footer.ejs') %>
-
-

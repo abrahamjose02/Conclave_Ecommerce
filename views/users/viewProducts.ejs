@@ -105,7 +105,7 @@
                                     <div class="product__item__pic set-bg" data-setbg="<%= products[i].images && products[i].images.length > 0 ? '/uploads/' + products[i].images[0] : '/img/no-image.webp' %>">
                                         <!-- Product image and hover elements -->
                                         <ul class="product__hover">
-                                            <li><a href="#"><img src="img/icon/heart.png" alt=""></a></li>
+                                            <li><a href="/wishlist"><img src="img/icon/heart.png" alt=""></a></li>
                                         </ul>
                                     </div>
                                     <div class="product__item__text">
@@ -113,11 +113,23 @@
                                         <h6><%= products[i].name %></h6>
                                         <!-- Other product information -->
                                         <button class="nav-link" onclick="viewProductDetails('<%= categoryId %>', '<%= products[i]._id %>')"><a class="">View</a></button>
-                                        <!-- Product rating -->
-                                        <div class="rating">
-                                            <!-- Rating stars -->
-                                        </div>
-                                        <h5>₹ <%= products[i].price %></h5>
+                                        <br>
+                                        <!-- Display prices and discount percentage -->
+                                        <% if (products[i].isOfferApplied) { %>
+                                            <h6>
+                                                <!-- Product price in bold -->
+                                                <span style="font-weight: bold;">Rs. <%= products[i].price %></span>
+                                                <!-- Old price in secondary color with line-through -->
+                                                <span style="color: #6c757d; text-decoration: line-through;">Rs. <%= products[i].oldPrice %></span>
+                                                <!-- Discount percentage in danger color -->
+                                                <span style="color: #ff6666;">(<%= products[i].discountPercentage %>% OFF)</span>
+                                            </h6>
+                                        <% } else { %>
+                                            <h6>
+                                                <!-- Only display product price if no offer applied -->
+                                                <span style="font-weight: bold;">Rs. <%= products[i].price %></span>
+                                            </h6>
+                                        <% } %>
                                     </div>
                                 </div>
                             </div>

@@ -1,0 +1,89 @@
+<%- include('../layouts/header.ejs') %>
+<%- include('../admin/adminHeader.ejs') %>
+
+<!-- Breadcrumb Section Begin -->
+<section class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__text">
+                    <h4>Edit Banner</h4>
+                    <div class="breadcrumb__links">
+                        <a href="./index.html">Home</a>
+                        <span>Edit Banner</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<main class="main my-5">
+    <div class="container">
+        <h2 class="text-center">Edit Banner Details</h2>
+
+        <form class="container w-50 my-5" id="myForm" action="/admin/editBanner/<%= banner._id %>" method="post"
+            enctype="multipart/form-data">
+            <% if (message) { %>
+            <div class="alert alert-danger mt-3" role="alert">
+                <%= message %>
+            </div>
+            <% } %>
+
+            <div class="form-outline mb-4">
+                <label class="form-label mt-2" for="name">Banner name</label>
+                <input type="text" id="name" class="form-control" name="name" value="<%= banner.name %>" required />
+            </div>
+
+            <div class="form-outline mb-4">
+                <label class="form-label mt-2" for="description">Description</label>
+                <input type="text" id="description" class="form-control" name="description"
+                    value="<%= banner.description %>" required />
+            </div>
+
+            <div class="form-outline mb-4">
+                <label class="form-label mt-2" for="image">Change Image</label>
+                <input type="file" id="image" class="form-control" name="image" accept="image/*" />
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mx-4">
+                    <label for="image">Preview Image:</label>
+                    <div class="previewImages">
+                        <img src="/uploads/<%= banner.image %>" alt="Banner Image" class="img-fluid">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit button -->
+            <button type="submit" class="btn btn-dark btn-block mb-4">Update Banner</button>
+        </form>
+    </div>
+</main>
+
+<%- include('../admin/adminFooter.ejs') %>
+<%- include('../layouts/footer.ejs') %>
+
+<script>
+    $(document).ready(function () {
+        let imgPreview = function (input, imagePlace) {
+            if (input.files) {
+                let allFiles = input.files.length;
+                for (let i = 0; i < allFiles; i++) {
+                    let reader = new FileReader();
+                    reader.onload = function (event) {
+                        $($.parseHTML("<img>"))
+                            .attr("src", event.target.result)
+                            .appendTo(imagePlace);
+                    };
+                    reader.readAsDataURL(input.files[i]);
+                }
+            }
+        };
+
+        $("#image").on("change", function () {
+            $(".previewImages").empty();
+            imgPreview(this, "div.previewImages");
+        });
+    });
+</script>

@@ -8,6 +8,16 @@ const Category = require('../models/categoryModel');
 const Product = require('../models/productModel');
 const Cart = require('../models/cartModel');
 const Order = require('../models/orderModel');
+const Banner = require('../models/bannerModel');
+
+const { KEY_ID, KEY_SECRET } = process.env;
+const Razorpay = require('razorpay');
+const rzp = new Razorpay({
+  key_id: KEY_ID,
+  key_secret: KEY_SECRET,
+});
+
+const crypto = require('crypto');
 
 
 
@@ -77,11 +87,20 @@ const sendOTPByEmail = async (email, OTP) => {
     throw new Error('Error sending email');
   }
 };
+
+const generateReferralCode = (name, phone) => {
+  const namePrefix = name.substring(0, 5).toUpperCase();
+  const phoneSuffix = phone.toString().slice(-3);
+  const referralCode = `${namePrefix}${phoneSuffix}`;
+  return referralCode;
+};
+
+
 //usersignup
 
 const userSignup = async (req, res) => {
   try {
-    const { name, email, password, phone } = req.body;
+    const { name, email, password, phone,referralCode } = req.body;
 
     //render the templates
 
@@ -112,14 +131,18 @@ const userSignup = async (req, res) => {
     if (!phoneRegex.test(phone)) {
       return res.render('signup', { message: { phone: 'Please enter valid 10 digit phone number' }, menCategories, womenCategories, kidsCategories, beautyCategories, userID })
     }
+
+
+
+    req.session.referralCode = referralCode;
+
+
     const existingUser = await User.findOne({ email: email });
     if (existingUser) {
       return res.render('signup', { message: { email: 'Email already exist . Kindly Log In ' }, menCategories, womenCategories, kidsCategories, beautyCategories, userID });
     }
 
     const generatedOTP = generateOTP();
-
-
 
     req.session.userData = {
       name,
@@ -161,30 +184,23 @@ const getVerify = async (req, res) => {
 };
 
 //verify otp
-
 const verifyOTP = async (req, res) => {
   try {
-
     const menCategories = await Category.find({ categoryType: 'Men', isDeleted: false });
     const womenCategories = await Category.find({ categoryType: 'Women', isDeleted: false });
     const kidsCategories = await Category.find({ categoryType: 'Kids', isDeleted: false });
     const beautyCategories = await Category.find({ categoryType: 'Beauty', isDeleted: false });
     const userID = req.session.user_id || null;
-    let message = ''
-
 
     const { email, enteredOTP } = req.body;
-
     const userData = req.session.userData;
 
-    console.log('Entered OTP:', enteredOTP);
-    console.log('Stored OTP:', userData.OTP);
-
-    const cleanEnteredOTP = String(enteredOTP).trim(); // Convert to string and trim
+    const cleanEnteredOTP = String(enteredOTP).trim();
     const cleanStoredOTP = String(userData.OTP).trim();
 
     if (cleanStoredOTP === cleanEnteredOTP) {
       const hashedPassword = await hashPassword(userData.password);
+      const referralCode = generateReferralCode(userData.name, userData.phone);
 
       const newUser = new User({
         name: userData.name,
@@ -192,16 +208,32 @@ const verifyOTP = async (req, res) => {
         isadmin: userData.is_admin,
         phone: userData.phone,
         password: hashedPassword,
+        referral: {
+          code: referralCode,
+        },
         joinedDate: new Date(),
       });
 
+      if (req.session.referralCode) {
+        const referrer = await User.findOne({ 'referral.code': req.session.referralCode });
+
+        if (referrer) {
+          const referralAmountToAdd = 300;
+          const newUserAmountToAdd = 200;
+          referrer.wallet += referralAmountToAdd;
+          referrer.referral.amount += referralAmountToAdd;
+          newUser.wallet += newUserAmountToAdd;  
+          newUser.referral.amount += newUserAmountToAdd;
+          await referrer.save();
+        }
+        delete req.session.referralCode;
+      }
+
       await newUser.save();
-
       req.session.userData = null;
-
       res.redirect('/');
     } else {
-      res.status(400).render('verify', { message: 'Invalid OTP. Please Try Again', menCategories, womenCategories, kidsCategories, beautyCategories, userID, message });
+      res.status(400).render('verify', { message: 'Invalid OTP. Please Try Again', menCategories, womenCategories, kidsCategories, beautyCategories, userID });
     }
   } catch (error) {
     console.log(error.message);
@@ -314,33 +346,70 @@ const loadHome = async (req, res) => {
     let message = '';
 
     if (req.session.user_id) {
-      const userData = await User.findById({ _id: req.session.user_id });
+      const userData = await User.findById(req.session.user_id);
       if (userData) {
         if (userData.isblocked === true) {
           message = 'Your account has been blocked by the admin. Please sign up with a new account.';
           return res.redirect('/blockedUser');
         }
 
-        // Fetch menCategories
+        // Fetch categories
         const menCategories = await Category.find({ categoryType: 'Men', isDeleted: false });
         const womenCategories = await Category.find({ categoryType: 'Women', isDeleted: false });
         const kidsCategories = await Category.find({ categoryType: 'Kids', isDeleted: false });
         const beautyCategories = await Category.find({ categoryType: 'Beauty', isDeleted: false });
 
-        // Render the home page with userData, userID, message, and menCategories
+        // Fetch most ordered products
+        const mostOrderedProducts = await getMostOrderedProducts();
+
+        // Render the home page with userData, userID, message, and categories
         message = `Welcome back, ${userData.name}!`; // Welcome back message for logged-in users
-        return res.render('home', { user: userData, userID: req.session.user_id, message, menCategories, womenCategories, kidsCategories, beautyCategories });
+        return res.render('home', { user: userData, mostOrderedProducts, userID: req.session.user_id, message, menCategories, womenCategories, kidsCategories, beautyCategories });
       }
     } else {
       message = 'Please log in to continue.'; // Prompt to log in for non-logged-in users
-      res.redirect('/');
+      return res.redirect('/');
     }
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ error: 'Failed to load Home Page' });
-    res.redirect('/');
+    console.error("Error loading home page:", error.message);
+    return res.status(500).json({ error: 'Failed to load Home Page' });
   }
 };
+
+const getMostOrderedProducts = async () => {
+  try {
+    // Aggregate orders to count the number of each product ordered
+    const productOrders = await Order.aggregate([
+      { $unwind: "$items" },
+      { $group: { _id: "$items.product", totalOrdered: { $sum: "$items.quantity" } } },
+      { $sort: { totalOrdered: -1 } }, // Sort in descending order of totalOrdered
+      { $limit: 5 } // Limit to top 5 most ordered products
+    ]);
+
+    // Get product details for the most ordered products
+    const mostOrderedProducts = await Promise.all(productOrders.map(async (productOrder) => {
+      const product = await Product.findById(productOrder._id);
+      return {
+        _id: product._id,
+        name: product.name,
+        images: product.images,
+        totalOrdered: productOrder.totalOrdered,
+        price: product.price, // Add product price
+        oldPrice: product.oldPrice, // Add old price
+        discountPercentage: product.discountPercentage, // Add discount percentage
+        isOfferApplied: product.isOfferApplied, // Add isOfferApplied flag
+        categoryId: product.category
+      };
+    }));
+
+    return mostOrderedProducts;
+  } catch (error) {
+    console.error("Error fetching most ordered products:", error);
+    throw error;
+  }
+};
+
+
 
 // page to render the blocked user
 
@@ -579,7 +648,6 @@ const resetPassword = async (req, res) => {
 
 const loadCheckoutPage = async (req, res) => {
   try {
-    let itemsInCart = [];
     const userID = req.session.user_id;
     const menCategories = await Category.find({ categoryType: 'Men', isDeleted: false });
     const womenCategories = await Category.find({ categoryType: 'Women', isDeleted: false });
@@ -591,9 +659,11 @@ const loadCheckoutPage = async (req, res) => {
 
     const userCart = await Cart.findOne({ user: userID }).populate('items.product');
 
+    const subTotal = userCart.totalPrice;
+
     if (!userCart || userCart.items.length === 0) {
       console.log('No items in the cart.');
-      return res.render('cart', { menCategories, womenCategories, beautyCategories, kidsCategories, userID, message, itemsInCart, productTotal });
+      return res.render('cart', { menCategories, womenCategories, beautyCategories, kidsCategories, userID, message, itemsInCart: [], productTotal: [], req: req });
     }
 
     const user = await User.findById(userID).exec();
@@ -604,23 +674,26 @@ const loadCheckoutPage = async (req, res) => {
       index,
     }));
 
-     // Check stock availability
-    const isStockAvailable = userCart.items.every(cartItem => cartItem.product.stockinCount >= cartItem.quantity);
+    // Check stock availability for each item in the cart
+    const stockAvailability = userCart.items.every(cartItem => {
+      const product = cartItem.product;
+      const requestedQuantity = cartItem.quantity;
+      const size = cartItem.size;
+      const selectedSize = product.sizes.find(s => s.size === size);
+      return selectedSize && selectedSize.stock >= requestedQuantity;
+    });
 
-    if (!isStockAvailable) {
+    if (!stockAvailability) {
       req.session.message = {
         type: 'danger',
-        message: 'Some products in your cart are out of stock.',
+        message: 'Some products in your cart are out of stock or insufficient stock.',
         fromRedirect: true,
       };
       return res.redirect('/cart');
     }
 
-    itemsInCart = userCart ? userCart.items : [];
-    console.log('Items in cart:', itemsInCart);
-
+    const itemsInCart = userCart.items;
     const totalPriceOfCart = userCart.totalPrice;
-    console.log('Total price of cart:', totalPriceOfCart);
 
     const productTotal = itemsInCart.map((cartItem) => {
       if (cartItem.product && cartItem.product.price) {
@@ -631,13 +704,24 @@ const loadCheckoutPage = async (req, res) => {
       }
     });
 
-    res.render('checkout', { message, userID, menCategories, womenCategories, kidsCategories, beautyCategories, Addresses, itemsInCart, totalPriceOfCart, productTotal });
+    const couponDetails = req.session.couponDetails || null;
+    let totalPriceAfterDiscount = totalPriceOfCart;
+    if (couponDetails) {
+      totalPriceAfterDiscount -= couponDetails.discount || 0;
+    }
 
+    const userWalletBalance = user.wallet || 0;
+
+    res.render('checkout', { message, userID, menCategories, womenCategories, kidsCategories, beautyCategories, Addresses, itemsInCart, totalPriceOfCart, productTotal, req: req, couponDetails, user, userWalletBalance, subTotal, totalPriceAfterDiscount });
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({ error: 'Invalid Session Error' })
+    res.status(500).json({ error: 'Invalid Session Error' });
   }
-}
+};
+
+
+
+
 
 const loadAddAddress = async (req, res) => {
   try {
@@ -660,33 +744,7 @@ const saveAddress = async (req, res) => {
     const userID = req.session.user_id;
     const { fullName, country, addressLine, locality, city, state, pinCode, phone } = req.body;
 
-    // Validate the form data
-    const validationErrors = [];
-
-    // Check if fields start with space
-    if (fullName.startsWith(' ') || country.startsWith(' ') || addressLine.startsWith(' ') || locality.startsWith(' ') || city.startsWith(' ') || state.startsWith(' ')) {
-      validationErrors.push('Fields should not start with space');
-    }
-
-    // Check pinCode format (numeric and 6 digits)
-    const pinCodeRegex = /^\d{6}$/;
-    if (!pinCodeRegex.test(pinCode)) {
-      validationErrors.push('Pincode should be a 6-digit number');
-    }
-
-    // Check phone format (numeric and 10 digits)
-    const phoneRegex = /^\d{10}$/;
-    if (!phoneRegex.test(phone)) {
-      validationErrors.push('Phone number should be a 10-digit number');
-    }
-
-    // If there are validation errors, store them in flash and redirect
-    if (validationErrors.length > 0) {
-      req.flash('validationErrors', validationErrors);
-      return res.redirect('/addAddress'); // Adjust the route based on your setup
-    }
-
-    // If no validation errors, continue with saving the address
+    
     const user = await User.findById(userID);
     if (!user) {
       return res.status(500).json({ message: 'User not found' });
@@ -704,12 +762,13 @@ const saveAddress = async (req, res) => {
     });
 
     await user.save();
-    res.status(200).json({ status: 'success', message: 'Address successfully updated.' });
+    res.redirect('/checkout');
   } catch (error) {
     console.log(error);
     return res.status(500).json({ error: 'Invalid Session Error' });
   }
-}
+};
+
 
 
 
@@ -768,6 +827,7 @@ const updateAddress = async (req, res) => {
     const formData = req.body;
     const userID = req.session.user_id;
     const user = await User.findOne({ 'addresses._id': formData.addressId });
+
     if (!user) {
       return res.status(404).json({ status: 'error', message: 'Address not found' });
     }
@@ -778,24 +838,26 @@ const updateAddress = async (req, res) => {
       return res.status(404).json({ status: 'error', message: 'Address not found' });
     }
 
-    const updateAddress = user.addresses[addressIndex];
-    updateAddress.fullName = formData.fullName;
-    updateAddress.country = formData.country;
-    updateAddress.addressLine = formData.addressLine;
-    updateAddress.locality = formData.locality;
-    updateAddress.city = formData.city;
-    updateAddress.state = formData.state;
-    updateAddress.pinCode = formData.pinCode;
-    updateAddress.phone = formData.phone;
+    // Update the address fields
+    user.addresses[addressIndex].fullName = formData.fullName;
+    user.addresses[addressIndex].country = formData.country;
+    user.addresses[addressIndex].addressLine = formData.addressLine;
+    user.addresses[addressIndex].locality = formData.locality;
+    user.addresses[addressIndex].city = formData.city;
+    user.addresses[addressIndex].state = formData.state;
+    user.addresses[addressIndex].pinCode = formData.pinCode;
+    user.addresses[addressIndex].phone = formData.phone;
 
+    // Save the updated user object
     await user.save();
 
-    res.status(200).json({ status: 'success', message: 'Address successfully updated.' })
+    // Redirect to the checkout page after successful update
+    res.redirect('/checkout');
   } catch (error) {
-    console.log(error.message);
+    console.error(error.message);
     res.status(500).json({ status: 'error', message: 'Internal Server Error' });
   }
-}
+};
 
 
 const loadUserAccount = async (req, res) => {
@@ -952,6 +1014,89 @@ const editMyPassword = async (req, res) => {
   }
 }
 
+const loadMyWallet = async(req,res)=>{
+  try {
+    const menCategories = await getCategoryiesByType('Men');
+    const womenCategories = await getCategoryiesByType('Women');
+    const kidsCategories = await getCategoryiesByType('Kids');
+    const beautyCategories = await getCategoryiesByType('Beauty');
+
+    let message = '';
+    const userID = req.session.user_id;
+    const user = await User.findById(userID);
+    const transactions = user.transaction
+
+    const title = 'Wallet'
+
+    res.render('myWallet',{menCategories,womenCategories,kidsCategories,beautyCategories,message,userID,title,user})
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({message:'Invalid Session Error'});
+  }
+}
+
+const addtowallet = async (req, res) => {
+  try {
+    const amount = req.body.amount * 100;
+
+    const options = {
+      amount: amount,
+      currency: 'INR',
+      receipt: 'order_receipt',
+    };
+
+    const order = await rzp.orders.create(options);
+
+   
+
+    res.json(order);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Unable to create Razorpay order.' });
+  }
+};
+
+
+const razorpaySuccess = async (req, res) => {
+  try {
+    const paymentId = req.body.response.razorpay_payment_id;
+    const orderId = req.body.response.razorpay_order_id;
+    const signature = req.body.response.razorpay_signature;
+
+    const generateSignature = crypto
+      .createHmac('sha256', KEY_SECRET)
+      .update(orderId + '|' + paymentId)
+      .digest('hex');
+
+    if (generateSignature !== signature) {
+      return res.status(403).json({ error: 'Invalid Razorpay signature' });
+    }
+
+    const userId = req.session.user_id;
+    const amount = req.body.order.amount / 100; // Multiply by 100 to convert back to rupees
+
+    const user = await User.findById(userId);
+
+    user.wallet += amount;
+
+    const transaction = {
+      description:'Amount credited to wallet',
+      amount:amount,
+    }
+
+    user.transactions.push(transaction);
+
+    await user.save();
+
+    res.json({ status: 'success' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Invalid Session Error' });
+  }
+};
+
+
+
 const loadOrderedItems = async (req, res) => {
   try {
     const userID = req.session.user_id;
@@ -972,8 +1117,6 @@ const loadOrderedItems = async (req, res) => {
       return res.status(404).json({ message: 'Order not found' });
     }
 
-
-    // Check if orderInfo is an array before rendering the view
     const orderInfoArray = Array.isArray(orderInfo) ? orderInfo : [orderInfo];
 
     res.render('orderItems', { userID, user, menCategories, womenCategories, kidsCategories, beautyCategories, message, orderId, orderInfo, title, orderInfo: orderInfoArray });
@@ -983,6 +1126,157 @@ const loadOrderedItems = async (req, res) => {
     res.status(500).json({ message: 'Invalid Session Error' });
   }
 }
+
+const moment = require('moment');
+const PDFDocument = require('pdfkit'); 
+const PdfPrinter = require('pdfmake'); 
+
+
+const generateInvoicePDF = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const orderInfo = await Order.findById(orderId).populate('items.product');
+    const user = await User.findById(req.session.user_id);
+
+    if (!orderInfo || !user || !user.addresses || user.addresses.length === 0) {
+      return res.status(404).json({ message: 'Order, user, or user addresses not found or incomplete' });
+    }
+
+    // Assuming only one address is used for the invoice
+    const userAddress = user.addresses[0];
+
+    // Calculate total price, discount amount, and grand total from the order
+    const totalPrice = orderInfo.totalPrice || 0;
+    const discountAmount = orderInfo.discount_amount || 0;
+    const grandTotal = orderInfo.grand_total || 0;
+
+    const docDefinition = {
+      content: [
+        {
+          columns: [
+            // Company Name and Address
+            [
+              { text: 'Conclave - The Fashion Store', style: 'companyName' },
+              { text: '123, ABC Building, XYZ Road, Near Example Chowk', style: 'address' },
+              { text: 'Mumbai, Maharashtra, India - 400001', style: 'address' },
+            ],
+            // Spacer
+            ''
+          ],
+          margin: [0, 0, 0, 20], // Adjust the margin as needed
+        },
+        { text: 'Invoice', style: 'header' },
+        {
+          columns: [
+            [
+              { text: 'Customer Name:', style: 'subheader' },
+              { text: 'Order ID:', style: 'subheader' },
+              { text: 'Order Date:', style: 'subheader' },
+              { text: 'Bill Address:', style: 'subheader' }
+            ],
+            [
+              { text: user.name, style: 'subheaderValue' },
+              { text: orderInfo.orderID, style: 'subheaderValue' },
+              { text: moment(orderInfo.orderDate).format('DD-MM-YYYY'), style: 'subheaderValue' },
+              { text: `${userAddress.fullName}, ${userAddress.addressLine}, ${userAddress.city}, ${userAddress.state}, ${userAddress.pinCode}`, style: 'subheaderValue' }
+            ]
+          ]
+        },
+        { text: 'Order Details:', style: 'subheader' },
+        {
+          table: {
+            headerRows: 1,
+            widths: ['*', 'auto', 'auto'],
+            body: [
+              [
+                { text: 'Product Name', style: 'tableHeader' },
+                { text: 'Quantity', style: 'tableHeader' },
+                { text: 'Price', style: 'tableHeader' }
+              ],
+              ...(orderInfo.items.map(item => [
+                { text: item.product ? item.product.name : '', style: 'tableCell' },
+                { text: item.quantity ? item.quantity.toString() : '', style: 'tableCell' },
+                { text: item.price ? item.price.toString() : '', style: 'tableCell' }
+              ]))
+            ]
+          }
+        },
+        { text: `Total Amount: ${totalPrice}`, style: 'subheader' },
+        { text: `Discount Amount: ${discountAmount}`, style: 'subheader' },
+        { text: `Grand Total: ${grandTotal}`, style: 'subheader' },
+        // Add the order summary section
+        { text: 'Order Summary:', style: 'subheader' },
+        {
+          ul: [
+            `Subtotal: ${totalPrice}`,
+            `Discount Amount: ${discountAmount}`,
+            `Grand Total: ${grandTotal}`,
+          ]
+        }
+      ],
+      styles: {
+        header: {
+          fontSize: 14,
+          bold: true,
+          margin: [0, 0, 0, 10],
+          alignment: 'center'
+        },
+        subheader: {
+          fontSize: 11,
+          bold: true,
+          margin: [0, 10, 0, 5]
+        },
+        subheaderValue: {
+          fontSize: 10,
+          margin: [0, 10, 0, 5]
+        },
+        tableHeader: {
+          bold: true,
+          fontSize: 10,
+          color: 'black'
+        },
+        tableCell: {
+          fontSize: 10
+        },
+        companyName: {
+          fontSize: 12,
+          bold: true,
+          margin: [0, 0, 0, 5]
+        },
+        address: {
+          fontSize: 10,
+          margin: [0, 0, 0, 3]
+        }
+      }
+    };
+
+    // Create a PDF document
+    const printer = new PdfPrinter({
+      Roboto: {
+        normal: Buffer.from(require('pdfmake/build/vfs_fonts').pdfMake.vfs['Roboto-Regular.ttf'], 'base64'),
+        bold: Buffer.from(require('pdfmake/build/vfs_fonts').pdfMake.vfs['Roboto-Medium.ttf'], 'base64'),
+        italics: Buffer.from(require('pdfmake/build/vfs_fonts').pdfMake.vfs['Roboto-Italic.ttf'], 'base64'),
+        bolditalics: Buffer.from(require('pdfmake/build/vfs_fonts').pdfMake.vfs['Roboto-MediumItalic.ttf'], 'base64')
+      }
+    });
+    const pdfDoc = printer.createPdfKitDocument(docDefinition);
+
+    // Set headers for PDF download
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=invoice_${orderId}.pdf`);
+
+    // Pipe the PDF content to the response
+    pdfDoc.pipe(res);
+    pdfDoc.end();
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Error generating PDF invoice' });
+  }
+};
+
+
+
+
 
 const cancelOrder = async (req, res) => {
   try {
@@ -995,8 +1289,36 @@ const cancelOrder = async (req, res) => {
     }
 
     if (order.orderStatus !== 'cancelled') {
-      order.orderStatus = 'cancelled';
+      
+      for (const orderItem of order.items) {
+        const product = await Product.findById(orderItem.product);
 
+        if (product) {
+          product.stockinCount += orderItem.quantity;
+          await product.save();
+        }
+      }
+
+      const grandTotal = order.grand_total;
+
+      
+      const user = await User.findById(order.user);
+      if (user) {
+        user.wallet += grandTotal;
+
+        const transaction = {
+          description:'Order cancelled',
+          amount:grandTotal,
+          date:new Date()
+        };
+        
+        user.transactions.push(transaction);
+
+        await user.save();
+      }
+
+      
+      order.orderStatus = 'cancelled';
       await order.save();
 
       return res.redirect(`/orderItems/${orderId}`);
@@ -1004,11 +1326,10 @@ const cancelOrder = async (req, res) => {
       return res.status(400).json({ message: 'Order is already Cancelled' });
     }
   } catch (error) {
-    console.log(error.message);
-    re.status(500).json('Invalid Session Error')
+    console.error(error.message);
+    res.status(500).json('Invalid Session Error');
   }
-}
-
+};
 
 
 const cancelProductInOrder = async (req, res) => {
@@ -1022,34 +1343,79 @@ const cancelProductInOrder = async (req, res) => {
       return res.status(404).json({ status: 'error', message: 'Order not found' });
     }
 
-
     if (order.orderStatus === 'cancelled') {
       return res.status(400).json({ status: 'error', message: 'Order is already cancelled' });
     }
 
-    // Check if the index is valid
     if (index < 0 || index >= order.items.length) {
       return res.status(400).json({ status: 'error', message: 'Invalid product index' });
     }
 
-
-    console.log('Order ID:', orderId);
-    console.log('Product Index:', index);
-    console.log('Order Items:', order.items);
-
-
     const canceledProduct = order.items[index];
     const canceledProductValue = canceledProduct.price * canceledProduct.quantity;
 
-    // Use $pull to remove the product from the order's items array based on the index
-    order.items.pull({ _id: canceledProduct._id });
+    // Update product stock count
+    const product = await Product.findById(canceledProduct.product);
+    if (product) {
+      const sizeIndex = product.sizes.findIndex(sizeObj => sizeObj.size === canceledProduct.size);
+      if (sizeIndex !== -1) {
+        product.sizes[sizeIndex].stock += canceledProduct.quantity;
+        await product.save();
+      }
+    }
 
-    // Update the total price of the order
-    order.totalPrice -= canceledProductValue;
+    // Set the product as cancelled
+    order.items[index].cancelled = true;
+
+    const allItemsCancelled = order.items.every(item => item.cancelled);
+
+    // If all items are cancelled, update the order status to cancelled
+    if (allItemsCancelled) {
+      order.orderStatus = 'cancelled';
+      
+
+      const user = await User.findById(order.user);
+      if (user) {
+        // Refund the subtotal amount to user's wallet
+        user.wallet += order.totalPrice;
+        
+        order.discount_amount = 0;
+        order.totalPrice = 0;
+        order.grand_total = 0;
+
+        const transaction = {
+          description: `Refund for cancelled order ID: ${orderId}`,
+          amount: order.totalPrice,
+          date: new Date(),
+        };
+        user.transactions.push(transaction);
+        await user.save();
+      }
+    } else {
+      // Update total price and grand total
+      order.totalPrice -= canceledProductValue;
+      order.grand_total -= canceledProductValue;
+    }
 
     // Save the updated order
     await order.save();
 
+    // Refund amount to user's wallet for the canceled product
+    const user = await User.findById(order.user);
+    if (user) {
+      // Refund the canceled product value to user's wallet
+      user.wallet += canceledProductValue;
+      // Create transaction record for the canceled product refund
+      const transaction = {
+        description: `Refund for cancelled product  in order ID: ${orderId}`,
+        amount: canceledProductValue,
+        date: new Date(),
+      };
+      user.transactions.push(transaction);
+      await user.save();
+    }
+
+    // Redirect the user to the order items page
     return res.redirect(`/orderItems/${orderId}`);
   } catch (error) {
     console.error('Error cancelling product:', error);
@@ -1058,6 +1424,161 @@ const cancelProductInOrder = async (req, res) => {
 };
 
 
+const returnOrder = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({ status: 'error', message: 'Order not found' });
+    }
+
+    if (order.orderStatus === 'returned') {
+      return res.status(400).json({ status: 'error', message: 'Order is already returned' });
+    }
+
+    // Adjust the refunded amount if a coupon is applied
+    let refundedAmount = order.grand_total;
+
+
+    // Return products and adjust stock count
+    for (const orderItem of order.items) {
+      const productId = orderItem.product;
+      const quantityReturned = orderItem.quantity;
+
+      const product = await Product.findById(productId);
+
+      if (product) {
+        product.stockinCount += quantityReturned;
+        await product.save();
+      }
+    }
+
+    // Refund amount to the user's wallet
+    const user = await User.findById(order.user);
+
+    if (user) {
+      user.wallet += refundedAmount;
+
+      const transaction = {
+        description :'Order Refunded',
+        amount:refundedAmount,
+        date:new Date(),
+      }
+
+      user.transactions.push(transaction)
+
+      await user.save();
+    }
+
+    // Update order status to 'returned'
+    order.orderStatus = 'returned';
+    await order.save();
+
+    return res.redirect(`/orderItems/${orderId}`);
+  } catch (error) {
+    console.error('Error returning order:', error);
+    return res.status(500).json({ status: 'error', message: 'Failed to return order' });
+  }
+};
+
+
+
+const returnProduct = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const index = parseInt(req.params.index);
+
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({ status: 'error', message: 'Order not found' });
+    }
+
+    if (order.orderStatus !== 'delivered') {
+      return res.status(400).json({ status: 'error', message: 'Order is not delivered' });
+    }
+
+    if (index < 0 || index >= order.items.length) {
+      return res.status(400).json({ status: 'error', message: 'Invalid product index' });
+    }
+
+    const returnedProduct = order.items[index];
+
+    if (returnedProduct.returned) {
+      return res.status(400).json({ status: 'error', message: 'Product is already returned' });
+    }
+
+    const returnedProductValue = returnedProduct.price * returnedProduct.quantity;
+
+    // Update user's wallet
+    const user = await User.findById(order.user);
+    if (user) {
+      user.wallet += returnedProductValue;
+
+      const transaction = {
+        description : `Returned Product`,
+        amount: returnedProductValue,
+        date: new Date()
+      };
+      user.transactions.push(transaction);
+
+      await user.save();
+    }
+
+    // Update product stock count
+    const product = await Product.findById(returnedProduct.product);
+    if (product) {
+      const sizeIndex = product.sizes.findIndex(sizeObj => sizeObj.size === returnedProduct.size);
+      if (sizeIndex !== -1) {
+        product.sizes[sizeIndex].stock += returnedProduct.quantity;
+        await product.save();
+      }
+    }
+
+    // Mark the returned product
+    returnedProduct.returned = true;
+
+    // Check if all items are returned
+    const allItemsReturned = order.items.every(item => item.returned);
+
+    if (allItemsReturned || order.items.length === 1) {
+      // Mark the order as returned if all items are returned or if only one item was in the order
+      order.orderStatus = 'returned';
+
+      
+
+      const user = await User.findById(order.user);
+      if (user) {
+        user.wallet += order.totalPrice;
+
+        order.discount_amount = 0;
+        order.totalPrice = 0;
+        order.grand_total = 0;
+
+
+        const transaction = {
+          description: `Refund for Returned order ID: ${orderId}`,
+          amount: order.subtotal,
+          date: new Date(),
+        };
+        user.transactions.push(transaction);
+        await user.save();
+      }
+    }
+
+    // Update order totals
+    order.totalPrice -= returnedProductValue;
+    order.grand_total -= returnedProductValue;
+
+    await order.save();
+
+    return res.redirect(`/orderItems/${orderId}`);
+  } catch (error) {
+    console.error('Error returning product:', error);
+    return res.status(500).json({ status: 'error', message: 'Failed to return product' });
+  }
+};
 
 
 
@@ -1093,8 +1614,14 @@ module.exports = {
   loadMyPassword,
   editMyPassword,
   loadOrderedItems,
+  generateInvoicePDF,
   cancelOrder,
-  cancelProductInOrder
+  cancelProductInOrder,
+  loadMyWallet,
+  addtowallet,
+  razorpaySuccess,
+  returnOrder,
+  returnProduct
 }
 
 

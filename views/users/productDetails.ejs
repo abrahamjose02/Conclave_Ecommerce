@@ -1,533 +1,225 @@
 <%- include('../layouts/header.ejs') %>
 
-    <%- include('../users/userHeader.ejs') %>
-        <section class="breadcrumb-option">
-            <div class="container">
-                <!-- Your breadcrumb content -->
-                <div class="breadcrumb__text">
-                    <h4>Shop - <%= categoryType %> - <%= categoryName %>
-                    </h4>
-                    <!-- Breadcrumb links -->
-                    <div class="breadcrumb__links">
-                        <a href="/home">Home</a>
-                        <span>
-                            <%=productName%>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <section>
-            <div class="row mt-5">
-                <% if (products && products.length > 0) { %>
-                    <% products.forEach((product, i) => { %>
-                        <div class="col-lg-2 col-md-3 d-flex align-items-md-center justify-content-center">
-                            <ul class="nav nav-tabs ml-5" role="tablist">
-                                <% const productImages = product.images || []; %>
-                                <% productImages.forEach((image, j) => { %>
-                                    <li class="nav-item">
-                                        <a class="nav-link" data-toggle="tab" href="#" onclick="updateMainImage('/uploads/<%= image %>')">
-                                            <img src="/uploads/<%= image || 'no-image.webp' %>" style="background-size: cover; background-repeat: no-repeat; height: 120px; width: 95px;" alt="Product Image <%= j + 1 %>">
-                                        </a>
-                                    </li>
-                                <% }) %>
-                            </ul>
-                        </div>
+<%- include('../users/userHeader.ejs') %>
+<section class="breadcrumb-option">
+    <div class="container">
         
-                        <div class="col-lg-8 col-md-9 d-flex align-items-left justify-content-left">
-                            <div class="tab-content">
-                                <% product.images.forEach((image, k) => { %>
-                                    <div class="tab-pane <%= k === 0 ? 'active' : '' %>" id="tabs-<%= k + 1 %>" role="tabpanel">
-                                        <!-- Display the product image and details in the same row -->
-                                        <div class="row">
-                                            <div class="col-lg-6 col-md-6">
-                                                <!-- Display the main product image with zoom and crop -->
-                                                <div class="product-image-container">
-                                                    <img id="mainProductImage" class="zoom" src="/uploads/<%= product.images[0] || 'no-image.webp' %>" alt="Main Product Image">
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-6 col-md-6">
-                                                <!-- Render product details -->
-                                                <h3><strong><%= product.name %></strong></h3>
-                                                <div class="rating my-4">
-                                                    <% const rating = 4; /* Replace this with your product's actual rating */ %>
-                                                    <% for (let i = 0; i < 5; i++) { %>
-                                                        <i class="fa fa-star<%= i < rating ? '' : '-o' %>"></i>
-                                                    <% } %>
-                                                    <!-- Display the rating value -->
-                                                    <span><%= rating %>/5</span>
-                                                </div>
-                                                <p><%= product.description %></p>
-                                                <h6 class="my-4"><strong>Select Size:</strong></h6>
-                                                <div class="sizes-container">
-                                                    <% if (product.size && Array.isArray(product.size)) { %>
-                                                        <% product.size.forEach((size) => { %>
-                                                            <button class="size-box" onclick="handleSizeSelection('<%= size %>')"> <%= size %> </button>
-                                                        <% }) %>
-                                                    <% } else { %>
-                                                        <!-- Handle case where sizes are not available -->
-                                                        <div>No sizes available</div>
-                                                    <% } %>
-                                                </div>
-        
-                                                <br>
-        
-                                                <!-- Product Price -->
-                                                <h4><strong>Price: <%= product.price %></strong></h4>
-                                                <!-- Add to Cart Button -->
-                                                <!-- Inside the section where the products are displayed -->
-                                                <button class="btn btn-primary mt-3" onclick="selectSizeAndAddToCart('<%= product._id %>')">Add to Cart</button>
-        
-                                                <button class="btn btn-warning mt-3 mx-3">Add to wishlist</button>
-                                                <!-- Other Details -->
-                                                <div class="other-details mt-4">
-                                                    <table>
-                                                        <tr>
-                                                            <td>
-                                                                <div class="me-3 my-3">
-                                                                    <i class="fa fa-lock"></i>
-                                                                    <span>Secure Payments</span>
-                                                                </div>
-                                                            </td>
-                                                            <td>
-                                                                <div class="mx-5 my-3">
-                                                                    <i class="fa fa-ruler"></i>
-                                                                    <span>Size and Fit</span>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>
-                                                                <div class="me-3 my-3">
-                                                                    <i class="fa fa-truck"></i>
-                                                                    <span>Free Shipping</span>
-                                                                </div>
-                                                            </td>
-                                                            <td>
-                                                                <div class="mx-5 my-3">
-                                                                    <i class="fa fa-undo"></i>
-                                                                    <span>Free Shipping & Returns</span>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <% }) %>
-                            </div>
-                        </div>
-                    <% }) %>
-                <% } %>
-            </div>
-        </section>
-
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="product__details__tab">
-                    <ul class="nav nav-tabs" role="tablist">
-                        <li class="nav-item">
-                            <a class="nav-link active" data-toggle="tab" href="#tabs-5" role="tab">Description</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#tabs-6" role="tab">Customer
-                                Previews(5)</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#tabs-7" role="tab">Additional
-                                information</a>
-                        </li>
-                    </ul>
-                    <div class="tab-content">
-                        <div class="tab-pane active" id="tabs-5" role="tabpanel">
-                            <div class="product__details__tab__content">
-                                <p class="note">Nam tempus turpis at metus
-                                    scelerisque placerat nulla
-                                    deumantos
-                                    solicitud felis. Pellentesque diam dolor,
-                                    elementum etos lobortis des
-                                    mollis
-                                    ut risus. Sedcus faucibus an sullamcorper mattis
-                                    drostique des commodo
-                                    pharetras loremos.</p>
-                                <div class="product__details__tab__content__item">
-                                    <h5>Products Infomation</h5>
-                                    <p>A Pocket PC is a handheld computer, which
-                                        features many of the same
-                                        capabilities as a modern PC. These handy
-                                        little devices allow
-                                        individuals to retrieve and store e-mail
-                                        messages, create a contact
-                                        file, coordinate appointments, surf the
-                                        internet, exchange text
-                                        messages
-                                        and more. Every product that is labeled as a
-                                        Pocket PC must be
-                                        accompanied with specific software to
-                                        operate the unit and must
-                                        feature
-                                        a touchscreen and touchpad.</p>
-                                    <p>As is the case with any new technology
-                                        product, the cost of a Pocket
-                                        PC
-                                        was substantial during it’s early release.
-                                        For approximately
-                                        $700.00,
-                                        consumers could purchase one of
-                                        top-of-the-line Pocket PCs in 2003.
-                                        These days, customers are finding that
-                                        prices have become much more
-                                        reasonable now that the newness is wearing
-                                        off. For approximately
-                                        $350.00, a new Pocket PC can now be
-                                        purchased.</p>
-                                </div>
-                                <div class="product__details__tab__content__item">
-                                    <h5>Material used</h5>
-                                    <p>Polyester is deemed lower quality due to its
-                                        none natural quality’s.
-                                        Made
-                                        from synthetic materials, not natural like
-                                        wool. Polyester suits
-                                        become
-                                        creased easily and are known for not being
-                                        breathable. Polyester
-                                        suits
-                                        tend to have a shine to them compared to
-                                        wool and cotton suits, this
-                                        can
-                                        make the suit look cheap. The texture of
-                                        velvet is luxurious and
-                                        breathable. Velvet is a great choice for
-                                        dinner party jacket and can
-                                        be
-                                        worn all year round.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="tab-pane" id="tabs-6" role="tabpanel">
-                            <div class="product__details__tab__content">
-                                <div class="product__details__tab__content__item">
-                                    <h5>Products Infomation</h5>
-                                    <p>A Pocket PC is a handheld computer, which
-                                        features many of the same
-                                        capabilities as a modern PC. These handy
-                                        little devices allow
-                                        individuals to retrieve and store e-mail
-                                        messages, create a contact
-                                        file, coordinate appointments, surf the
-                                        internet, exchange text
-                                        messages
-                                        and more. Every product that is labeled as a
-                                        Pocket PC must be
-                                        accompanied with specific software to
-                                        operate the unit and must
-                                        feature
-                                        a touchscreen and touchpad.</p>
-                                    <p>As is the case with any new technology
-                                        product, the cost of a Pocket
-                                        PC
-                                        was substantial during it’s early release.
-                                        For approximately
-                                        $700.00,
-                                        consumers could purchase one of
-                                        top-of-the-line Pocket PCs in 2003.
-                                        These days, customers are finding that
-                                        prices have become much more
-                                        reasonable now that the newness is wearing
-                                        off. For approximately
-                                        $350.00, a new Pocket PC can now be
-                                        purchased.</p>
-                                </div>
-                                <div class="product__details__tab__content__item">
-                                    <h5>Material used</h5>
-                                    <p>Polyester is deemed lower quality due to its
-                                        none natural quality’s.
-                                        Made
-                                        from synthetic materials, not natural like
-                                        wool. Polyester suits
-                                        become
-                                        creased easily and are known for not being
-                                        breathable. Polyester
-                                        suits
-                                        tend to have a shine to them compared to
-                                        wool and cotton suits, this
-                                        can
-                                        make the suit look cheap. The texture of
-                                        velvet is luxurious and
-                                        breathable. Velvet is a great choice for
-                                        dinner party jacket and can
-                                        be
-                                        worn all year round.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="tab-pane" id="tabs-7" role="tabpanel">
-                            <div class="product__details__tab__content">
-                                <p class="note">Nam tempus turpis at metus
-                                    scelerisque placerat nulla
-                                    deumantos
-                                    solicitud felis. Pellentesque diam dolor,
-                                    elementum etos lobortis des
-                                    mollis
-                                    ut risus. Sedcus faucibus an sullamcorper mattis
-                                    drostique des commodo
-                                    pharetras loremos.</p>
-                                <div class="product__details__tab__content__item">
-                                    <h5>Products Infomation</h5>
-                                    <p>A Pocket PC is a handheld computer, which
-                                        features many of the same
-                                        capabilities as a modern PC. These handy
-                                        little devices allow
-                                        individuals to retrieve and store e-mail
-                                        messages, create a contact
-                                        file, coordinate appointments, surf the
-                                        internet, exchange text
-                                        messages
-                                        and more. Every product that is labeled as a
-                                        Pocket PC must be
-                                        accompanied with specific software to
-                                        operate the unit and must
-                                        feature
-                                        a touchscreen and touchpad.</p>
-                                    <p>As is the case with any new technology
-                                        product, the cost of a Pocket
-                                        PC
-                                        was substantial during it’s early release.
-                                        For approximately
-                                        $700.00,
-                                        consumers could purchase one of
-                                        top-of-the-line Pocket PCs in 2003.
-                                        These days, customers are finding that
-                                        prices have become much more
-                                        reasonable now that the newness is wearing
-                                        off. For approximately
-                                        $350.00, a new Pocket PC can now be
-                                        purchased.</p>
-                                </div>
-                                <div class="product__details__tab__content__item">
-                                    <h5>Material used</h5>
-                                    <p>Polyester is deemed lower quality due to its
-                                        none natural quality’s.
-                                        Made
-                                        from synthetic materials, not natural like
-                                        wool. Polyester suits
-                                        become
-                                        creased easily and are known for not being
-                                        breathable. Polyester
-                                        suits
-                                        tend to have a shine to them compared to
-                                        wool and cotton suits, this
-                                        can
-                                        make the suit look cheap. The texture of
-                                        velvet is luxurious and
-                                        breathable. Velvet is a great choice for
-                                        dinner party jacket and can
-                                        be
-                                        worn all year round.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="breadcrumb__text">
+            <h4>Shop - <%= categoryType %> - <%= categoryName %></h4>
+            <!-- Breadcrumb links -->
+            <div class="breadcrumb__links">
+                <a href="/home">Home</a>
+                <span><%= productName %></span>
             </div>
         </div>
+    </div>
+</section>
+<section>
+    <div class="row mt-5">
+        <% if (products && products.length > 0) { %>
+            <% products.forEach((product, i) => { %>
+                <div class="col-lg-2 col-md-3 d-flex align-items-md-center justify-content-center">
+                    <ul class="nav nav-tabs ml-5" role="tablist">
+                        <% const productImages = product.images || []; %>
+                        <% productImages.forEach((image, j) => { %>
+                            <li class="nav-item">
+                                <a class="nav-link" data-toggle="tab" href="#" onclick="updateMainImage('/uploads/<%= image %>')">
+                                    <img src="/uploads/<%= image || 'no-image.webp' %>" style="background-size: cover; background-repeat: no-repeat; height: 120px; width: 95px;" alt="Product Image <%= j + 1 %>">
+                                </a>
+                            </li>
+                        <% }) %>
+                    </ul>
+                </div>
 
+                <div class="col-lg-8 col-md-9 d-flex align-items-left justify-content-left">
+                    <div class="tab-content">
+                        <% product.images.forEach((image, k) => { %>
+                            <div class="tab-pane <%= k === 0 ? 'active' : '' %>" id="tabs-<%= k + 1 %>" role="tabpanel">
+                                <!-- Display the product image and details in the same row -->
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-6">
+                                        <!-- Display the main product image with zoom and crop -->
+                                        <div class="product-image-container">
+                                            <img id="mainProductImage" class="zoom" src="/uploads/<%= product.images[0] || 'no-image.webp' %>" alt="Main Product Image">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6">
+                                        <!-- Render product details -->
+                                        <h3><strong><%= product.name %></strong></h3>
+                                        <div class="rating my-4">
+                                            <% const rating = product.rating || 0; %>
+                                            <% for (let i = 0; i < 5; i++) { %>
+                                                <i class="fa fa-star<%= i < rating ? '' : '-o' %>"></i>
+                                            <% } %>
+                                            <!-- Display the rating value -->
+                                            <span><%= rating %>/5</span>
+                                        </div>
+                                        <p><%= product.description %></p>
+                                        <h6 class="my-4"><strong>Select Size:</strong></h6>
+                                        <div class="sizes-container">
+                                            <% if (product.sizes && product.sizes.length > 0) { %>
+                                                <% product.sizes.forEach((size) => { %>
+                                                    <button class="size-box" onclick="handleSizeSelection('<%= size.size %>')"> <%= size.size %> </button>
+                                                <% }) %>
+                                            <% } else { %>
+                                                <!-- Handle case where sizes are not available -->
+                                                <div>No sizes available</div>
+                                            <% } %>
+                                        </div>
 
+                                        <br>
 
+                                        <!-- Product Price -->
+                                        <% if (product.isOfferApplied) { %>
+                                            <h4>
+                                                <!-- Product price in bold -->
+                                                <span style="font-weight: bold;">Rs. <%= product.price %></span>
+                                                <!-- Old price in secondary color with line-through -->
+                                                <span style="color: #6c757d; text-decoration: line-through;">Rs. <%= product.oldPrice %></span>
+                                                <!-- Discount percentage in danger color -->
+                                                <span style="color: #ff6666;">(<%= product.discountPercentage %>% OFF)</span>
+                                            </h4>
+                                        <% } else { %>
+                                            <!-- Only display product price if no offer applied -->
+                                            <h4><strong>Price: Rs. <%= product.price %></strong></h4>
+                                        <% } %>
+                                        <!-- Add to Cart Button -->
+                                        <!-- Inside the section where the products are displayed -->
+                                        <button class="btn btn-primary mt-3" onclick="selectSizeAndAddToCart('<%= product._id %>')">Add to Cart</button>
 
-
-
-
-
-        <!-- Shop Details Section End -->
-
-        <!-- Related Section Begin -->
-        <section class="related spad">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <h3 class="related-title">Related Product</h3>
+                                        <button class="btn btn-warning mt-3 mx-3" onclick="selectSizeAndAddToWishlist('<%= product._id %>')">Add to wishlist</button>
+                                        <!-- Other Details -->
+                                        <div class="other-details mt-4">
+                                            <table>
+                                                <tr>
+                                                    <td>
+                                                        <div class="me-3 my-3">
+                                                            <i class="fa fa-lock"></i>
+                                                            <span>Secure Payments</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="mx-5 my-3">
+                                                            <i class="fa fa-ruler"></i>
+                                                            <span>Size and Fit</span>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <div class="me-3 my-3">
+                                                            <i class="fa fa-truck"></i>
+                                                            <span>Free Shipping</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="mx-5 my-3">
+                                                            <i class="fa fa-undo"></i>
+                                                            <span>Free Shipping & Returns</span>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-sm-6">
-                        <div class="product__item">
-                            <div class="product__item__pic set-bg" data-setbg="/img/product/product-1.jpg">
-                                <span class="label">New</span>
-                                <ul class="product__hover">
-                                    <li><a href="/user/wishList"><img src="/img/icon/heart.png" alt=""></a></li>
-                                    <li><a href="#"><img src="/img/icon/compare.png" alt=""> <span>Compare</span></a>
-                                    </li>
-                                    <li><a href="#"><img src="/img/icon/search.png" alt=""></a></li>
-                                </ul>
-                            </div>
-                            <div class="product__item__text">
-                                <h6>Piqué Biker Jacket</h6>
-                                <a href="#" class="add-cart">+ Add To Cart</a>
-                                <div class="rating">
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                </div>
-                                <h5>$67.24</h5>
-                                <div class="product__color__select">
-                                    <label for="pc-1">
-                                        <input type="radio" id="pc-1">
-                                    </label>
-                                    <label class="active black" for="pc-2">
-                                        <input type="radio" id="pc-2">
-                                    </label>
-                                    <label class="grey" for="pc-3">
-                                        <input type="radio" id="pc-3">
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-sm-6">
-                        <div class="product__item">
-                            <div class="product__item__pic set-bg" data-setbg="/img/product/product-2.jpg">
-                                <ul class="product__hover">
-                                    <li><a href="/user/wishList"><img src="img/icon/heart.png" alt=""></a></li>
-                                    <li><a href="#"><img src="img/icon/compare.png" alt=""> <span>Compare</span></a>
-                                    </li>
-                                    <li><a href="#"><img src="img/icon/search.png" alt=""></a></li>
-                                </ul>
-                            </div>
-                            <div class="product__item__text">
-                                <h6>Piqué Biker Jacket</h6>
-                                <a href="#" class="add-cart">+ Add To Cart</a>
-                                <div class="rating">
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                </div>
-                                <h5>$67.24</h5>
-                                <div class="product__color__select">
-                                    <label for="pc-4">
-                                        <input type="radio" id="pc-4">
-                                    </label>
-                                    <label class="active black" for="pc-5">
-                                        <input type="radio" id="pc-5">
-                                    </label>
-                                    <label class="grey" for="pc-6">
-                                        <input type="radio" id="pc-6">
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-sm-6">
-                        <div class="product__item sale">
-                            <div class="product__item__pic set-bg" data-setbg="/img/product/product-3.jpg">
-                                <span class="label">Sale</span>
-                                <ul class="product__hover">
-                                    <li><a href="/user/wishList"><img src="img/icon/heart.png" alt=""></a></li>
-                                    <li><a href="#"><img src="img/icon/compare.png" alt=""> <span>Compare</span></a>
-                                    </li>
-                                    <li><a href="#"><img src="img/icon/search.png" alt=""></a></li>
-                                </ul>
-                            </div>
-                            <div class="product__item__text">
-                                <h6>Multi-pocket Chest Bag</h6>
-                                <a href="#" class="add-cart">+ Add To Cart</a>
-                                <div class="rating">
-                                    <i class="fa fa-star"></i>
-                                    <i class="fa fa-star"></i>
-                                    <i class="fa fa-star"></i>
-                                    <i class="fa fa-star"></i>
-                                    <i class="fa fa-star-o"></i>
-                                </div>
-                                <h5>$43.48</h5>
-                                <div class="product__color__select">
-                                    <label for="pc-7">
-                                        <input type="radio" id="pc-7">
-                                    </label>
-                                    <label class="active black" for="pc-8">
-                                        <input type="radio" id="pc-8">
-                                    </label>
-                                    <label class="grey" for="pc-9">
-                                        <input type="radio" id="pc-9">
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-sm-6">
-                        <div class="product__item">
-                            <div class="product__item__pic set-bg" data-setbg="/img/product/product-4.jpg">
-                                <ul class="product__hover">
-                                    <li><a href="/user/wishList"><img src="img/icon/heart.png" alt=""></a></li>
-                                    <li><a href="#"><img src="img/icon/compare.png" alt=""> <span>Compare</span></a>
-                                    </li>
-                                    <li><a href="#"><img src="img/icon/search.png" alt=""></a></li>
-                                </ul>
-                            </div>
-                            <div class="product__item__text">
-                                <h6>Diagonal Textured Cap</h6>
-                                <a href="#" class="add-cart">+ Add To Cart</a>
-                                <div class="rating">
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                </div>
-                                <h5>$60.9</h5>
-                                <div class="product__color__select">
-                                    <label for="pc-10">
-                                        <input type="radio" id="pc-10">
-                                    </label>
-                                    <label class="active black" for="pc-11">
-                                        <input type="radio" id="pc-11">
-                                    </label>
-                                    <label class="grey" for="pc-12">
-                                        <input type="radio" id="pc-12">
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <% }) %>
+        <% } %>
+    </div>
+</section>
+
+<!-- Related Products Section -->
+<section class="related spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h3 class="related-title">Related Products</h3>
             </div>
-        </section>
+        </div>
+        <div class="row product__filter">
+            <% if (relatedProducts.length > 0) { %>
+                <% relatedProducts.forEach((relatedProduct) => { %>
+                    <% if (relatedProduct.category.toString() === category._id.toString() && relatedProduct._id.toString() !== selectedProductId.toString()) { %>
+                        <div class="col-lg-4 col-md-4 col-sm-6 my-3">
+                            <div class="product__item">
+                                <div class="product__item__pic set-bg" data-setbg="<%= relatedProduct.images && relatedProduct.images.length > 0 ? '/uploads/' + relatedProduct.images[0] : '/img/no-image.webp' %>">
+                                    <!-- Product image and hover elements -->
+                                    <ul class="product__hover">
+                                        <li><button onclick="addToWishlist('<%= product._id %>')"><img src="img/icon/heart.png" alt=""></button></li>
+                                    </ul>
+                                </div>
 
-        <script>
-            function updateMainImage(imageSrc) {
-                // Update the main product image source
-                $('#mainProductImage').attr('src', imageSrc);
-        
-                // Reinitialize Elevate Zoom for the updated image
-                initializeElevateZoom();
-            }
-        
-            function initializeElevateZoom() {
-                $('#mainProductImage').elevateZoom({
-                    zoomType: "inner",
-                    cursor: "crosshair",
-                    zoomWindowFadeIn: 500,
-                    zoomWindowFadeOut: 500
-                    // Add other ElevateZoom options as needed
-                });
-            }
-        
-            // Initialize Elevate Zoom on page load
-            $(document).ready(function () {
-                initializeElevateZoom();
-            });
-        </script>
-        
-        
+                                <div class="product__item__text">
+                                    <!-- Product details -->
+                                    <h6><%= relatedProduct.name %></h6>
+                                    <!-- Other product information -->
+                                    <button class="nav-link view-btn" onclick="viewProductDetails('<%= category._id %>', '<%= relatedProduct._id %>')"><a class="">View</a></button>
+                                    <br>
+                                    <!-- Display prices and discount percentage -->
+                                    <% if (relatedProduct.isOfferApplied) { %>
+                                        <h6>
+                                            <!-- Product price in bold -->
+                                            <span style="font-weight: bold;">Rs. <%= relatedProduct.price %></span>
+                                            <!-- Old price in secondary color with line-through -->
+                                            <span style="color: #6c757d; text-decoration: line-through;">Rs. <%= relatedProduct.oldPrice %></span>
+                                            <!-- Discount percentage in danger color -->
+                                            <span style="color: #ff6666;">(<%= relatedProduct.discountPercentage %>% OFF)</span>
+                                        </h6>
+                                    <% } else { %>
+                                        <h6>
+                                            <!-- Only display product price if no offer applied -->
+                                            <span style="font-weight: bold;">Rs. <%= relatedProduct.price %></span>
+                                        </h6>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>
+                <% }) %>
+            <% } else { %>
+                <div class="col-12">
+                    <h3 class="text-danger">No Related Products</h3>
+                </div>
+            <% } %>            
+        </div>
+    </div>
+</section>
+
+<%- include('../users/userFooter.ejs') %>
+
+<%- include('../layouts/footer.ejs') %>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/elevatezoom/3.0.8/jquery.elevatezoom.min.js"></script>
+
+<script>
+    function updateMainImage(imageSrc) {
+        // Update the main product image source
+        $('#mainProductImage').attr('src', imageSrc);
+
+        // Reinitialize Elevate Zoom for the updated image
+        initializeElevateZoom();
+    }
+
+    function initializeElevateZoom() {
+        $('#mainProductImage').elevateZoom({
+            zoomType: "inner",
+            cursor: "crosshair",
+            zoomWindowFadeIn: 500,
+            zoomWindowFadeOut: 500
+            // Add other ElevateZoom options as needed
+        });
+    }
+
+    // Initialize Elevate Zoom on page load
+    $(document).ready(function () {
+        initializeElevateZoom();
+    });
+</script>
 
 
 
-        <%- include('../users/userFooter.ejs') %>
 
 
-            <%- include('../layouts/footer.ejs') %>

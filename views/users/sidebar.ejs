@@ -1,135 +1,138 @@
 
 <div id="sidebar" class="">
-    <div class="h4 text-white">Account</div>
-    <ul class="list-unstyled">
-       <li class="sidebar <%= title === 'Account' ? 'active' : '' %>">
-            <a href="/myAccount" class="text-decoration-none d-flex align-items-start">
-                <div class="far fa-user pt-2 me-3"></div>
-                <div class="d-flex flex-column">
-                    <div class="link">My Profile</div>
-                    <div class="link-desc">Change your profile details</div>
-                </div>
-            </a>
-        </li>
+  <div class="h4 text-black font-weight-bold">Account</div>
+  <ul class="list-unstyled">
+      <li class="sidebar <%= title === 'Account' ? 'active' : '' %>">
+          <a href="/myAccount" class="text-decoration-none d-flex align-items-start">
+              <div class="far fa-user pt-2 me-3"></div>
+              <div class="d-flex flex-column">
+                  <div class="link font-weight-bold">My Profile</div>
+                  <div class="link-desc">Change your profile details</div>
+              </div>
+          </a>
+      </li>
       <li class="sidebar <%= title === 'Address' ? 'active' : '' %>">
-        <a href="/MyAddress" class="text-decoration-none d-flex align-items-start">
-          <div class="far fa-address-book pt-2 me-3"></div>
-          <div class="d-flex flex-column">
-            <div class="link">Address Book</div>
-            <div class="link-desc">View & Manage Addresses</div>
-          </div>
-        </a>
+          <a href="/MyAddress" class="text-decoration-none d-flex align-items-start">
+              <div class="far fa-address-book pt-2 me-3"></div>
+              <div class="d-flex flex-column">
+                  <div class="link font-weight-bold">Address Book</div>
+                  <div class="link-desc">View & Manage Addresses</div>
+              </div>
+          </a>
       </li>
       <li class="sidebar <%= title === 'Orders' ? 'active' : '' %>">
-        <a href="/myOrders" class="text-decoration-none d-flex align-items-start">
-          <div class="fas fa-box-open pt-2 me-3"></div>
-          <div class="d-flex flex-column">
-            <div class="link">My Orders</div>
-            <div class="link-desc">View & Manage orders and returns</div>
-          </div>
-        </a>
+          <a href="/myOrders" class="text-decoration-none d-flex align-items-start">
+              <div class="fas fa-box-open pt-2 me-3"></div>
+              <div class="d-flex flex-column">
+                  <div class="link font-weight-bold">My Orders</div>
+                  <div class="link-desc">View & Manage orders and returns</div>
+              </div>
+          </a>
       </li>
-      
       <li class="sidebar <%= title === 'Settings' ? 'active' : '' %>">
-        <a href="/myPassword" class="text-decoration-none d-flex align-items-start">
-          <div class="fas fa-gear pt-2 me-3"></div>
-          <div class="d-flex flex-column">
-            <div class="link">Settings</div>
-            <div class="link-desc">Manage account & Change your password</div>
-          </div>
-        </a>
-        
+          <a href="/myPassword" class="text-decoration-none d-flex align-items-start">
+              <div class="fas fa-gear pt-2 me-3"></div>
+              <div class="d-flex flex-column">
+                  <div class="link font-weight-bold">Settings</div>
+                  <div class="link-desc">Manage account & Change your password</div>
+              </div>
+          </a>
       </li>
-  
+      <li class="sidebar <%= title === 'Wallet' ? 'active' : '' %>">
+          <a href="/myWallet" class="text-decoration-none d-flex align-items-start">
+              <div class="fas fa-wallet pt-2 me-3"></div>
+              <div class="d-flex flex-column">
+                  <div class="link font-weight-bold">Wallet</div>
+                  <div class="link-desc">View & Manage your Wallet</div>
+              </div>
+          </a>
+      </li>
       <li class="sidebar ">
-        <a href="/logout" class="text-decoration-none d-flex align-items-start">
-          <div class="fas fa-right-from-bracket pt-2 me-3"></div>
-          <div class="d-flex flex-column">
-            <div class="link">Logout</div>
-            <div class="link-desc">Logout from your account</div>
-          </div>
-        </a>
-        
+          <a href="/logout" class="text-decoration-none d-flex align-items-start">
+              <div class="fas fa-right-from-bracket pt-2 me-3"></div>
+              <div class="d-flex flex-column">
+                  <div class="link font-weight-bold">Logout</div>
+                  <div class="link-desc">Logout from your account</div>
+              </div>
+          </a>
       </li>
-  
-    </ul>
-  </div>
+  </ul>
+</div>
+
 
 
     <!-- Add this CSS in your style file or within a <style> tag in your HTML -->
 <style>
     #sidebar {
-        width: 300px;
-        padding: 15px 0px 15px 0px;
-        border-radius: 12px;
-        margin: 30px 0px;
+    width: 300px;
+    padding: 15px 0px;
+    border-radius: 12px;
+    margin: 30px 0px;
+    position: relative;
+    background-color: #f0ecdf; /* Light yellow background color */
+    color: #000; /* Black text color */
+    overflow-y: auto;
+}
+
+#sidebar .h4 {
+    font-weight: 500;
+    padding-left: 15px;
+}
+
+#sidebar ul {
+    list-style: none;
+    margin: 0;
+    padding-left: 0rem;
+}
+
+#sidebar ul li {
+    padding: 10px 0;
+    display: block;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    border-left: 5px solid transparent;
+}
+
+#sidebar ul li.active {
+ border-left: 5px solid #5e4984; 
+    background-color: #d8c7e6; 
+}
+
+#sidebar ul li a {
+    display: block;
+}
+
+#sidebar ul li a .fas,
+#sidebar ul li a .far {
+    color: #000000; /* Black text color */
+}
+
+#sidebar ul li a .link {
+    color: #000000; /* Black text color */
+    font-weight: 500;
+}
+
+#sidebar ul li a .link-desc {
+    font-size: 0.8rem;
+    color: #000000; /* Black text color */
+}
+
+.link:hover {
+    text-decoration: none;
+}
+
+.active {
+    background-color: #000000; /* Background color for the selected sidebar item */
+}
+
+@media (max-width: 768px) {
+    #sidebar {
+        width: 100%;
+        height: auto;
         position: relative;
         top: 0;
-        left: 0;
-        background-color: #673ab7;
-        color: #fff;
-        overflow-y: auto;
     }
-
-    #sidebar .h4 {
-        font-weight: 500;
-        padding-left: 15px;
-    }
-
-    #sidebar ul {
-        list-style: none;
-        margin: 0;
-        padding-left: 0rem;
-    }
-
-    #sidebar ul li {
-        padding: 10px 0;
-        display: block;
-        padding-left: 1rem;
-        padding-right: 1rem;
-        border-left: 5px solid transparent;
-    }
-
-    #sidebar ul li.active {
-        border-left: 5px solid #ff5252;
-        background-color: #44007c;
-    }
-
-    #sidebar ul li a {
-        display: block;
-    }
-
-    #sidebar ul li a .fas,
-    #sidebar ul li a .far {
-        color: #ddd;
-    }
-
-    #sidebar ul li a .link {
-        color: #fff;
-        font-weight: 500;
-    }
-
-    #sidebar ul li a .link-desc {
-        font-size: 0.8rem;
-        color: #ddd;
-    }
-
-    .link:hover {
-        text-decoration: none;
-    }
-
-    .active {
-        background-color: #512da8;
-    }
-
-    @media (max-width: 768px) {
-        #sidebar {
-            width: 100%;
-            height: auto;
-            position: relative;
-            top: 0;
-        }
-    }
+}
 </style>
 
     

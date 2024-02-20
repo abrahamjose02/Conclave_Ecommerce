@@ -64,6 +64,27 @@ const userSchema = new mongoose.Schema({
             required:true
         }
     }],
+    wallet:{
+        type:Number,
+        default:0
+    },
+    referral:{
+        code:{
+            type:String
+        },
+        amount:{
+            type:Number,
+            default:0
+        }
+    },
+    transactions:[{
+        description:String,
+        amount:Number,
+        date:{
+            type:Date,
+            default:Date.now
+        }
+    }],
     joinedDate:{
         type:Date,
         default:Date.now,

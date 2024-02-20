@@ -1,0 +1,66 @@
+
+<%-include('../layouts/header.ejs')%>
+<%-include('../admin/adminHeader.ejs') %>
+
+
+
+<section class="breadcrumb-option">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="breadcrumb__text">
+            <h4>Add Coupon</h4>
+            <div class="breadcrumb__links">
+              <a href="/admin/home">Home</a>
+              <span>Add Coupon</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <section>
+    <div class="container mt-4">
+      <% if (message) { %>
+        <div class="alert alert-danger mt-3" role="alert">
+            <%= message.message %>
+        </div>
+    <% } %>
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <form action="/admin/addCoupon" method="post" enctype="application/x-www-form-urlencoded">
+            <h2 class="text-center mb-4 "><strong>Add Coupon</strong></h2>
+            <div class="mb-3">
+              <label for="name" class="form-label">Coupon Name</label>
+              <input type="text" name="name" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label for="code" class="form-label">Coupon Code</label>
+              <input type="text" name="code" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label for="min_bill" class="form-label">Minimum Bill Amount</label>
+              <input type="number" name="min_bill" class="form-control">
+            </div>
+            <div class="mb-3">
+              <label for="cap" class="form-label">Cap Amount / Limit Amount</label>
+              <input type="number" name="cap" class="form-control">
+            </div>
+            <div class="mb-3">
+              <label for="discount" class="form-label">Discount (%)</label>
+              <input type="number" name="discount" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label for="expire" class="form-label">Expiry Date</label>
+              <input type="date" name="expire" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block my-4">Submit</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<%-include('../admin/adminFooter.ejs') %>
+<%-include('../layouts/footer.ejs') %>

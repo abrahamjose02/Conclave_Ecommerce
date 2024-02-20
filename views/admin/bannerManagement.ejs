@@ -1,0 +1,86 @@
+<%- include('../layouts/header.ejs') %>
+<%- include('../admin/adminHeader.ejs') %>
+
+<!-- Breadcrumb Section Begin -->
+<section class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__text">
+                    <h4>Banner Management</h4>
+                    <div class="breadcrumb__links">
+                        <a href="./index.html">Home</a>
+                        <span>Banner Management</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<main class="main my-5">
+    <div class="container">
+        <a class="btn btn-outline-success mb-3" href="/admin/addBanner">Add New Banner</a>
+        <div class="table-responsive" id="no-more-tables">
+            <table class="table table-striped bg-white" id="myTable">
+                <thead class="">
+                    <tr class="">
+                        <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col">Name</th>
+                        <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col">Image</th>
+                        <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col">Description</th>
+                        <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col">Action</th>
+                        <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col">Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (banners.length > 0) { %>
+                        <% banners.forEach((banner, index) => { %>
+                            <tr data-id="<%= banner._id %>" class="text-center" style="font-size: medium;">
+                                <td data-title="Name"><%= banner.name %></td>
+                                <td data-title="Image">
+                                    <img src="/uploads/<%= banner.image %>" alt="Banner Image" class="img-fluid"
+                                        style="max-width: 200px;">
+                                </td>
+                                <td data-title="Description"><%= banner.description %></td>
+                                <td data-title="Action" class="d-flex justify-content-center align-items-center"
+                                    style="font-size: 10px; height: 145px;">
+                                    <a class="btn btn-outline-primary btn-sm mx-3"
+                                        href="/admin/editBanner/<%= banner._id %>">Edit</a>
+                                    <% if (banner.isDeleted) { %>
+                                        <form action="/admin/enable-banner/<%= banner._id %>" method="post">
+                                            <button type="submit" class="btn btn-outline-success btn-sm">Enable</button>
+                                        </form>
+                                    <% } else { %>
+                                        <form action="/admin/disable-banner/<%= banner._id %>" method="post">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">Disable</button>
+                                        </form>
+                                        <% } %>
+                                        <td data-title="delete"><form action="/admin/delete-banner/<%= banner._id %>" method="post">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                                        </form>
+                                    </td>
+
+                                   
+                                    
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td class="text-danger" colspan="5">No banners found</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<%- include('../admin/adminFooter.ejs') %>
+<%- include('../layouts/footer.ejs') %>
+
+<script>
+    $(document).ready(function(){
+        $('#myTable').DataTable();
+    });
+</script>

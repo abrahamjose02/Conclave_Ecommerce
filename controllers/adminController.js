@@ -74,6 +74,7 @@ const loadDashboard = async (req, res) => {
 
     const codNum = await Order.countDocuments({ 'payments.pay_method': 'COD' });
     const onlineNum = await Order.countDocuments({ 'payments.pay_method': 'onlinePayment' });
+    const walletNum = await Order.countDocuments({'payments.pay_method':'Wallet'});
     const paid = await Order.countDocuments({ 'orderStatus': 'placed', 'payments.pay_status': 'success' });
     const paymentPending = await Order.countDocuments({ 'orderStatus': 'placed', 'payments.pay_status': 'pending' });
     const cancelledOrders = await Order.countDocuments({ 'orderStatus': 'cancelled' });
@@ -131,6 +132,7 @@ const loadDashboard = async (req, res) => {
       users,
       codNum,
       onlineNum,
+      walletNum,
       paid,
       paymentPending,
       cancelledOrders,

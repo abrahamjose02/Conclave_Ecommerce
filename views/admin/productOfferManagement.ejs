@@ -1,0 +1,110 @@
+<%- include('../layouts/header.ejs') %>
+<%- include('../admin/adminHeader.ejs') %>
+
+<!-- Breadcrumb Section Begin -->
+<section class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__text">
+                    <h4>Product Offer Management</h4>
+                    <div class="breadcrumb__links">
+                        <a href="./index.html">Home</a>
+                        <span>Product Offer Management</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<main class="main my-5">
+    <div class="container">
+        <div class="table-responsive" id="no-more-tables">
+            <table class="table table-striped bg-white" id="myTable">
+                <thead class="">
+                    <tr class="">
+                        <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col">Name</th>
+                        <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col">Old Price</th>
+                        <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col">Discount Percentage</th>
+                        <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col">New Price</th>
+                        <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col">Actions</th>
+                        <th class="bg-dark text-white text-center" style="font-size: 15px;" scope="col">Delete Offer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (products.length > 0) { %>
+                        <% products.forEach((product, index) => { %>
+                            <tr data-id="<%= product._id %>" class="text-center" style="font-size: medium;">
+                                <td data-title="Name"><%= product.name %></td>
+                                <td data-title="Old Price"><%= product.oldPrice %></td>
+                                
+                                <td data-title="Discount Percentage"><%= product.discountPercentage %></td>
+                                <td data-title=" price"><%= product.price %></td>
+                                <td data-title="Actions" class="d-flex justify-content-center align-items-center" style="font-size: 10px; height: 145px;">
+
+                                    <button type="button" class="btn btn-outline-primary btn-sm mx-3" data-toggle="modal" data-target="#offerModal<%= index %>">Create/Edit Offer</button>
+                                    <% if (!product.isOfferApplied) { %>
+                                        <form action="/admin/activateOffer/<%= product._id %>" method="post">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">Activate</button>
+                                        </form>
+                                    <% } else { %>
+                                        <form action="/admin/deactivateOffer/<%= product._id %>" method="post">
+                                            <button type="submit" class="btn btn-outline-success btn-sm">Deactivate</button>
+                                        </form>
+                                    <% } %>
+                                </td>
+                                <td data-title="Delete Offer">
+                                    <a class="btn btn-danger btn-sm mx-3" href="/admin/deleteOffer/<%= product._id %>">
+                                        Delete
+                                    </a>
+                                </td>
+                            </tr>
+                            <!-- Offer Modal -->
+                            <div class="modal fade" id="offerModal<%= index %>" tabindex="-1" role="dialog" aria-labelledby="offerModalLabel<%= index %>" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="offerModalLabel<%= index %>">Create/Edit Offer for <%= product.name %></h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <% if (product.isOfferApplied) { %>
+                                                <p>Current Discount Percentage: <%= product.discountPercentage %></p>
+                                            <% } %>
+                                            <form action="/admin/createOffer/<%= product._id %>" method="post">
+                                                <div class="form-group">
+                                                    <label for="discountPercentage">Discount Percentage:</label>
+                                                    <input type="number" class="form-control" id="discountPercentage" name="discountPercentage" required>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary">Submit</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td class="text-danger" colspan="6">Products Not Found</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<%- include('../admin/adminFooter.ejs') %>
+
+<script src="/js/dataTables.js"></script>
+<script src="/js/admin/productList.js"></script>
+<%- include('../layouts/footer.ejs') %>
+
+<script>
+    $(document).ready(function () {
+        $('#myTable').DataTable();
+    });
+</script>

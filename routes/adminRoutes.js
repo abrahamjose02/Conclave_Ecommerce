@@ -9,6 +9,8 @@ const adminController = require('../controllers/adminController');
 const categoryController = require('../controllers/categoryController');
 const productController = require('../controllers/productController');
 const orderController = require('../controllers/orderController');
+const couponController = require('../controllers/couponController');
+const bannerController = require('../controllers/bannerController');
 
 
 admin_route.use(session({
@@ -60,10 +62,10 @@ const upload = multer({
 
 
 
-admin_route.get('/',isLogout,nocache,adminController.loadSignin);
+admin_route.get('/',isLogout,adminController.loadSignin);
 admin_route.post('/',adminController.insertSignin);
-admin_route.get('/dashboard',isLogin,nocache,adminController.loadDashboard);
-admin_route.get('/logout',isLogin,nocache,adminController.logout);
+admin_route.get('/dashboard',isLogin,adminController.loadDashboard);
+admin_route.get('/logout',isLogin,adminController.logout);
 admin_route.get('/forget',adminController.loadforgot);
 admin_route.post('/forget',adminController.resetOTP);
 admin_route.get('/forgot_verify',adminController.loadResetVerify);
@@ -95,7 +97,29 @@ admin_route.get('/orderList',adminController.loadOrderPage);
 admin_route.get('/orderDetails/:orderId', adminController.loadOrderDetails)
 admin_route.post('/changeOrderStatus/:orderId',adminController.changeOrderStatus);
 admin_route.get('/salesReport',orderController.loadSalesReport);
-
-
+admin_route.get('/couponList',couponController.loadCouponList);
+admin_route.get('/addCoupon',couponController.loadAddCoupon);
+admin_route.post('/addCoupon',couponController.addCoupon);
+admin_route.get('/editCoupon/:couponId',couponController.loadEditCoupon);
+admin_route.post('/editCoupon/:couponId',couponController.editCoupon);
+admin_route.get('/deleteCoupon/:couponId',couponController.deleteCoupon);
+admin_route.get('/bannerList',bannerController.loadBanner);
+admin_route.get('/addBanner',bannerController.loadAddBanner);
+admin_route.post('/addBanner',upload.single('image'),bannerController.addBanner);
+admin_route.get('/editBanner/:bannerId',bannerController.loadEditBanner);
+admin_route.post('/editBanner/:bannerId',upload.single('image'),bannerController.editBanner);
+admin_route.post('/enable-banner/:bannerId',bannerController.enableBanner);
+admin_route.post('/disable-banner/:bannerId',bannerController.disableBanner);
+admin_route.post('/delete-banner/:bannerId',bannerController.deleteBanner);
+admin_route.get('/productOfferManagement',isLogin,productController.loadProductOfferManagement);
+admin_route.post('/createOffer/:productId',isLogin,productController.createOffer);
+admin_route.post('/activateOffer/:productId',isLogin,productController.activateOffer);
+admin_route.post('/deactivateOffer/:productId',isLogin,productController.deactivateOffer);
+admin_route.get('/deleteOffer/:productId',isLogin,productController.deleteOffer);
+admin_route.get('/categoryOfferManagement',isLogin,categoryController.categoryOfferManagement);
+admin_route.post('/createCategoryOffer/:categoryId',isLogin,categoryController.createCategoryOffer);
+admin_route.post('/activateCategoryOffer/:categoryId',isLogin,categoryController.activateCategoryOffer);
+admin_route.post('/deactivateCategoryOffer/:categoryId',isLogin,categoryController.deactivateCategoryOffer);
+admin_route.get('/deleteCategoryOffer/:categoryId',isLogin,categoryController.deleteCategoryOffer);
 
 module.exports = admin_route;

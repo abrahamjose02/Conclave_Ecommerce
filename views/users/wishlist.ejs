@@ -1,0 +1,109 @@
+<%- include('../layouts/header.ejs') %> 
+<%- include('../users/userHeader.ejs') %>
+
+<!-- Breadcrumb Section Begin -->
+<section class="breadcrumb-option">
+  <div class="container">
+    <!-- Your breadcrumb content -->
+    <div class="breadcrumb__text">
+      <h4>Wishlist</h4>
+      <!-- Breadcrumb links -->
+      <div class="breadcrumb__links">
+        <a href="/home">Home</a>
+        <span>Wishlist</span>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- Breadcrumb Section End -->
+
+<% if (message && message.type === 'danger') { %>
+<div class="alert alert-danger" role="alert"><%= message.message %></div>
+<% } %>
+
+<section id="cart-container" class="container my-3">
+  <% if (wishlist && wishlist.items.length > 0) { %>
+  <!-- Table for displaying wishlist items -->
+  <table class="table table-striped bg-white" id="myTable">
+    <!-- Table headers -->
+    <thead class=" ">
+      <!-- Header row -->
+      <tr class="">
+        <th class="bg-dark text-white text-center" style="font-size: 15px">
+          Image
+        </th>
+        <th class="bg-dark text-white text-center" style="font-size: 15px">
+          Product
+        </th>
+        <th class="bg-dark text-white text-center" style="font-size: 15px">
+          Size
+        </th>
+        <th class="bg-dark text-white text-center" style="font-size: 15px">
+          Actions
+        </th>
+        <!-- Add other header columns as needed -->
+      </tr>
+    </thead>
+    <!-- Table body for wishlist items -->
+    <tbody class="">
+      <% wishlist.items.forEach(item => { %>
+      <!-- Loop through each item in the wishlist -->
+      <tr id="<%= item.product._id %>item">
+        <!-- Display item details -->
+        <td data-title="Image" class="text-center align-middle"> <!-- Align content to center and vertically middle -->
+          <% if (item.product && item.product.images && item.product.images[0]) { %>
+          <img
+            src="/uploads/<%= item.product.images[0] %>"
+            alt="product Image"
+            style="width: 100px; height: 100px"
+          />
+          <% } %>
+        </td>
+        <td data-title="Product" class="text-center align-middle"> <!-- Center align content -->
+          <% if (item.product) { %>
+          <h6><%= item.product.name %></h6>
+          <% } %>
+        </td>
+        <td data-title="Size" class="text-center align-middle"> <!-- Align content to center and vertically middle -->
+          <h6><%= item.size %></h6>
+        </td>
+        <td data-title="Actions" class="text-center align-middle"> <!-- Align content to center and vertically middle -->
+          <button
+            type="button"
+            class="btn btn-success"
+            onclick="AddToCart('<%= item.product._id %>', '<%= item.size %>')"
+            title="Add to cart"
+          >
+            Add to cart
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-danger ml-3"
+            onclick="removeProductFromWishlist('<%= wishlist._id %>', '<%= item.product._id %>')"
+            title="Remove from wishlist"
+          >
+            Remove
+          </button>
+        </td>
+        <!-- Add other columns as needed -->
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+  <% } else { %>
+  <!-- Display message if wishlist is empty -->
+  <div class="row" style="display: flex; justify-content: center">
+    <div class="col-12 col-md-6 m-3" style="width: 100%">
+      <h1 class="text-center text-danger"><b>Wishlist is empty</b></h1>
+    </div>
+    <div class="col-12 col-md-6 mx-auto">
+      <img src="/images/empty.png" style="width: 100%" alt="" />
+    </div>
+  </div>
+  <% } %>
+</section>
+
+<%- include('../users/userFooter.ejs') %> 
+<%- include('../layouts/footer.ejs') %>
+

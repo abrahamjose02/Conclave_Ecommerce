@@ -33,19 +33,29 @@ const getCategoryiesByType = async (categoryType) => {
 
 
 
-const placeOrder = async (req, res) => {
+  const placeOrder = async (req, res) => {
     try {
+        console.log("Place order request received with body:", req.body);
+        
+        // Check if the request body is empty or missing required fields
+        if (!req.body || !req.body.addressId || !req.body.paymentMethod || !req.body.itemsInCart) {
+            return res.status(400).json({ error: 'Invalid request body' });
+        }
+        
         const { addressId, paymentMethod, itemsInCart } = req.body;
         const userId = req.session.user_id;
 
-
         // Check stock availability
-        const isStockAvailable = itemsInCart.every(async (cartItem) => {
+        const isStockAvailable = await Promise.all(itemsInCart.map(async (cartItem) => {
             const product = await Product.findById(cartItem.product._id);
-            return product && product.stockinCount >= cartItem.quantity;
-        });
+            if (!product) {
+                return false; // Invalid product
+            }
+            const selectedSize = product.sizes.find(size => size.size === cartItem.size);
+            return selectedSize && selectedSize.stock >= cartItem.quantity;
+        }));
 
-        if (!isStockAvailable) {
+        if (!isStockAvailable.every((availability) => availability)) {
             req.session.message = {
                 type: 'danger',
                 message: 'Some products in your cart are out of stock.',
@@ -53,14 +63,10 @@ const placeOrder = async (req, res) => {
             return res.status(400).json({ outOfStock: true });
         }
 
-
         const orderItems = [];
         let totalPriceOfCart = 0;
 
         for (const cartItem of itemsInCart) {
-            console.log('CartItem:', cartItem);
-
-            // Assuming each cartItem has _id, name, and quantity properties
             const product = await Product.findById(cartItem.product._id);
 
             if (!product) {
@@ -69,20 +75,19 @@ const placeOrder = async (req, res) => {
             }
 
             const itemPrice = product.price * cartItem.quantity;
-            console.log('itemPrice:', itemPrice);
-            console.log('cartQuantity:', cartItem.quantity);
 
             orderItems.push({
                 product: product._id,
                 quantity: cartItem.quantity,
+                size: cartItem.size,
                 price: product.price
             });
 
             totalPriceOfCart += itemPrice;
 
             // reduce the stock count of the product
-
-            product.stockinCount -=cartItem.quantity;
+            const selectedSize = product.sizes.find(size => size.size === cartItem.size);
+            selectedSize.stock -= cartItem.quantity;
             await product.save();
         }
 
@@ -91,8 +96,31 @@ const placeOrder = async (req, res) => {
 
         let status = paymentMethod === 'COD' ? 'placed' : 'pending';
 
+        let grandTotal = totalPriceOfCart;
+        let discountAmount = 0;
+
+        if (req.session.couponDetails) {
+            grandTotal = req.session.couponDetails.newTotal || totalPriceOfCart;
+            discountAmount = req.session.couponDetails.discount || 0;
+        }
+
+        // Deduct the wallet balance for the wallet total
+        let payableAmount = grandTotal;
+        if (user.wallet > grandTotal) {
+            user.wallet -= grandTotal;
+            payableAmount = 0;
+        } else {
+            payableAmount -= user.wallet;
+            user.wallet = 0;
+        }
+
+        await user.save();
+
+        const randomOrderId = Math.floor(Math.random() * 1000000); // Generates a random number between 0 and 999999
+
         const orderData = {
             user: userId,
+            orderID: randomOrderId,
             address: {
                 fullName: selectedAddress.fullName,
                 country: selectedAddress.country,
@@ -104,50 +132,56 @@ const placeOrder = async (req, res) => {
                 phone: selectedAddress.phone,
             },
             payments: {
-                pay_method:paymentMethod,
-                pay_id:null,
-                pay_status:'pending',
+                pay_method: paymentMethod,
+                pay_id: null,
+                pay_status: payableAmount === 0 ? 'success' : 'pending', // Set payment status based on payable amount
             },
             items: orderItems,
-            totalPrice: totalPriceOfCart,
-            orderStatus: status,
+            orderStatus: payableAmount === 0 ? 'placed' : status, // Set order status based on payable amount
             orderDate: new Date(),
+            coupon: req.session.couponDetails || {},
+            totalPrice: totalPriceOfCart,
+            discount_amount: discountAmount,
+            grand_total: grandTotal,
+            payable_amount: payableAmount
         };
 
         const order = new Order(orderData);
         const savedOrder = await order.save();
 
-        if (paymentMethod === 'COD') {
-            // If payment is Cash on Delivery (COD)
-            await Order.updateOne({_id: savedOrder._id}, {$set: {"payments.pay_id": "COD_" + savedOrder._id, "payments.pay_status": "success"}});
+        if (req.session.couponDetails) {
+          delete req.session.couponDetails;
+      }
+
+        // Handle payment method
+        if (paymentMethod === 'COD' || payableAmount === 0) {
+            await Order.updateOne({ _id: savedOrder._id }, { $set: { "payments.pay_id": `${paymentMethod}_${savedOrder._id}`, "payments.pay_status": "success" } });
             await Cart.deleteOne({ user: userId });
-            console.log('After updating cart:', userId);
-            return res.json({codSuccess: true});
-        } 
-            else {
-                
-                var options = {
-                    amount: savedOrder.totalPrice * 100,
-                    currency: "INR",
-                    receipt: "" + savedOrder._id
-                };
-                console.log('Amount:', savedOrder.totalPrice * 100);
-                instance.orders.create(options, async(err, order) => {
-                    if (err) {
-                        console.log(err);
-                    } else{
-                        await Cart.deleteOne({ user: userId });
-                        return res.json(order);
-                    }
-                    
-                });
-            }
-        
+            console.log("Order placed successfully.");
+            return res.json({ orderPlaced: true });
+        } else {
+            var options = {
+                amount: savedOrder.payable_amount * 100,
+                currency: "INR",
+                receipt: "" + savedOrder._id
+            };
+            instance.orders.create(options, async (err, order) => {
+                if (err) {
+                    console.error('Error creating order:', err);
+                    return res.status(500).json({ status: 'error', message: 'Failed to create order' });
+                } else {
+                    await Cart.deleteOne({ user: userId });
+                    console.log("Order created successfully:", order);
+                    return res.json(order);
+                }
+            });
+        }
     } catch (error) {
         console.error('Error placing the order:', error);
-        res.status(500).json({status: 'error', message: 'Failed to place the order'});
+        return res.status(500).json({ status: 'error', message: 'Failed to place the order', error: error.message });
     }
 };
+  
 
 const verifyPayment = async (req, res) => {
     try {

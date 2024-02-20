@@ -109,6 +109,14 @@
                                     <% } %>
                                 </div>
 
+                                <div class="form-outline mb-4">
+                                    <label class="form-label" for="referralCode">Referral Code</label>
+                                    <input type="text" id="referralCode" class="form-control" name="referralCode" />
+                                    <% if (message && message.referralCode) { %>
+                                        <small class="text-danger"><%= message.referralCode %></small>
+                                    <% } %>
+                                </div>
+
                                 <!-- Repeat Password input
                                 <div class="form-outline mb-4">
                                     <input type="password" id="registerRepeatPassword" class="form-control" />

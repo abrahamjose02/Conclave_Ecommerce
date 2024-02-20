@@ -25,6 +25,14 @@ const categorySchema = new mongoose.Schema({
         type: Boolean,
         default: false,
       },
+      isOfferApplied:{
+        type:Boolean,
+        default:false
+      },
+      discountPercentage:{
+        type:Number,
+        default:0
+      },
       dateCreated: {
         type: Date,
         default: Date.now,

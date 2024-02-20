@@ -13,6 +13,8 @@ const userController = require('../controllers/authController');
 const productController = require('../controllers/productController');
 const cartController = require('../controllers/cartController');
 const orderController = require('../controllers/orderController');
+const couponController = require('../controllers/couponController');
+const wishlistController = require('../controllers/wishlistController');
 
 const{isLogin,isLogout,nocache} = require('../middleware/auth');
 
@@ -62,8 +64,21 @@ user_router.get('/myOrders',isLogin,userController.loadMyOrders);
 user_router.get('/myPassword',isLogin,userController.loadMyPassword);
 user_router.post('/editMyPassword',isLogin,userController.editMyPassword);
 user_router.get('/orderItems/:orderId',isLogin,userController.loadOrderedItems);
+user_router.get('/generateInvoice/:orderId',isLogin,userController.generateInvoicePDF);
 user_router.get('/cancelOrder/:orderId',isLogin,userController.cancelOrder);
-user_router.get('/cancel-product/:orderId/:index', userController.cancelProductInOrder);
+user_router.get('/cancel-product/:orderId/:index',isLogin, userController.cancelProductInOrder);
+user_router.post('/applyCoupon',isLogin,couponController.applyCoupon)
+user_router.post('/removeCoupon',isLogin,couponController.removeCoupon)
+user_router.get('/wishlist',isLogin,wishlistController.loadWishlist);
+user_router.get('/add-to-wishlist/:productId',isLogin,wishlistController.addToWishlist);
+user_router.post('/remove-from-wishlist/:wishlistId/:productId', wishlistController.removeProduct);
+user_router.get('/myWallet',isLogin,userController.loadMyWallet);
+user_router.post('/create-razorpay-order',isLogin,userController.addtowallet);
+user_router.post('/razorpay-success', isLogin, userController.razorpaySuccess);
+user_router.get('/returnOrder/:orderId',isLogin,userController.returnOrder);
+user_router.get('/returnProduct/:orderId/:index',isLogin,userController.returnProduct);
+// user_router.post('/remove-product-from-wishlist-to-addToCart/:productId',isLogin,wishlistController.removeProductFromWishlisttoAddtoCart);
+
 
 
 module.exports = user_router;

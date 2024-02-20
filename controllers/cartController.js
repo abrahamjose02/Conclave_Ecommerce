@@ -6,35 +6,55 @@ const Cart = require('../models/cartModel');
 
 
 
-const loadCartDetails = async(req,res)=>{
+const loadCartDetails = async (req, res) => {
     try {
-
         let itemsInCart = [];
-    
-    const menCategories = await Category.find({categoryType:'Men',isDeleted:false});
-    const womenCategories = await Category.find({categoryType:'Women',isDeleted:false});
-    const kidsCategories = await Category.find({categoryType:'Kids',isDeleted:false});
-    const beautyCategories = await Category.find({categoryType:'beauty', isDeleted:false});
-    
-    const userID = req.session.user_id;
+        const menCategories = await Category.find({ categoryType: 'Men', isDeleted: false });
+        const womenCategories = await Category.find({ categoryType: 'Women', isDeleted: false });
+        const kidsCategories = await Category.find({ categoryType: 'Kids', isDeleted: false });
+        const beautyCategories = await Category.find({ categoryType: 'beauty', isDeleted: false });
+        const userID = req.session.user_id;
+        const userCart = await Cart.findOne({ user: userID }).populate('items.product');
+        let message = req.session.message || '';
+        
+        if (req.session.message && !req.session.message.fromRedirect) {
+            req.session.message = null;
+        }
+        
+        itemsInCart = userCart ? userCart.items : [];
+        
+        let hasOutOfStock = false; // Flag to track if any out-of-stock item is present
+        
+        // Check stock availability and mark items out of stock
+        for (const item of itemsInCart) {
+            const product = item.product;
+            const size = item.size;
+            const productSize = product.sizes.find(s => s.size === size);
+            
+            if (!productSize || productSize.stock < item.quantity) {
+                item.outOfStock = true; // Set outOfStock to true if not enough stock
+                hasOutOfStock = true; // Set flag to true if any item is out of stock
+            } else {
+                item.outOfStock = false; // Otherwise, set outOfStock to false
+            }
+        }
+        
+        // Clear message if no out-of-stock items are present
+        if (!hasOutOfStock) {
+            req.session.message = null;
+        }
+        
+        res.render('cart', {
+            message: req.session.message,
+            menCategories,
+            womenCategories,
+            kidsCategories,
+            beautyCategories,
+            userID,
+            itemsInCart,
+            userCart
+        });
 
-    const userCart = await Cart.findOne({ user: userID }).populate('items.product');
-
-    
-
-     
-    let message = req.session.message || '';
-
-    
-    if (req.session.message && !req.session.message.fromRedirect) {
-      req.session.message = null;
-    }
-
-     itemsInCart = userCart ? userCart.items : [];
-
-    res.render('cart',{message:req.session.message,menCategories,womenCategories,kidsCategories,beautyCategories,userID,itemsInCart,userCart});
-    
-    
     } catch (error) {
         console.log(error.message);
     }
@@ -47,16 +67,13 @@ const addToCart = async (req, res) => {
         const productId = req.params.productId;
         const size = req.query.size; 
 
-        
         const product = await Product.findById(productId);
         if (!product) {
             return res.status(404).json({ status: false, message: 'Product not found' });
         }
 
-        // Assuming you have a session with a user ID
-        const userId = req.session.user_id; // Replace this with your session user ID
+        const userId = req.session.user_id;
 
-        // Find or create the user's cart
         let userCart = await Cart.findOne({ user: userId });
         if (!userCart) {
             userCart = new Cart({
@@ -65,30 +82,27 @@ const addToCart = async (req, res) => {
             });
         }
 
-        // Check if the product already exists in the cart with the same size
         const existingCartItem = userCart.items.find(item => String(item.product) === String(productId) && item.size === size);
 
         if (existingCartItem) {
-            
             existingCartItem.quantity += 1;
         } else {
-            
             userCart.items.push({
                 product: productId,
                 size: size,
                 quantity: 1,
-                price: product.price, // You might want to calculate the price here based on product details
+                price: product.price,
             });
         }
 
-        // Calculate total price for the cart (assuming price is stored per item)
         userCart.totalPrice = userCart.items.reduce((total, item) => total + item.price * item.quantity, 0);
 
-        // Save the updated cart
         await userCart.save();
+
+        // Send response based on request type
         if (req.xhr || req.headers.accept.indexOf('json') > -1){
-            res.json({status:true});
-        }else{
+            res.json({ status: true });
+        } else {
             res.redirect('/cart');
         }
     } catch (error) {
@@ -96,6 +110,7 @@ const addToCart = async (req, res) => {
         res.status(500).json({ status: false, message: 'Internal Server Error' });
     }
 };
+
 
 
 

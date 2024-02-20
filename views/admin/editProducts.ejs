@@ -1,174 +1,158 @@
 <%- include('../layouts/header.ejs') %>
+<%- include('../admin/adminHeader.ejs') %>
 
-    <%- include('../admin/adminHeader.ejs') %>
+<!-- Breadcrumb Section Begin -->
+<section class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__text">
+                    <h4>Edit Products</h4>
+                    <div class="breadcrumb__links">
+                        <a href="./index.html">Home</a>
+                        <span>Edit Products</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-        <!-- Breadcrumb Section Begin -->
+<main class="main my-5">
+    <div class="container">
 
-        <section class="breadcrumb-option">
-            <div class="container">
+        <% if (message) { %>
+        <div class="alert alert-danger" role="alert">
+            <%= message %>
+        </div>
+        <% } %>
+
+        <form class="container w-50 my-5" action="/admin/editProduct/<%= product._id %>" method="post"
+            enctype="multipart/form-data">
+
+            <div class="form-outline mb-4">
+                <label class="form-label mt-2" for="product-name">Product name </label>
+                <input type="text" id="name" class="form-control" name="name" required value="<%= product.name%>" />
+            </div>
+
+            <div class="-outline mb-4 d-flex flex-column">
+                <label for="category">Category:</label>
+                <select id="category" name="category" required>
+                    <% categories.forEach(category => { %>
+                    <option value="<%= category._id %>"
+                        <% if (product && product.category.toString() === category._id.toString()) { %>selected<% } %>><%= category.name %></option>
+                    <% }) %>
+                </select><br>
+            </div>
+
+            <div class="form-outline mb-4">
+                <label class="form-label mt-2" for="brand">Brand</label>
+                <input type="text" id="brand" class="form-control" name="brand" required value="<%= product.brand%>" />
+            </div>
+
+            <div class="form-outline mb-4">
+                <label class="form-label mt-2" for="color">Color</label>
+                <input type="text" id="color" class="form-control" name="color" required value="<%= product.color%>" />
+            </div>
+
+            <div class="form-outline mb-4">
+                <label class="form-label mt-2" for="price">Price</label>
+                <input type="number" id="price" class="form-control" name="price" required value="<%= product.price%>" />
+            </div>
+
+            <!-- Render sizes and stock counts if available -->
+            <% product.sizes.forEach((size, index) => { %>
+            <div class="form-outline mb-4">
+                <label class="form-label mt-2" for="size<%= index %>"><strong>Size:</strong></label>
+                <select id="size<%= index %>" class="form-control" name="sizes[]" required>
+                    <option value="XS" <% if (size.size === "XS") { %> selected <% } %>>XS</option>
+                    <option value="S" <% if (size.size === "S") { %> selected <% } %>>S</option>
+                    <option value="M" <% if (size.size === "M") { %> selected <% } %>>M</option>
+                    <option value="L" <% if (size.size === "L") { %> selected <% } %>>L</option>
+                    <option value="XL" <% if (size.size === "XL") { %> selected <% } %>>XL</option>
+                    <option value="XXL" <% if (size.size === "XXL") { %> selected <% } %>>XXL</option>
+                    <option value="Single Size" <% if (size.size === "Single Size") { %> selected <% } %>>Single Size</option>
+                </select>
+                <input type="number" id="stock<%= index %>" class="form-control" name="stocks[]" required value="<%= size.stock %>" />
+            </div>
+            <% }) %>
+
+            <!-- Button to add new size and stock input fields -->
+            <button type="button" class="btn btn-primary mb-3" id="addSize">Add Size</button>
+
+            <!-- Removed the "Stock no" input field -->
+
+            <div class="form-outline mb-2 w-100">
+                <label class="form-label mt-2" for="description">Description</label>
+                <textarea class="w-100" style="width: auto;" name="description" id="description"
+                    required><%= product.description %></textarea>
+            </div>
+
+            <!-- Display existing images and allow deletion -->
+            <div class="mb-4">
+                <label class="form-label mt-2">Existing Images</label>
                 <div class="row">
-                    <div class="col-lg-12">
-                        <div class="breadcrumb__text">
-                            <h4>Edit Products</h4>
-                            <div class="breadcrumb__links">
-                                <a href="./index.html">Home</a>
-                                <span>Edit Products</span>
-                            </div>
-                        </div>
+                    <% if (product.images?.length > 0) { %>
+                    <% product.images.forEach((image, index) => { %>
+                    <div class="col-4 mb-2">
+                        <img src="/uploads/<%= image %>" alt="Product Image" class="img-fluid">
+                        <a href="/admin/deleteImage/<%= product._id %>/<%= index %>"
+                            class="btn btn-sm btn-danger mt-2">Delete</a>
                     </div>
+                    <% }) %>
+                    <% } else { %>
+                    <p>No images available</p>
+                    <% } %>
                 </div>
             </div>
-        </section>
 
-
-        <main class="main my-5">
-            <div class="container">
-
-                <% if (message) { %>
-                    <div class="alert alert-danger" role="alert">
-                        <%= message %>
-                    </div>
-                <% } %>
-
-                <form class="container  w-50 my-5" action="/admin/editProduct/<%= product._id %>" method="post"
-                    enctype="multipart/form-data">
-
-
-                    <div class="form-outline mb-4">
-                        <label class="form-label mt-2" for="product-name">Product name </label>
-                        <input type="text" id="name" class="form-control" name="name" required
-                            value="<%= product.name%>" />
-                        
-                    </div>
-
-                    
-
-
-                    <div class="-outline mb-4 d-flex flex-column">
-                        <label for="category">Category:</label>
-                        <select id="category" name="category" required>
-                            <% categories.forEach(category => { %>
-                                <option value="<%= category._id %>" <% if (product && product.category.toString() === category._id.toString()) { %>selected<% } %>><%= category.name %></option>
-                            <% }) %>
-                        </select><br>
-                    </div>
-                    
-
-
-                    <div class="form-outline mb-4">
-                        <label class="form-label mt-2" for="size">Brand</label>
-
-                        <input type="text" id="brand" class="form-control" name="brand" required
-                            value="<%= product.brand%>" />
-                        
-                    </div>
-
-                    <div class="form-outline mb-4">
-                        <label class="form-label mt-2" for="color">Color</label>
-                        <input type="text" id="color" class="form-control" name="color" required
-                            value="<%= product.color%>" />
-                        
-
-                    </div>
-
-
-                    <div class="form-outline mb-4">
-                        <label class="form-label mt-2" for="price">Price</label>
-                        <input type="number" id="price" class="form-control" name="price" required
-                            value="<%= product.price%>" />
-                        
-
-                    </div>
-
-                    <div class="form-outline mb-4">
-                        <label class="form-label mt-2" for="stock">Stock no </label>
-                        <input type="number" id="stockinCount" class="form-control" name="stockinCount" required
-                            value="<%= product.stockinCount%>" />
-                        
-                    </div>
-
-
-                    <!-- <div class="form-outline mb-4 d-flex flex-column ">
-
-                        <select name="onSale" id="onSale">
-
-
-
-                            <option value="true" <%=product.onSale ? 'selected' :'' %> >
-                                True
-                            </option>
-
-                            <option value="false" <%=product.onSale? '' :' selected' %> >
-                                False
-                            </option>
-
-
-                        </select>
-
-                        <label class="   mt-2" for="onSale">onSale</label>
-
-                    </div>
- -->
-
-
-
-                    
-                <div class="form-outline mb-2 w-100">
-                    <label class="form-label mt-2" for="description">Description</label>
-                    <textarea class=" w-100" style="width: auto;" name="description" id="description"
-                        required><%=product.description %></textarea>
-
+            <!-- Input field for uploading new images -->
+            <div class="input-group mb-4">
+                <span class="input-group-text">Upload</span>
+                <div class="input-group-prepend"></div>
+                <div class="custom-file">
+                    <label class="custom-file-label" for="images"> Upload Images </label>
+                    <input type="file" class="custom-file-input" id="images" name="images" multiple>
                 </div>
-
-
-                    <!-- images upload -->
-                    <div class="mb-4">
-                        <label class="form-label mt-2">Existing Images</label>
-                        <div class="row">
-                            <% if (product.images?.length > 0) { %>
-                                <% product.images.forEach((image, index) => { %>
-                                    <div class="col-4 mb-2">
-                                        <img src="/uploads/<%= image %>" alt="Product Image" class="img-fluid">
-                                        <a href="/admin/deleteImage/<%= product._id %>/<%= index %>" class="btn btn-sm btn-danger mt-2">Delete</a>
-                                    </div>
-                                <% }) %>
-                            <% } else { %>
-                                <p>No images available</p>
-                            <% } %>
-                        </div>
-                    </div>
-
-                    <div class="input-group mb-4">
-                        <span class="input-group-text" >Upload</span>
-                        <div class="input-group-prepend">
-    
-                        </div>
-                        <div class="custom-file">
-                            <label class="custom-file-label" for="images"> Upload Images </label>
-                            <input type="file" class="custom-file-input" id="images" name="images"  multiple>
-    
-    
-    
-    
-                        </div>
-                    </div>
-
-
-
-
-                    <!-- Submit button -->
-                    <button type="submit" class="btn btn-dark btn-block mb-4"> Edit Product</button>
-
-
-                </form>
-
-
             </div>
-        </main>
 
+            <!-- Submit button -->
+            <button type="submit" class="btn btn-dark btn-block mb-4"> Edit Product</button>
 
+        </form>
 
+    </div>
+</main>
 
-        <%- include('../admin/adminFooter.ejs') %>
+<%- include('../admin/adminFooter.ejs') %>
+<%- include('../layouts/footer.ejs') %>
 
-            <%- include('../layouts/footer.ejs') %>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let sizeCounter = <%= product.sizes.length %>; // Initialize counter with the number of existing sizes
+        const addSizeButton = document.getElementById('addSize');
+        const form = document.querySelector('form');
+
+        addSizeButton.addEventListener('click', function () {
+            // Create new size and stock input fields
+            const newSizeField = document.createElement('div');
+            newSizeField.classList.add('form-outline', 'mb-4');
+            newSizeField.innerHTML = `
+                <label class="form-label mt-2" for="size${sizeCounter}">Size</label>
+                <select id="size${sizeCounter}" class="form-control" name="sizes[]" required>
+                    <option value="XS">XS</option>
+                    <option value="S">S</option>
+                    <option value="M">M</option>
+                    <option value="L">L</option>
+                    <option value="XL">XL</option>
+                    <option value="XXL">XXL</option>
+                    <option value="Single Size">Single Size</option>
+                </select>
+                <label class="form-label mt-2" for="stock${sizeCounter}">Stock</label>
+                <input type="number" id="stock${sizeCounter}" class="form-control" name="stocks[]" required>
+            `;
+            form.insertBefore(newSizeField, addSizeButton);
+            sizeCounter++; // Increment the counter for the next size
+        });
+    });
+</script>

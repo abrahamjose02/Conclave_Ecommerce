@@ -1,142 +1,143 @@
 <%- include('../layouts/header.ejs') %>
-
 <%- include('../admin/adminHeader.ejs') %>
 
-    <!-- Breadcrumb Section Begin -->
-
-    <section class="breadcrumb-option">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="breadcrumb__text">
-                        <h4>Add Products</h4>
-                        <div class="breadcrumb__links">
-                            <a href="./index.html">Home</a>
-                            <span>Add Products</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<!-- Breadcrumb Section Begin -->
+<section class="breadcrumb-option">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="breadcrumb__text">
+          <h4>Add Products</h4>
+          <div class="breadcrumb__links">
+            <a href="./index.html">Home</a>
+            <span>Add Products</span>
+          </div>
         </div>
-    </section>
+      </div>
+    </div>
+  </div>
+</section>
 
+<main class="main my-5">
+  <div class="container">
+    <h2 class="text-center">Enter New Product Details</h2>
 
-    <main class="main my-5">
-        <div class="container">
+    <form class="container w-50 my-5" id="myForm" action="/admin/addProduct" method="post" enctype="multipart/form-data">
+      <% if (message) { %>
+        <div class="alert alert-danger mt-3" role="alert">
+          <%= message %>
+        </div>
+      <% } %>
 
-            <h2 class="text-center">Enter New Product Details</h2>
+      <div class="form-outline mb-4">
+        <label class="form-label mt-2" for="name">Product name </label>
+        <input type="text" id="name" class="form-control" name="name" required />
+      </div>
 
-            <form class="container w-50 my-5" id="myForm" action="/admin/addProduct" method="post" enctype="multipart/form-data">
+      <div class="-outline mb-4 d-flex flex-column">
+        <label for="category">Category:</label>
+        <select id="category" name="category" required>
+          <% categories.forEach(category => { %>
+            <option value="<%= category._id %>"><%= category.name %></option>
+          <% }) %>
+        </select><br>
 
-                <% if (message) { %>
-                    <div class="alert alert-danger mt-3" role="alert">
-                        <%= message %>
-                    </div>
-                <% } %>
+        <div class="form-outline mb-4">
+          <label class="form-label mt-2" for="brand">brand</label>
+          <input type="text" id="brand" class="form-control" name="brand" required />
+        </div>
+
+        <div class="form-outline mb-4">
+          <label class="form-label mt-2" for="color">Color</label>
+          <input type="text" id="color" class="form-control" name="color" required />
+        </div>
+
+        <div class="form-outline mb-4">
+          <label class="form-label mt-2" for="price">Price</label>
+          <input type="number" id="price" class="form-control" name="price" required />
+        </div>
+
+        <div class="form-outline mb-4">
+          <label class="form-label mt-2" for="sizes">Select Sizes and Stock Counts</label>
+          <div id="sizeSelection">
             
-
-                <div class="form-outline mb-4">
-                    <label class="form-label mt-2" for="name">Product name </label>
-                    <input type="text" id="name" class="form-control" name="name" required />
-
-                </div>
-
-                <div class="-outline mb-4 d-flex flex-column">
-                    <label for="category">Category:</label>
-                    <select id="category" name="category" required>
-                        <% categories.forEach(category => { %>
-                            <option value="<%= category._id %>"><%= category.name %></option>
-                        <% }) %>
-                    </select><br>
-                    
-
-                <div class="form-outline mb-4">
-                    <label class="form-label mt-2" for="brand">brand</label>
-                    <input type="text" id="brand" class="form-control" name="brand" required />
-
-
-                </div>
-
-                <div class="form-outline mb-4">
-                    <label class="form-label mt-2" for="color">Color</label>
-                    <input type="text" id="color" class="form-control" name="color" required />
-
-                </div>
-
-
-
-                <div class="form-outline mb-4">
-                    <label class="form-label mt-2" for="price">Price</label>
-                    <input type="number" id="price" class="form-control" name="price" required />
-
-
-                </div>
-
-                <div class="form-outline mb-4">
-                    <label class="form-label mt-2" for="stockinCount">Stock no </label>
-                    <input type="number" id="stockinCount" class="form-control" name="stockinCount" required />
-
-                </div>
-
-                <div class="input-group mb-4">
-                    <span class="input-group-text" >Upload</span>
-                    <div class="input-group-prepend">
-
-                    </div>
-                    <div class="custom-file">
-                        <label class="custom-file-label" for="images"> Upload Images </label>
-                        <input type="file" class="custom-file-input" id="images" name="images" required multiple>
-
-
-
-
-                    </div>
-                </div>
-
-
-
-
-
-
-
-
-
-                <div class="form-outline mb-2 w-100">
-                    <label class="form-label mt-2" for="description">Description</label>
-                    <textarea class=" w-100" style="width: auto;" name="description" id="description"
-                        required></textarea>
-
-                </div>
-
-
-
-
-
-
-
-
-
-
-                <!-- Submit button -->
-                <button type="submit" class="btn btn-dark btn-block mb-4"> Add Product</button>
-
-
-            </form>
-
-
+          </div>
         </div>
-    </main>
-
-
-
-
-    <%- include('../admin/adminFooter.ejs') %>
-
-        <script src="/js/admin/addProduct.js"></script>
-
-        <%- include('../layouts/footer.ejs') %>
-
-
-
 
        
+        <button type="button" class="btn btn-primary mb-3" id="addSizeSelection">Add Size</button>
+
+        <div class="input-group mb-4">
+          <span class="input-group-text">Upload</span>
+          <div class="input-group-prepend"></div>
+          <div class="custom-file">
+            <label class="custom-file-label" for="images"> Upload Images </label>
+            <input type="file" class="custom-file-input" id="images" name="images" required multiple>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mx-4">
+            <label for="images">Preview Images:</label>
+            <div class="previewImages"></div>
+          </div>
+        </div>
+
+        <div class="form-outline mb-2 w-100">
+          <label class="form-label mt-2" for="description">Description</label>
+          <textarea class="w-100" style="width: auto;" name="description" id="description" required></textarea>
+        </div>
+
+        <!-- Submit button -->
+        <button type="submit" class="btn btn-dark btn-block mb-4"> Add Product</button>
+    </form>
+  </div>
+</main>
+
+<%- include('../admin/adminFooter.ejs') %>
+<script src="/js/admin/addProduct.js"></script>
+<%- include('../layouts/footer.ejs') %>
+
+<script>
+  $(document).ready(function () {
+    let imgPreview = function (input, imagePlace) {
+      if (input.files) {
+        let allFiles = input.files.length;
+        for (let i = 0; i < allFiles; i++) {
+          let reader = new FileReader();
+          reader.onload = function (event) {
+            $($.parseHTML("<img>"))
+              .attr("src", event.target.result)
+              .appendTo(imagePlace);
+          };
+          reader.readAsDataURL(input.files[i]);
+        }
+      }
+    };
+
+    $("#images").on("change", function () {
+      $(".previewImages").empty(); // Clear previous previews
+      imgPreview(this, "div.previewImages");
+    });
+
+    // Add Size Selection dynamically
+    let sizeCounter = 1; // Counter to generate unique IDs for new size selection fields
+    $("#addSizeSelection").click(function () {
+      let newSizeSelection = `
+        <div id="sizeSelection${sizeCounter}" class="form-outline mb-4">
+          <label class="form-label mt-2" for="size${sizeCounter}">Size</label>
+          <select id="size${sizeCounter}" class="form-control" name="sizes[]" required>
+            <option value="XS">XS</option>
+            <option value="S">S</option>
+            <option value="M">M</option>
+            <option value="L">L</option>
+            <option value="XL">XL</option>
+            <option value="Single Size">Single Size</option>
+          </select>
+          <input type="number" class="form-control" name="stocks[]" placeholder="Stock Count" required>
+        </div>`;
+      $("#sizeSelection").append(newSizeSelection);
+      sizeCounter++;
+    });
+  });
+</script>

@@ -24,7 +24,11 @@
         <main class="main my-5">
             <div class="container">
 
-                <a class="btn btn-outline-success mb-3" href="/admin/addCategory">Add Category</a>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <a class="btn btn-outline-success" href="/admin/addCategory">Add New Category</a>
+                    <a href="/admin/categoryOfferManagement" class="btn btn-outline-primary">Category Offers</a>
+                </div>
+        
 
                 <div class="table-responsive" id="no-more-tables">
                     <table class="table table-striped bg-white" id="myTable">
@@ -146,3 +150,8 @@
             <%- include('../layouts/footer.ejs') %>
 
 
+<script>
+    $(document).ready(function(){
+        $('#myTable').DataTable();
+    });
+</script>

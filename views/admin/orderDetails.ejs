@@ -45,7 +45,7 @@
                 <tr>
                   <th>Order ID</th>
                   <td>
-                    <%= orderInfo._id %>
+                    <%= orderInfo.orderID || orderInfo._id %>
                   </td>
                   <th>Items</th>
                   <td>
@@ -355,6 +355,8 @@
                               >Delivered</option>
                             <option value="cancelled" <%=orderInfo.orderStatus==='cancelled' ? 'selected' : '' %>
                               >Cancelled</option>
+                              <option value="returned"<%=orderInfo.orderStatus==='returned' ? 'selected' : '' %>
+                                >Returned</option>
                           </select>
                         </div>
                         <button type="submit" class="btn btn-primary">Update Status</button>
