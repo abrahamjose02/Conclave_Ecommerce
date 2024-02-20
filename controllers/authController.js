@@ -440,8 +440,6 @@ const blockedUser = async (req, res) => {
 };
 
 
-
-
 //logout page
 
 const logout = async (req, res) => {
