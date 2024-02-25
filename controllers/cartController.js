@@ -62,6 +62,7 @@ const loadCartDetails = async (req, res) => {
 
 
 
+
 const addToCart = async (req, res) => {
     try {
         const productId = req.params.productId;

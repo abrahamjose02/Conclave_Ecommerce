@@ -339,42 +339,54 @@ const loginUser = async (req, res) => {
   }
 }
 
+
 //load home page
 
 const loadHome = async (req, res) => {
   try {
-    let message = '';
+      let message = '';
 
-    if (req.session.user_id) {
-      const userData = await User.findById(req.session.user_id);
-      if (userData) {
-        if (userData.isblocked === true) {
-          message = 'Your account has been blocked by the admin. Please sign up with a new account.';
-          return res.redirect('/blockedUser');
-        }
+      if (req.session.user_id) {
+          const userData = await User.findById(req.session.user_id);
+          if (userData) {
+              if (userData.isblocked === true) {
+                  message = 'Your account has been blocked by the admin. Please sign up with a new account.';
+                  return res.redirect('/blockedUser');
+              }
 
-        // Fetch categories
-        const menCategories = await Category.find({ categoryType: 'Men', isDeleted: false });
-        const womenCategories = await Category.find({ categoryType: 'Women', isDeleted: false });
-        const kidsCategories = await Category.find({ categoryType: 'Kids', isDeleted: false });
-        const beautyCategories = await Category.find({ categoryType: 'Beauty', isDeleted: false });
+              // Fetch categories
+              const menCategories = await Category.find({ categoryType: 'Men', isDeleted: false });
+              const womenCategories = await Category.find({ categoryType: 'Women', isDeleted: false });
+              const kidsCategories = await Category.find({ categoryType: 'Kids', isDeleted: false });
+              const beautyCategories = await Category.find({ categoryType: 'Beauty', isDeleted: false });
 
-        // Fetch most ordered products
-        const mostOrderedProducts = await getMostOrderedProducts();
+              const mostOrderedProducts = await getMostOrderedProducts();
+              const latestProducts = await Product.find().sort({ createdAt: -1 }).limit(4);
 
-        // Render the home page with userData, userID, message, and categories
-        message = `Welcome back, ${userData.name}!`; // Welcome back message for logged-in users
-        return res.render('home', { user: userData, mostOrderedProducts, userID: req.session.user_id, message, menCategories, womenCategories, kidsCategories, beautyCategories });
+              message = `Welcome back, ${userData.name}!`;
+              return res.render('home', {
+                  user: userData,
+                  mostOrderedProducts,
+                  latestProducts,
+                  userID: req.session.user_id,
+                  message,
+                  menCategories,
+                  womenCategories,
+                  kidsCategories,
+                  beautyCategories
+              });
+          }
+      } else {
+          message = 'Please log in to continue.';
+          return res.redirect('/');
       }
-    } else {
-      message = 'Please log in to continue.'; // Prompt to log in for non-logged-in users
-      return res.redirect('/');
-    }
   } catch (error) {
-    console.error("Error loading home page:", error.message);
-    return res.status(500).json({ error: 'Failed to load Home Page' });
+      console.error("Error loading home page:", error.message);
+      return res.status(500).json({ error: 'Failed to load Home Page' });
   }
 };
+
+
 
 const getMostOrderedProducts = async () => {
   try {
@@ -382,8 +394,8 @@ const getMostOrderedProducts = async () => {
     const productOrders = await Order.aggregate([
       { $unwind: "$items" },
       { $group: { _id: "$items.product", totalOrdered: { $sum: "$items.quantity" } } },
-      { $sort: { totalOrdered: -1 } }, // Sort in descending order of totalOrdered
-      { $limit: 5 } // Limit to top 5 most ordered products
+      { $sort: { totalOrdered: -1 } }, 
+      { $limit: 5 } 
     ]);
 
     // Get product details for the most ordered products
@@ -643,10 +655,10 @@ const resetPassword = async (req, res) => {
 }
 
 
-
 const loadCheckoutPage = async (req, res) => {
   try {
     const userID = req.session.user_id;
+    console.log('userID:',userID);
     const menCategories = await Category.find({ categoryType: 'Men', isDeleted: false });
     const womenCategories = await Category.find({ categoryType: 'Women', isDeleted: false });
     const kidsCategories = await Category.find({ categoryType: 'Kids', isDeleted: false });
@@ -664,8 +676,8 @@ const loadCheckoutPage = async (req, res) => {
       return res.render('cart', { menCategories, womenCategories, beautyCategories, kidsCategories, userID, message, itemsInCart: [], productTotal: [], req: req });
     }
 
-    const user = await User.findById(userID).exec();
-    const userAddresses = user ? user.addresses : [];
+    const userDetails = await User.findById(userID);
+    const userAddresses = userDetails ? userDetails.addresses : [];
 
     const Addresses = userAddresses.map((address, index) => ({
       ...address.toObject(),
@@ -695,12 +707,12 @@ const loadCheckoutPage = async (req, res) => {
 
     const productTotal = itemsInCart.map((cartItem) => {
       if (cartItem.product && cartItem.product.price) {
-        const total = cartItem.product.price * cartItem.quantity;
-        return total;
+        return cartItem.product.price * cartItem.quantity;
       } else {
         return 0;
       }
     });
+    
 
     const couponDetails = req.session.couponDetails || null;
     let totalPriceAfterDiscount = totalPriceOfCart;
@@ -708,14 +720,15 @@ const loadCheckoutPage = async (req, res) => {
       totalPriceAfterDiscount -= couponDetails.discount || 0;
     }
 
-    const userWalletBalance = user.wallet || 0;
+    const userWalletBalance = userDetails.wallet || 0; // Accessing wallet from userDetails
 
-    res.render('checkout', { message, userID, menCategories, womenCategories, kidsCategories, beautyCategories, Addresses, itemsInCart, totalPriceOfCart, productTotal, req: req, couponDetails, user, userWalletBalance, subTotal, totalPriceAfterDiscount });
+    res.render('checkout', { message, userID, menCategories, womenCategories, kidsCategories, beautyCategories, Addresses, itemsInCart, subTotal, productTotal, totalPriceOfCart, req: req, couponDetails, userDetails, userWalletBalance, totalPriceAfterDiscount });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ error: 'Invalid Session Error' });
   }
 };
+
 
 
 
@@ -1554,13 +1567,6 @@ const returnProduct = async (req, res) => {
         order.totalPrice = 0;
         order.grand_total = 0;
 
-
-        const transaction = {
-          description: `Refund for Returned order ID: ${orderId}`,
-          amount: order.subtotal,
-          date: new Date(),
-        };
-        user.transactions.push(transaction);
         await user.save();
       }
     }

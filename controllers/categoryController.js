@@ -195,17 +195,17 @@ const createCategoryOffer = async (req, res) => {
           return res.status(400).json({ status: false, message: 'Discount percentage is required and must be a number' });
       }
 
-      // Find the maximum discount percentage among existing product offers in the category
+      
       const maxProductDiscountPercentage = await findMaxProductDiscountPercentage(categoryId);
 
-      // Apply category offer to products if category discount percentage is greater
+      
       if (categoryDiscountPercentage > maxProductDiscountPercentage) {
-          // Update category's discount percentage and isOfferApplied flag
+          
           category.discountPercentage = categoryDiscountPercentage;
           category.isOfferApplied = true;
           await category.save();
 
-          // Apply the category offer to the products in the category
+         
           await applyCategoryOfferToProducts(categoryId, categoryDiscountPercentage);
 
           res.redirect('/admin/categoryOfferManagement');
@@ -218,7 +218,6 @@ const createCategoryOffer = async (req, res) => {
   }
 };
 
-// Function to find the maximum discount percentage among existing product offers in the category
 const findMaxProductDiscountPercentage = async (categoryId) => {
   const products = await Product.find({ category: categoryId, isOfferApplied: true });
   let maxDiscountPercentage = 0;
@@ -230,7 +229,7 @@ const findMaxProductDiscountPercentage = async (categoryId) => {
   return maxDiscountPercentage;
 };
 
-// Function to apply the category offer to the products in the category
+
 const applyCategoryOfferToProducts = async (categoryId, discountPercentage) => {
   const products = await Product.find({ category: categoryId });
 
@@ -241,9 +240,9 @@ const applyCategoryOfferToProducts = async (categoryId, discountPercentage) => {
       if (!product.isOfferApplied || discountPercentage > productDiscountPercentage) {
           let oldPrice = product.price; // Default to product price
 
-          // Check if there is an existing product offer and if it's less than the category offer
+          
           if (product.isOfferApplied && product.discountPercentage < discountPercentage) {
-              oldPrice = product.oldPrice; // Use product's old price if it has a lesser offer
+              oldPrice = product.oldPrice; 
           }
 
           const discountPrice = parseInt((oldPrice * discountPercentage) / 100);
@@ -275,7 +274,7 @@ const activateCategoryOffer = async (req, res) => {
           return res.status(400).json({ status: false, message: 'Category offer is already activated' });
       }
 
-      // Update the category to activate the offer
+      
       await Category.findByIdAndUpdate(categoryId, { isOfferApplied: true });
 
       // Update all products in the category to activate the offer

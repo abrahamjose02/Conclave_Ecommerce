@@ -111,15 +111,15 @@ admin_route.post('/editBanner/:bannerId',upload.single('image'),bannerController
 admin_route.post('/enable-banner/:bannerId',bannerController.enableBanner);
 admin_route.post('/disable-banner/:bannerId',bannerController.disableBanner);
 admin_route.post('/delete-banner/:bannerId',bannerController.deleteBanner);
-admin_route.get('/productOfferManagement',isLogin,productController.loadProductOfferManagement);
-admin_route.post('/createOffer/:productId',isLogin,productController.createOffer);
-admin_route.post('/activateOffer/:productId',isLogin,productController.activateOffer);
-admin_route.post('/deactivateOffer/:productId',isLogin,productController.deactivateOffer);
-admin_route.get('/deleteOffer/:productId',isLogin,productController.deleteOffer);
-admin_route.get('/categoryOfferManagement',isLogin,categoryController.categoryOfferManagement);
-admin_route.post('/createCategoryOffer/:categoryId',isLogin,categoryController.createCategoryOffer);
-admin_route.post('/activateCategoryOffer/:categoryId',isLogin,categoryController.activateCategoryOffer);
-admin_route.post('/deactivateCategoryOffer/:categoryId',isLogin,categoryController.deactivateCategoryOffer);
-admin_route.get('/deleteCategoryOffer/:categoryId',isLogin,categoryController.deleteCategoryOffer);
+admin_route.get('/productOfferManagement',productController.loadProductOfferManagement);
+admin_route.post('/createOffer/:productId',productController.createOffer);
+admin_route.post('/activateOffer/:productId',productController.activateOffer);
+admin_route.post('/deactivateOffer/:productId',productController.deactivateOffer);
+admin_route.get('/deleteOffer/:productId',productController.deleteOffer);
+admin_route.get('/categoryOfferManagement',categoryController.categoryOfferManagement);
+admin_route.post('/createCategoryOffer/:categoryId',categoryController.createCategoryOffer);
+admin_route.post('/activateCategoryOffer/:categoryId',categoryController.activateCategoryOffer);
+admin_route.post('/deactivateCategoryOffer/:categoryId',categoryController.deactivateCategoryOffer);
+admin_route.get('/deleteCategoryOffer/:categoryId',categoryController.deleteCategoryOffer);
 
 module.exports = admin_route;

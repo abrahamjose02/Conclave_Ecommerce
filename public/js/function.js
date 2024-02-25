@@ -76,39 +76,59 @@ function selectSizeAndAddToCart(productId) {
 // Plus button click event
 $(".plus-btn").on("click", function () {
   const itemId = $(this).data("itemid");
-  changeQuantity(itemId, "1");
+  const currentItemQuantity = parseInt($("#" + itemId).text());
+  const currentStockCount = parseInt($("#" + itemId + "-stock").text());
+
+  // Check if the current quantity is less than the stock count
+  if (currentItemQuantity < currentStockCount) {
+      changeQuantity(itemId, "1");
+  }
+
+  // Disable plus button and show message if current quantity exceeds stock count by one
+  if (currentItemQuantity + 1 > currentStockCount) {
+      $(this).prop("disabled", true);
+      $("#" + itemId + "-message").text("Out of stock or insufficient stock.");
+  } else {
+      $("#" + itemId + "-message").text(""); // Clear the message if quantity is within stock count
+  }
+
+  // Enable minus button
+  $(".minus-btn").prop("disabled", false);
 });
 
 // Minus button click event
 $(".minus-btn").on("click", function () {
   const itemId = $(this).data("itemid");
   changeQuantity(itemId, "-1");
+  $(".plus-btn").prop("disabled", false);
 });
 
 // Function to change quantity via AJAX
 function changeQuantity(itemId, quantityChange) {
   $.ajax({
-    type: "POST",
-    url: "/changeQuantity",
-    data: {
-      itemId: itemId,
-      quantityChange: quantityChange,
-    },
-    success: function (response) {
-      if (response.status === "success") {
-        // Update the displayed quantity
-        $("#" + itemId).text(response.quantity);
-        // Update total price per item
-        $("#total" + itemId).text(response.price);
-        // Update the cart total
-        $("#grandTotal").text(response.totalPrice);
-      }
-    },
-    error: function (err) {
-      console.error("Error:", err);
-    },
+      type: "POST",
+      url: "/changeQuantity",
+      data: {
+          itemId: itemId,
+          quantityChange: quantityChange,
+      },
+      success: function (response) {
+          if (response.status === "success") {
+              // Update the displayed quantity
+              $("#" + itemId).text(response.quantity);
+              // Update total price per item
+              $("#total" + itemId).text(response.price);
+              // Update the cart total
+              $("#grandTotal").text(response.totalPrice);
+          }
+      },
+      error: function (err) {
+          console.error("Error:", err);
+      },
   });
 }
+
+
 
 // To remove the product from the cart
 
@@ -276,6 +296,82 @@ function submitEditAddressForm() {
   });
 }
 
+
+$(document).ready(function () {
+  console.log("Script loaded and executed.");
+
+  $("#placeOrderWallet").on("click", function () {
+      const selectedAddress = $('input[name="order-address"]:checked').val();
+      const useWallet = $('#useWallet').is(":checked"); // Check if the wallet is selected
+
+      if (!selectedAddress) {
+          console.log("Please select an address.");
+          return;
+      }
+
+      const itemsInCart = [];
+      $(".checkout__total__products li").each(function () {
+          const cartItem = $(this).data("cart-item");
+
+          if (cartItem && cartItem.product && cartItem.product._id) {
+              const productId = cartItem.product._id;
+              const size = cartItem.size;
+              const quantity = cartItem.quantity;
+
+              itemsInCart.push({
+                  product: { _id: productId },
+                  size: size,
+                  quantity: quantity,
+              });
+          } else {
+              console.error("Invalid cart item:", cartItem);
+          }
+      });
+
+      $.ajax({
+          url: "/placeOrderUsingWallet",
+          method: "post",
+          contentType: "application/json",
+          data: JSON.stringify({
+              addressId: selectedAddress,
+              itemsInCart: itemsInCart,
+              useWallet: useWallet // Include useWallet in the request body
+          }),
+          success: function (response) {
+              console.log("AJAX success:", response);
+              if (response.orderPlaced) {
+                  // Redirect to the order placement page
+                  window.location.href = "/orderPlaced";
+                  // Display SweetAlert for successful order placement
+                  Swal.fire({
+                      icon: 'success',
+                      title: 'Order Placed!',
+                      text: 'Your order has been successfully placed.',
+                  });
+              } else {
+                  // Handle other cases if needed
+                  Swal.fire({
+                      icon: 'error',
+                      title: 'Error!',
+                      text: 'Failed to place the order. Please try again later.',
+                  });
+              }
+          },
+          error: function (error) {
+              console.error("AJAX request error:", error);
+              // Display SweetAlert for AJAX request error
+              Swal.fire({
+                  icon: 'error',
+                  title: 'Error!',
+                  text: 'Failed to place the order due to a network error. Please try again later.',
+              });
+          },
+      });
+  });
+});
+
+
+
 $(document).ready(function () {
   console.log("Script loaded and executed.");
 
@@ -307,34 +403,27 @@ $(document).ready(function () {
           }
       });
 
+      let url = "";
+      if (selectedPaymentMethod === "COD") {
+          url = "/placeOrderCOD";
+      } else if (selectedPaymentMethod === "onlinePayment") {
+          url = "/placeOrderOnline";
+      }
+
       $.ajax({
-          url: "/placeOrder",
+          url: url,
           method: "post",
           contentType: "application/json",
           data: JSON.stringify({
               addressId: selectedAddress,
-              paymentMethod: selectedPaymentMethod,
               itemsInCart: itemsInCart,
           }),
           success: function (response) {
               console.log("AJAX success:", response);
-              if (response.orderPlaced) {
-                  Swal.fire("Success", "Your order is placed", "success").then(() => {
-                      location.href = "/orderPlaced"; // Update the redirect URL
-                  });
-              } else if (response.outOfStock) {
-                  console.error("AJAX error:", response);
-                  Swal.fire(
-                      "Sorry",
-                      "One or many of the selected products are out of stock",
-                      "error"
-                  ).then(() => {
-                      location.href = "/cart";
-                  });
-              } else if (response.status === 'error') {
-                  Swal.fire("Error", response.message || "An error occurred", "error");
-              } else {
-                  handleRazorpayPayment(response);
+              if (selectedPaymentMethod === "COD") {
+                  handleResponse(response, "COD");
+              } else if (selectedPaymentMethod === "onlinePayment") {
+                  handleResponse(response, "onlinePayment");
               }
           },
           error: function (error) {
@@ -344,90 +433,143 @@ $(document).ready(function () {
   });
 });
 
-  function handleRazorpayPayment(order) {
-    var options = {
-      key: "rzp_test_bKd6wx7eUIbfAM",
-      amount: order.amount, // Amount should be in paise
+function handleResponse(response, paymentMethod) {
+  if (paymentMethod === "COD") {
+      if (response.orderPlaced) {
+          Swal.fire("Success", "Your order is placed", "success").then(() => {
+              location.href = "/orderPlaced"; // Update the redirect URL
+          });
+      } else if (response.outOfStock) {
+          console.error("AJAX error:", response);
+          Swal.fire(
+              "Sorry",
+              "One or many of the selected products are out of stock",
+              "error"
+          ).then(() => {
+              location.href = "/cart";
+          });
+      } else if (response.status === "error") {
+          Swal.fire("Error", response.message || "An error occurred", "error");
+      }
+  } else if (paymentMethod === "onlinePayment") {
+      if (response.razorpayOrder && response.orderData) {
+          response.orderData.payable_amount = response.orderData.payable_amount / 100; // Convert payable_amount back to rupees
+          handleRazorpayPayment(response);
+      } else if (response.outOfStock) {
+          console.error("AJAX error:", response);
+          Swal.fire(
+              "Sorry",
+              "One or many of the selected products are out of stock",
+              "error"
+          ).then(() => {
+              location.href = "/cart";
+          });
+      } else {
+          Swal.fire("Error", response.message || "An error occurred", "error");
+      }
+  }
+}
+
+function handleRazorpayPayment(response) {
+  var options = {
+      key: "rzp_test_bKd6wx7eUIbfAM", // Replace with your Razorpay API key
+      amount: response.orderData.payable_amount * 100, // Amount should be in paise
       currency: "INR",
       name: "Conclave - Fashion Ecommerce",
       description: "A fashion and Apparel Ecommerce brand",
       image: "/img/logo.png",
-      order_id: order.id,
+      order_id: response.razorpayOrder.id, // Use the Razorpay order ID
       handler: function (response) {
-        verifyPayment(response, order);
+          verifyPayment(response, response.orderData, response.order); // Pass orderData and order to verifyPayment
       },
       prefills: {
-        name: "name",
-        email: "abraham@example.com",
-        contact: "9000090000",
+          name: "name", // Replace with the customer's name
+          email: "abraham@example.com", // Replace with the customer's email
+          contact: "9000090000", // Replace with the customer's contact number
       },
       notes: {
-        address: "Razorpay Corporate Office",
+          address: "Razorpay Corporate Office",
       },
       theme: {
-        color: "#3399cc",
+          color: "#3399cc",
       },
-    };
+  };
 
-    var rzp1 = new Razorpay(options);
+  var rzp1 = new Razorpay(options);
 
-    rzp1.on("payment.failed", function (response) {
+  rzp1.on("payment.failed", function (response) {
       console.error("Razorpay Payment Failed Response:", response);
 
       Swal.fire({
-        icon: "error",
-        title: "Payment Failed",
-        text: "Sorry, your payment failed. Please try again or choose a different payment method.",
+          icon: "error",
+          title: "Payment Failed",
+          text: "Sorry, your payment failed. Please try again or choose a different payment method.",
       }).then(() => {
-        // Redirect to cart page
-        location.href = "/cart";
+          // Redirect to cart page
+          location.href = "/checkout";
       });
-    });
+  });
 
-    rzp1.open();
-  }
+  rzp1.open();
+}
 
-  function verifyPayment(payment, order) {
-    $.ajax({
+function verifyPayment(response, orderData, order) {
+  $.ajax({
       url: "/verifyPayment",
       method: "post",
-      data: {
-        payment: {
-          razorpay_order_id: payment.razorpay_order_id,
-          razorpay_payment_id: payment.razorpay_payment_id,
-          razorpay_signature: payment.razorpay_signature,
-        },
-        order,
-      },
-      success: function (response) {
-        console.log("Verification response received:", response);
-
-        if (response.status) {
-          console.log(
-            "Payment verification successful. Showing success message."
-          );
-          Swal.fire(
-            "Success",
-            "Payment Success, your order is placed",
-            "success"
-          ).then(() => {
-            console.log("Redirecting to orderPlaced page.");
-            location.href = "/orderPlaced";
-          });
-        } else {
-          console.log("Payment verification failed. Showing error message.");
-          Swal.fire("Failed", "Payment failed!!!!", "error").then(() => {
-            console.log("Redirecting to cart page.");
-            location.href = "/cart";
-          });
-        }
+      contentType: "application/json", // Set content type to JSON
+      data: JSON.stringify({
+          payment: {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+          },
+          orderData: orderData, // Include orderData in the request body
+          order: order, // Include order in the request body
+      }),
+      success: function (result) {
+          if (result.status === 'success') {
+              // Show SweetAlert for success
+              Swal.fire({
+                  icon: 'success',
+                  title: 'Payment Verified',
+                  text: 'Your payment was successfully verified.',
+                  showConfirmButton: false,
+                  timer: 1500
+              }).then(() => {
+                  // Redirect to orderPlaced page
+                  window.location.href = result.redirect;
+              });
+          } else {
+              // Show SweetAlert for error
+              Swal.fire({
+                  icon: 'error',
+                  title: 'Payment Verification Failed',
+                  text: 'There was an error verifying your payment. Please try again or contact support.',
+                  showConfirmButton: false,
+                  timer: 3000
+              }).then(() => {
+                  // Redirect to cart page
+                  window.location.href = result.redirect;
+              });
+          }
       },
       error: function (error) {
-        console.error("AJAX request error:", error);
-        // You might want to add additional logging or error handling here
+          console.error("AJAX request error:", error);
+          // Show SweetAlert for error and redirect to cart page
+          Swal.fire({
+              icon: 'error',
+              title: 'Payment Verification Failed',
+              text: 'There was an error verifying your payment. Please try again or contact support.',
+              showConfirmButton: false,
+              timer: 3000
+          }).then(() => {
+              // Redirect to cart page
+              window.location.href = '/cart';
+          });
       },
-    });
-  }
+  });
+}
 
 
 

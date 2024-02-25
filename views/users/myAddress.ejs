@@ -99,84 +99,73 @@
                             </div>
                             <% } %>
                     </div>
-                    <div class="modal fade" id="addAddressModal" tabindex="-1"
-                    aria-labelledby="addAddressModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header ">
-                                <h5 class="modal-title font-weight-bold" id="addAddressModalLabel">
-                                    <strong>Add New Address</strong>
-                                </h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <form id="addAddressForm">
-                                    <div class="mb-3">
-                                        <label for="fullName" class="form-label">Full Name<span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="fullName"
-                                            name="fullName" required>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="country" class="form-label">Country<span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="country" name="country"
-                                            required>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="addressLine" class="form-label">Address<span
-                                                class="text-danger">*</span></label>
-                                        <textarea class="form-control" id="addressLine" name="addressLine"
-                                            rows="3" required></textarea>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="locality" class="form-label">Locality<span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="locality"
-                                            name="locality" required>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="city" class="form-label">Town/City/District<span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="city" name="city"
-                                            required>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="state" class="form-label">State<span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="state" name="state"
-                                            required>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="pinCode" class="form-label">Postcode / ZIP<span
-                                                class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" id="pinCode"
-                                            name="pinCode" required>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="phone" class="form-label">Phone<span
-                                                class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" id="phone" name="phone"
-                                            required>
-                                    </div>
-
-                                    <div class="text-center">
-                                        <button type="submit" id="newAddressSubmitBtn" class="btn btn-dark"
-                                            onclick="submitAddressForm()">Save Address</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                    <!-- Add Address Modal -->
+<div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title font-weight-bold" id="addAddressModalLabel">Add New Address</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="addAddressForm">
+            <div class="mb-3">
+              <label for="fullName" class="form-label">Full Name<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="fullName" name="fullName" required>
+              <div id="fullNameValidationMessage" class="text-danger"></div>
+            </div>
+  
+            <div class="mb-3">
+              <label for="country" class="form-label">Country<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="country" name="country" required>
+              <div id="countryValidationMessage" class="text-danger"></div>
+            </div>
+  
+            <div class="mb-3">
+              <label for="addressLine" class="form-label">Address<span class="text-danger">*</span></label>
+              <textarea class="form-control" id="addressLine" name="addressLine" rows="3" required></textarea>
+              <div id="addressLineValidationMessage" class="text-danger"></div>
+            </div>
+  
+            <div class="mb-3">
+              <label for="locality" class="form-label">Locality<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="locality" name="locality" required>
+              <div id="localityValidationMessage" class="text-danger"></div>
+            </div>
+  
+            <div class="mb-3">
+              <label for="city" class="form-label">Town/City/District<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="city" name="city" required>
+              <div id="cityValidationMessage" class="text-danger"></div>
+            </div>
+  
+            <div class="mb-3">
+              <label for="state" class="form-label">State<span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="state" name="state" required>
+              <div id="stateValidationMessage" class="text-danger"></div>
+            </div>
+  
+            <div class="mb-3">
+              <label for="pinCode" class="form-label">Postcode / ZIP<span class="text-danger">*</span></label>
+              <input type="number" class="form-control" id="pinCode" name="pinCode" required>
+              <div id="pinCodeValidationMessage" class="text-danger"></div>
+            </div>
+  
+            <div class="mb-3">
+              <label for="phone" class="form-label">Phone<span class="text-danger">*</span></label>
+              <input type="number" class="form-control" id="phone" name="phone" required>
+              <div id="phoneValidationMessage" class="text-danger"></div>
+            </div>
+  
+            <div class="text-center">
+              <button type="button" id="addAddressSubmitBtn" class="btn btn-dark" onclick="submitAddressForm()">Save Address</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
 
                 <!-- Button to trigger the modal -->
                 <button type="button" class="btn text-white mx-5" style="background-color: #44007c"
@@ -184,77 +173,75 @@
                     Add new address
                 </button>
 
-                    <div class="modal fade" id="editAddressModal" tabindex="-1" aria-labelledby="editAddressModalLabel"
-                        aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="editAddressModalLabel">Edit Address</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <form id="editAddressForm">
-                                        <!-- Add a hidden input field to store the address ID -->
-                                        <input type="hidden" id="editAddressId" name="addressId" value="">
-
-                                        <div class="mb-3">
-                                            <label for="editFullName" class="form-label">Full Name</label>
-                                            <input type="text" class="form-control" id="editFullName" name="fullName"
-                                                required>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="editCountry" class="form-label">Country</label>
-                                            <input type="text" class="form-control" id="editCountry" name="country"
-                                                required>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="editAddressLine" class="form-label">Address</label>
-                                            <textarea class="form-control" id="editAddressLine" name="addressLine"
-                                                rows="3" required></textarea>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="editLocality" class="form-label">Locality</label>
-                                            <input type="text" class="form-control" id="editLocality" name="locality"
-                                                required>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="editCity" class="form-label">Town/City/District</label>
-                                            <input type="text" class="form-control" id="editCity" name="city" required>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="editState" class="form-label">State</label>
-                                            <input type="text" class="form-control" id="editState" name="state"
-                                                required>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="editPinCode" class="form-label">Postcode / ZIP</label>
-                                            <input type="number" class="form-control" id="editPinCode" name="pinCode"
-                                                required>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="editPhone" class="form-label">Phone</label>
-                                            <input type="number" class="form-control" id="editPhone" name="phone"
-                                                required>
-                                        </div>
-
-                                        <div class="text-center">
-                                            <button type="button" class="btn btn-dark"
-                                                onclick="submitEditAddressForm()">Save
-                                                Changes</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Edit Address Modal -->
+<div class="modal fade" id="editAddressModal" tabindex="-1" aria-labelledby="editAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editAddressModalLabel">Edit Address</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editAddressForm">
+            <input type="hidden" id="editAddressId" name="addressId" value="">
+  
+            <div class="mb-3">
+              <label for="editFullName" class="form-label">Full Name</label>
+              <input type="text" class="form-control" id="editFullName" name="fullName" required>
+              <div id="editFullNameValidationMessage" class="text-danger"></div>
+            </div>
+  
+            <div class="mb-3">
+              <label for="editCountry" class="form-label">Country</label>
+              <input type="text" class="form-control" id="editCountry" name="country" required>
+              <div id="editCountryValidationMessage" class="text-danger"></div>
+            </div>
+  
+            <div class="mb-3">
+              <label for="editAddressLine" class="form-label">Address</label>
+              <textarea class="form-control" id="editAddressLine" name="addressLine" rows="3" required></textarea>
+              <div id="editAddressLineValidationMessage" class="text-danger"></div>
+            </div>
+  
+            <div class="mb-3">
+              <label for="editLocality" class="form-label">Locality</label>
+              <input type="text" class="form-control" id="editLocality" name="locality" required>
+              <div id="editLocalityValidationMessage" class="text-danger"></div>
+            </div>
+  
+            <div class="mb-3">
+              <label for="editCity" class="form-label">Town/City/District</label>
+              <input type="text" class="form-control" id="editCity" name="city" required>
+              <div id="editCityValidationMessage" class="text-danger"></div>
+            </div>
+  
+            <div class="mb-3">
+              <label for="editState" class="form-label">State</label>
+              <input type="text" class="form-control" id="editState" name="state" required>
+              <div id="editStateValidationMessage" class="text-danger"></div>
+            </div>
+  
+            <div class="mb-3">
+              <label for="editPinCode" class="form-label">Postcode / ZIP</label>
+              <input type="number" class="form-control" id="editPinCode" name="pinCode" required>
+              <div id="editPinCodeValidationMessage" class="text-danger"></div>
+            </div>
+  
+            <div class="mb-3">
+              <label for="editPhone" class="form-label">Phone</label>
+              <input type="number" class="form-control" id="editPhone" name="phone" required>
+              <div id="editPhoneValidationMessage" class="text-danger"></div>
+            </div>
+  
+            <div class="text-center">
+              <button type="button" class="btn btn-dark" onclick="submitEditAddressForm()">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
                 </div>
             </div>
         </div>
@@ -265,3 +252,175 @@
         <%- include('../users/userFooter.ejs') %>
             <script src="/js/user/profilePasswordChange.js"></script>
             <%- include('../layouts/footer.ejs') %>
+
+
+
+
+            <script>
+                function submitAddressForm() {
+                  var fullName = document.getElementById("fullName").value;
+                  var country = document.getElementById("country").value;
+                  var addressLine = document.getElementById("addressLine").value;
+                  var locality = document.getElementById("locality").value;
+                  var city = document.getElementById("city").value;
+                  var state = document.getElementById("state").value;
+                  var pinCode = document.getElementById("pinCode").value;
+                  var phone = document.getElementById("phone").value;
+              
+                  var isValid = true;
+              
+                  if (fullName.trim() === "") {
+                    document.getElementById("fullNameValidationMessage").innerHTML = "Full name is required.";
+                    isValid = false;
+                  } else {
+                    document.getElementById("fullNameValidationMessage").innerHTML = "";
+                  }
+              
+                  if (country.trim() === "") {
+                    document.getElementById("countryValidationMessage").innerHTML = "Country is required.";
+                    isValid = false;
+                  } else {
+                    document.getElementById("countryValidationMessage").innerHTML = "";
+                  }
+              
+                  if (addressLine.trim() === "") {
+                    document.getElementById("addressLineValidationMessage").innerHTML = "Address is required.";
+                    isValid = false;
+                  } else {
+                    document.getElementById("addressLineValidationMessage").innerHTML = "";
+                  }
+              
+                  if (locality.trim() === "") {
+                    document.getElementById("localityValidationMessage").innerHTML = "Locality is required.";
+                    isValid = false;
+                  } else {
+                    document.getElementById("localityValidationMessage").innerHTML = "";
+                  }
+              
+                  if (city.trim() === "") {
+                    document.getElementById("cityValidationMessage").innerHTML = "City is required.";
+                    isValid = false;
+                  } else {
+                    document.getElementById("cityValidationMessage").innerHTML = "";
+                  }
+              
+                  if (state.trim() === "") {
+                    document.getElementById("stateValidationMessage").innerHTML = "State is required.";
+                    isValid = false;
+                  } else {
+                    document.getElementById("stateValidationMessage").innerHTML = "";
+                  }
+              
+                  if (!pinCode.trim()) {
+                    document.getElementById("pinCodeValidationMessage").innerHTML = "Pincode is required.";
+                    isValid = false;
+                  } else if (!/^\d{6}$/.test(pinCode.trim())) {
+                    document.getElementById("pinCodeValidationMessage").innerHTML = "Pincode must be a 6-digit number.";
+                    isValid = false;
+                  } else {
+                    document.getElementById("pinCodeValidationMessage").innerHTML = "";
+                  }
+              
+                  if (!phone.trim()) {
+                    document.getElementById("phoneValidationMessage").innerHTML = "Phone number is required.";
+                    isValid = false;
+                  } else if (!/^\d{10}$/.test(phone.trim())) {
+                    document.getElementById("phoneValidationMessage").innerHTML = "Phone number must be a 10-digit number.";
+                    isValid = false;
+                  } else {
+                    document.getElementById("phoneValidationMessage").innerHTML = "";
+                  }
+              
+                  if (isValid) {
+                    document.getElementById("addAddressForm").submit();
+                  }
+              
+                  return false;
+                }
+              </script>
+              
+
+
+              <script>
+                function submitEditAddressForm() {
+                  var fullName = document.getElementById("editFullName").value;
+                  var country = document.getElementById("editCountry").value;
+                  var addressLine = document.getElementById("editAddressLine").value;
+                  var locality = document.getElementById("editLocality").value;
+                  var city = document.getElementById("editCity").value;
+                  var state = document.getElementById("editState").value;
+                  var pinCode = document.getElementById("editPinCode").value;
+                  var phone = document.getElementById("editPhone").value;
+              
+                  var isValid = true;
+              
+                  if (fullName.trim() === "") {
+                    document.getElementById("editFullNameValidationMessage").innerHTML = "Full name is required.";
+                    isValid = false;
+                  } else {
+                    document.getElementById("editFullNameValidationMessage").innerHTML = "";
+                  }
+              
+                  if (country.trim() === "") {
+                    document.getElementById("editCountryValidationMessage").innerHTML = "Country is required.";
+                    isValid = false;
+                  } else {
+                    document.getElementById("editCountryValidationMessage").innerHTML = "";
+                  }
+              
+                  if (addressLine.trim() === "") {
+                    document.getElementById("editAddressLineValidationMessage").innerHTML = "Address is required.";
+                    isValid = false;
+                  } else {
+                    document.getElementById("editAddressLineValidationMessage").innerHTML = "";
+                  }
+              
+                  if (locality.trim() === "") {
+                    document.getElementById("editLocalityValidationMessage").innerHTML = "Locality is required.";
+                    isValid = false;
+                  } else {
+                    document.getElementById("editLocalityValidationMessage").innerHTML = "";
+                  }
+              
+                  if (city.trim() === "") {
+                    document.getElementById("editCityValidationMessage").innerHTML = "City is required.";
+                    isValid = false;
+                  } else {
+                    document.getElementById("editCityValidationMessage").innerHTML = "";
+                  }
+              
+                  if (state.trim() === "") {
+                    document.getElementById("editStateValidationMessage").innerHTML = "State is required.";
+                    isValid = false;
+                  } else {
+                    document.getElementById("editStateValidationMessage").innerHTML = "";
+                  }
+              
+                  if (!pinCode.trim()) {
+                    document.getElementById("editPinCodeValidationMessage").innerHTML = "Pincode is required.";
+                    isValid = false;
+                  } else if (!/^\d{6}$/.test(pinCode.trim())) {
+                    document.getElementById("editPinCodeValidationMessage").innerHTML = "Pincode must be a 6-digit number.";
+                    isValid = false;
+                  } else {
+                    document.getElementById("editPinCodeValidationMessage").innerHTML = "";
+                  }
+              
+                  if (!phone.trim()) {
+                    document.getElementById("editPhoneValidationMessage").innerHTML = "Phone number is required.";
+                    isValid = false;
+                  } else if (!/^\d{10}$/.test(phone.trim())) {
+                    document.getElementById("editPhoneValidationMessage").innerHTML = "Phone number must be a 10-digit number.";
+                    isValid = false;
+                  } else {
+                    document.getElementById("editPhoneValidationMessage").innerHTML = "";
+                  }
+              
+                  if (isValid) {
+                    document.getElementById("editAddressForm").submit();
+                  }
+              
+                  return false;
+                }
+              </script>
+              

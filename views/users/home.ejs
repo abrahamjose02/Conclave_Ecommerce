@@ -16,7 +16,7 @@
                                     <p>A specialist label creating luxury essentials. Ethically crafted with an
                                         unwavering
                                         commitment to exceptional quality.</p>
-                                    <a href="#" class="primary-btn">Shop now <span class="arrow_right"></span></a>
+                                    <a href="/products?category=6593b26d36abff3b9a62868c" class="primary-btn">Shop now <span class="arrow_right"></span></a>
                                     <div class="hero__social">
                                         <a href="#"><i class="fa fa-facebook"></i></a>
                                         <a href="#"><i class="fa fa-twitter"></i></a>
@@ -102,7 +102,7 @@
         <div class="row">
             <div class="col-lg-12">
                 <div class="section-title">
-                    <h2>Most Ordered Products</h2>
+                    <h2 class="font-weight-bold">Most Ordered Products</h2>
                 </div>
             </div>
         </div>
@@ -136,11 +136,14 @@
                                 <!-- Discount percentage in danger color -->
                                 <span style="color: #ff6666;">(<%= mostOrderedProducts[i].discountPercentage %>% OFF)</span>
                             </h6>
+
+                            
                         <% } else { %>
                             <h6>
                                 <!-- Only display product price if no offer applied -->
                                 <span style="font-weight: bold;">Rs. <%= mostOrderedProducts[i].price %></span>
                             </h6>
+                            
                         <% } %>
                     </div>
                 </div>
@@ -153,13 +156,62 @@
         
 <!-- Most Ordered Products Section End -->
 
-          
+
+<section class="most-ordered-products">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="section-title">
+                    <h2 class="font-weight-bold">Latest Product</h2>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <% latestProducts.forEach(product => { %>
+            <div class="col-lg-3 col-md-6 col-sm-6 col-6 mb-4">
+                <div class="product__item" style="border-radius: 10px; overflow: hidden;">
+                    <div class="pro-img">
+                        <a href="/product/<%= product._id %>">
+                            <img src="/uploads/<%= product.images[0] %>" style="width: 100%;">
+                        </a>
+                    </div>
+                    <div class="product__item__text">
+                        <!-- Product details -->
+                        <h6><%= product.name %></h6>
+                        <!-- Other product information -->
+                        <button class="nav-link" onclick="viewProductDetails('<%= product.category._id %>', '<%= product._id %>')">
+                            <a class="">View</a>
+                        </button>
+                        <br>
+                        <!-- Display prices and discount percentage -->
+                        <% if (product.isOfferApplied) { %>
+                            <h6>
+                                <!-- Product price in bold -->
+                                <span style="font-weight: bold;">Rs. <%= product.price %></span>
+                                <!-- Old price in secondary color with line-through -->
+                                <span style="color: #6c757d; text-decoration: line-through;">Rs. <%= product.oldPrice %></span>
+                                <!-- Discount percentage in danger color -->
+                                <span style="color: #ff6666;">(<%= product.discountPercentage %>% OFF)</span>
+                            </h6>
+                        <% } else { %>
+                            <h6>
+                                <!-- Only display product price if no offer applied -->
+                                <span style="font-weight: bold;">Rs. <%= product.price %></span>
+                            </h6>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+            <% }) %>
+        </div>
+    </div>
+</section>
   
         <section class="mx-5">
 
             <div class="row">
-                <h4><strong>Categories for Men</strong></h4>
-                <br>
+                <h4 class="font-weight-bold"><strong>Categories for Men</strong></h4>
+                <br><br>
                 <% menCategories.filter(category=> category.categoryType === 'Men' && category.isDeleted ===
                     false).forEach((category, index) => { %>
 
@@ -186,7 +238,7 @@
         <section class="mx-5">
 
             <div class="row">
-                <h4><strong>Categories for Women</strong></h4>
+                <h4 class="font-weight-bold"><strong>Categories for Women</strong></h4>
                 <br>
                 <% womenCategories.filter(category=> category.categoryType === 'Women' && category.isDeleted ===
                     false).forEach((category, index) => { %>
@@ -213,7 +265,7 @@
 
 
         <section class="mx-5">
-            <h4><strong>Categories for Kids</strong></h4>
+            <h4 class="font-weight-bold"><strong>Categories for Kids</strong></h4>
             <br>
 
             <div class="row">
@@ -243,7 +295,7 @@
 
 
         <section class="mx-5">
-            <h4><strong>Categories for Beauty</strong></h4>
+            <h4 class="font-weight-bold"><strong>Categories for Beauty</strong></h4>
             <br>
             <div class="row">
                 <% beautyCategories.filter(category=> category.categoryType === 'Beauty' && category.isDeleted ===
@@ -268,6 +320,93 @@
                     <% }) %>
             </div>
         </section>
+
+
+        <div class="container-fluid">
+            <div class="row">
+            <h3 class="text-center pt-4 font-weight-bold"><b>PARTNER BRAND</b> </h3>
+                <div class="col-md-12">
+                    <div class="lc-block">
+                        <div id="carouselLogos" class="carousel slide pt-5 pb-4 pointer-event" data-bs-ride="carousel">
+        
+                            <div class="carousel-inner px-5">
+                                <div class="carousel-item active">
+                                    <div class="row">
+                                        <div class="col-6 col-lg-2 align-self-center">
+                                            <img class="d-block w-100 px-3 mb-3" src="/img/tommy.png" alt="">
+                                        </div>
+                                        <div class="col-6 col-lg-2  align-self-center">
+                                            <img class="d-block w-100 px-3  mb-3" src="/img/levis1.png" alt="">
+                                        </div>
+                                        <div class="col-6 col-lg-2  align-self-center">
+                                            <img class="d-block w-100 px-3  mb-3" src="/img/lp.jpg" alt="">
+                                        </div>
+                                        <div class="col-6 col-lg-2  align-self-center">
+                                            <img class="d-block w-100 px-3  mb-3" src="/img/leeCooper.png" alt="">
+                                        </div>
+                                        <div class="col-6 col-lg-2  align-self-center">
+                                            <img class="d-block w-100 px-3  mb-3" src="/img/Van-Heusen.jpg" alt="">
+                                        </div>
+                                        <div class="col-6 col-lg-2  align-self-center">
+                                            <img class="d-block w-100 px-3  mb-3" src="/img/zara.png" alt="">
+                                        </div>
+                                    </div>
+        
+                                </div>
+                                <div class="carousel-item">
+                                    <div class="row">
+                                        <div class="col-6 col-lg-2 align-self-center">
+                                            <img class="d-block w-100 px-3 mb-3" src="/img/addidas.png" alt="">
+                                        </div>
+                                        <div class="col-6 col-lg-2  align-self-center">
+                                            <img class="d-block w-100 px-3  mb-3" src="/img/fila.png" alt="">
+                                        </div>
+                                        <div class="col-6 col-lg-2  align-self-center">
+                                            <img class="d-block w-100 px-3  mb-3" src="/img/lee.jpg" alt="">
+                                        </div>
+                                        <div class="col-6 col-lg-2  align-self-center">
+                                            <img class="d-block w-100 px-3  mb-3" src="/img/allenSolly.png" alt="">
+                                        </div>
+                                        <div class="col-6 col-lg-2  align-self-center">
+                                            <img class="d-block w-100 px-3  mb-3" src="/img/nike.jpg" alt="">
+                                        </div>
+                                        <div class="col-6 col-lg-2  align-self-center">
+                                            <img class="d-block w-100 px-3  mb-3" src="/img/wrangler.jpg" alt="">
+                                        </div>
+                                    </div>
+        
+                                </div>
+        
+                            </div>
+        
+                         
+        
+                            <div class="w-100 px-3 text-center mt-4">
+                                <a class="carousel-control-prev position-relative d-inline me-4" href="#carouselLogos" data-bs-slide="prev">
+                                    <svg width="2em" height="2em" viewBox="0 0 16 16" class="text-dark" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"></path>
+                                    </svg>
+                                    <span class="visually-hidden">Previous</span>
+                                </a>
+                                <a class="carousel-control-next position-relative d-inline" href="#carouselLogos" data-bs-slide="next">
+                                    <svg width="2em" height="2em" viewBox="0 0 16 16" class="text-dark" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"></path>
+                                    </svg>
+                                    <span class="visually-hidden">Next</span>
+                                </a>
+        
+        
+        
+        
+        
+                            </div>
+        
+        
+                        </div>
+                    </div> 
+                </div> 
+            </div>
+        </div>
 
 
 

@@ -57,11 +57,16 @@
                             <h6><span>Rs.</span><span><%= item.price %></span></h6>
                         </td>
                         <td data-title="Quantity">
-                            <button class="cart-item-count" onclick="changeQuantity('<%= item._id %>','-1')"
+                            <button class="minus-btn cart-item-count" data-itemid="<%= item._id %>" onclick="changeQuantity('<%= item._id %>','-1')"
                                 style="margin-right: 10px; background-color: black; color: white;">-</button>
                             <span id="<%= item._id %>"><%= item.quantity %></span>
-                            <button class="cart-item-count" onclick="changeQuantity('<%= item._id %>','1')"
+                            <button class="plus-btn cart-item-count" data-itemid="<%= item._id %>" onclick="changeQuantity('<%= item._id %>','1')"
                                 style="margin-left: 10px; background-color: black; color: white;">+</button>
+                            <!-- Display stock count -->
+                            <span id="<%= item._id %>-stock" style="display: none;"><%= item.product.sizes.find(s => s.size === item.size).stock %></span>
+                            <!-- Display out of stock message -->
+                            <br><br>
+                            <span id="<%= item._id %>-message" class="text-danger"></span>
                         </td>
                         <td data-title="Total Price">
                             <h6><span>Rs.</span><span id="total<%= item._id %>"><%= item.price * item.quantity %></span></h6>
@@ -108,22 +113,6 @@
     <% } %>
 </section>
 
-<!-- Pagination section -->
-<nav aria-label="Page navigation" id="pagination">
-    <!-- Pagination content -->
-</nav>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // Check if the message is present on page load
-      var dangerMessage = document.querySelector('.alert-danger');
-      
-      // If the message exists, show it
-      if (dangerMessage) {
-        dangerMessage.style.display = 'block';
-      }
-    });
-</script>
 <%- include('../users/userFooter.ejs') %>
 <script src="/js/user/searchAndBuy.js"></script>
 <%- include('../layouts/footer.ejs') %>
