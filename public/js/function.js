@@ -378,7 +378,7 @@ $(document).ready(function () {
   $("#placeOrder").on("click", function () {
       const selectedAddress = $('input[name="order-address"]:checked').val();
       const selectedPaymentMethod = $('input[name="paymentMethod"]:checked').val();
-      const useWalletChecked = $("#useWallet").is(":checked"); // Check if useWallet checkbox is checked
+      const amountToBePaid = parseFloat($("#amountToBePaidValue").text().split(' ')[1]); 
 
       if (!selectedAddress || !selectedPaymentMethod) {
           console.log("Please select both an address and a payment method.");
@@ -418,7 +418,7 @@ $(document).ready(function () {
           data: JSON.stringify({
               addressId: selectedAddress,
               itemsInCart: itemsInCart,
-              walletChecked: useWalletChecked // Include walletChecked parameter
+              amountToBePaid:amountToBePaid 
           }),
           success: function (response) {
               console.log("AJAX success:", response);

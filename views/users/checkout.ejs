@@ -769,13 +769,13 @@
       useWalletCheckbox.addEventListener("change", handleCheckboxChange);
   
       // Function to send order request to backend using fetch API
-      function sendOrderRequest(walletChecked) {
+      function sendOrderRequest(walletChecked, amountToBePaid) {
           fetch("/placeOrder", {
               method: "POST",
               headers: {
                   "Content-Type": "application/json"
               },
-              body: JSON.stringify({ walletChecked })
+              body: JSON.stringify({ walletChecked, amountToBePaid })
           })
           .then(response => {
               if (response.ok) {
@@ -790,6 +790,7 @@
       }
   });
 </script>
+
 
   
 
