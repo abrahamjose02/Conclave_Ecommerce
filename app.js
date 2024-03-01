@@ -42,7 +42,11 @@ app.use('/', userRoute);
 
 // Admin route
 const adminRoute = require('./routes/adminRoutes');
+
 app.use('/admin', adminRoute);
+
+const { errorPage } = require('./controllers/authController');
+app.use('*',errorPage)
 
 
 

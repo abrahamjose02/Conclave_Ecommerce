@@ -47,13 +47,13 @@
                                         <!-- Render product details -->
                                         <h3><strong><%= product.name %></strong></h3>
                                         <div class="rating my-4">
-                                            <% const rating = product.rating || 0; %>
+                                            <% const rating = 4; %> <!-- Set the rating value to 4 -->
                                             <% for (let i = 0; i < 5; i++) { %>
                                                 <i class="fa fa-star<%= i < rating ? '' : '-o' %>"></i>
                                             <% } %>
                                             <!-- Display the rating value -->
                                             <span><%= rating %>/5</span>
-                                        </div>
+                                        </div>                                        
                                         <p><%= product.description %></p>
                                         <h6 class="my-4"><strong>Select Size:</strong></h6>
                                         <div class="sizes-container">
@@ -132,7 +132,8 @@
     </div>
 </section>
 
-<!-- Related Products Section -->
+
+
 <section class="related spad">
     <div class="container">
         <div class="row">
@@ -143,42 +144,40 @@
         <div class="row product__filter">
             <% if (relatedProducts.length > 0) { %>
                 <% relatedProducts.forEach((relatedProduct) => { %>
-                    <% if (relatedProduct.category.toString() === category._id.toString() && relatedProduct._id.toString() !== selectedProductId.toString()) { %>
-                        <div class="col-lg-4 col-md-4 col-sm-6 my-3">
-                            <div class="product__item">
-                                <div class="product__item__pic set-bg" data-setbg="<%= relatedProduct.images && relatedProduct.images.length > 0 ? '/uploads/' + relatedProduct.images[0] : '/img/no-image.webp' %>">
-                                    <!-- Product image and hover elements -->
-                                    <ul class="product__hover">
-                                        <li><button onclick="addToWishlist('<%= product._id %>')"><img src="img/icon/heart.png" alt=""></button></li>
-                                    </ul>
-                                </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6 my-3">
+                        <div class="product__item">
+                            <div class="product__item__pic set-bg" data-setbg="<%= relatedProduct.images && relatedProduct.images.length > 0 ? '/uploads/' + relatedProduct.images[0] : '/img/no-image.webp' %>">
+                                <!-- Product image and hover elements -->
+                                <ul class="product__hover">
+                                    <li><button onclick="addToWishlist('<%= relatedProduct._id %>')"><img src="img/icon/heart.png" alt=""></button></li>
+                                </ul>
+                            </div>
 
-                                <div class="product__item__text">
-                                    <!-- Product details -->
-                                    <h6><%= relatedProduct.name %></h6>
-                                    <!-- Other product information -->
-                                    <button class="nav-link view-btn" onclick="viewProductDetails('<%= category._id %>', '<%= relatedProduct._id %>')"><a class="">View</a></button>
-                                    <br>
-                                    <!-- Display prices and discount percentage -->
-                                    <% if (relatedProduct.isOfferApplied) { %>
-                                        <h6>
-                                            <!-- Product price in bold -->
-                                            <span style="font-weight: bold;">Rs. <%= relatedProduct.price %></span>
-                                            <!-- Old price in secondary color with line-through -->
-                                            <span style="color: #6c757d; text-decoration: line-through;">Rs. <%= relatedProduct.oldPrice %></span>
-                                            <!-- Discount percentage in danger color -->
-                                            <span style="color: #ff6666;">(<%= relatedProduct.discountPercentage %>% OFF)</span>
-                                        </h6>
-                                    <% } else { %>
-                                        <h6>
-                                            <!-- Only display product price if no offer applied -->
-                                            <span style="font-weight: bold;">Rs. <%= relatedProduct.price %></span>
-                                        </h6>
-                                    <% } %>
-                                </div>
+                            <div class="product__item__text">
+                                <!-- Product details -->
+                                <h6><%= relatedProduct.name %></h6>
+                                <!-- Other product information -->
+                                <button class="nav-link view-btn" onclick="viewProductDetails('<%= category._id %>', '<%= relatedProduct._id %>')"><a class="">View</a></button>
+                                <br>
+                                <!-- Display prices and discount percentage -->
+                                <% if (relatedProduct.isOfferApplied) { %>
+                                    <h6>
+                                        <!-- Product price in bold -->
+                                        <span style="font-weight: bold;">Rs. <%= relatedProduct.price %></span>
+                                        <!-- Old price in secondary color with line-through -->
+                                        <span style="color: #6c757d; text-decoration: line-through;">Rs. <%= relatedProduct.oldPrice %></span>
+                                        <!-- Discount percentage in danger color -->
+                                        <span style="color: #ff6666;">(<%= relatedProduct.discountPercentage %>% OFF)</span>
+                                    </h6>
+                                <% } else { %>
+                                    <h6>
+                                        <!-- Only display product price if no offer applied -->
+                                        <span style="font-weight: bold;">Rs. <%= relatedProduct.price %></span>
+                                    </h6>
+                                <% } %>
                             </div>
                         </div>
-                    <% } %>
+                    </div>
                 <% }) %>
             <% } else { %>
                 <div class="col-12">
@@ -188,6 +187,10 @@
         </div>
     </div>
 </section>
+
+
+
+
 
 <%- include('../users/userFooter.ejs') %>
 

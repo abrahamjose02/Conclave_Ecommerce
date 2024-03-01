@@ -13,8 +13,8 @@ const loadCouponList = async (req, res) => {
 
         res.render('couponList', { coupons: coupons, message });
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ message: "Invalid Session Error" });
+        console.error(error);
+    res.status(500).render('404');
     }
 }
 
@@ -23,8 +23,8 @@ const loadAddCoupon = async (req, res) => {
         let message ='';
         res.render('addCoupon', { message })
     } catch (error) {
-        console.log(error.message);
-        res.status(500).json({ message: 'Invalid Session Error' });
+        console.error(error);
+    res.status(500).render('404');
     }
 }
 
@@ -53,8 +53,8 @@ const addCoupon = async(req,res)=>{
         res.redirect('/admin/couponList');
         
     } catch (error) {
-        console.log(error.message);
-        res.status(500).json({ message: 'Internal Server Error' });
+        console.error(error);
+    res.status(500).render('404');
     }
 }
 
@@ -67,8 +67,8 @@ const loadEditCoupon = async (req, res) => {
         let message = req.session.message || '';
         res.render('editCoupon', { coupon, message });
     } catch (error) {
-        console.log(error.message);
-        res.status(500).json({ message: 'Invalid Session Error' })
+        console.error(error);
+    res.status(500).render('404');
     }
 }
 
@@ -126,8 +126,8 @@ const editCoupon = async (req, res) => {
         res.redirect('/admin/couponList');
 
     } catch (error) {
-        console.log(error.message);
-        res.status(500).json({ message: 'Invalid Session Error' });
+        console.error(error);
+        res.status(500).render('404');
     }
 }
 
@@ -144,8 +144,8 @@ const deleteCoupon = async (req, res) => {
         res.redirect('/admin/couponList');
 
     } catch (error) {
-        console.log(error.message);
-        res.status(500).json({ message: 'Invalid Session Error' });
+        console.error(error);
+    res.status(500).render('404');
     }
 }
 
@@ -198,8 +198,8 @@ const applyCoupon = async (req, res) => {
             return res.json({ success: false, message: 'Invalid coupon code or already applied' });
         }
     } catch (error) {
-        console.log(error.message);
-        res.status(500).json({ message: 'Internal Server Error' });
+        console.error(error);
+    res.status(500).render('404');
     }
 };
 
@@ -238,8 +238,8 @@ const removeCoupon = async (req, res) => {
             return res.json({ success: false, message: 'Invalid coupon code' });
         }
     } catch (error) {
-        console.log(error.message);
-        res.status(500).json({ message: 'Internal Server Error' });
+        console.error(error);
+    res.status(500).render('404');
     }
 };
 

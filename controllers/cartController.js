@@ -56,7 +56,8 @@ const loadCartDetails = async (req, res) => {
         });
 
     } catch (error) {
-        console.log(error.message);
+        console.error(error);
+        res.status(500).render('404');
     }
 }
 
@@ -108,7 +109,7 @@ const addToCart = async (req, res) => {
         }
     } catch (error) {
         console.error(error);
-        res.status(500).json({ status: false, message: 'Internal Server Error' });
+    res.status(500).render('404');
     }
 };
 
@@ -118,31 +119,31 @@ const addToCart = async (req, res) => {
 const removeProduct = async (req, res) => {
     try {
         const itemId = req.params.id;
-        console.log(itemId) // Access the item ID from the route parameters
-        const userId = req.session.user_id; // Assuming user ID is stored in session
+        console.log(itemId) 
+        const userId = req.session.user_id; 
 
-        // Find the user's cart based on the user ID
+        
         const userCart = await Cart.findOne({ user: userId });
 
-        // Check if the user's cart exists
+       
         if (!userCart) {
             return res.status(404).json({ status: 'error', message: 'Cart not found' });
         }
 
-        // Remove the item from the cart based on the provided item ID
+        
         userCart.items = userCart.items.filter(item => String(item._id) !== itemId);
 
-        // Recalculate the total price after removing the item
+       
         userCart.totalPrice = userCart.items.reduce((total, item) => total + item.price * item.quantity, 0);
 
-        // Save the updated cart
+        
         await userCart.save();
 
-        // Send a success response
+        
         res.status(200).json({ status: 'success', message: 'Product removed from cart successfully' });
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+        console.error(error);
+        res.status(500).render('404');
     }
 };
 
@@ -154,23 +155,23 @@ const changeQuantity = async (req, res) => {
         const userId = req.session.user_id;
         const userCart = await Cart.findOne({ user: userId });
 
-        // Find the item in the cart and update quantity
+        
         const item = userCart.items.id(itemId);
         if (item) {
             const originalQuantity = item.quantity;
             const newQuantity = item.quantity + quantityChange;
 
-            // Ensure the new quantity is never less than 1
+            
             if (newQuantity < 1) {
                 return res.status(400).json({ status: 'error', message: 'Quantity cannot be less than 1' });
             }
 
             item.quantity = newQuantity;
 
-            // Update item price and total price in the cart
-            item.price = item.price; // If you don't want to update individual item prices
+          
+            item.price = item.price; 
 
-            // Update total price for the cart
+            
             userCart.totalPrice += item.price * (newQuantity - originalQuantity);
 
             await userCart.save();
@@ -186,7 +187,7 @@ const changeQuantity = async (req, res) => {
         }
     } catch (error) {
         console.error(error);
-        res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+    res.status(500).render('404');
     }
 };
 

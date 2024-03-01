@@ -12,6 +12,7 @@ const instance = new Razorpay({
     key_secret: KEY_SECRET
 });
 const crypto = require('crypto');
+const { use } = require('../routes/authRoutes');
 
 
 const getCategoryiesByType = async (categoryType) => {
@@ -26,8 +27,8 @@ const getCategoryiesByType = async (categoryType) => {
       ]);
       return categories;
     } catch (error) {
-      console.error('Error', error);
-      throw error;
+        console.error(error);
+        res.status(500).render('404');
     }
   }
 
@@ -40,7 +41,7 @@ const placeOrderUsingWallet = async (req, res) => {
             return res.status(400).json({ error: 'Invalid request body' });
         }
         
-        const { addressId, itemsInCart, useWallet } = req.body;
+        const { addressId, itemsInCart } = req.body;
         const userId = req.session.user_id;
         const paymentMethod = 'Wallet'; // Set payment method to Wallet
 
@@ -105,9 +106,15 @@ const placeOrderUsingWallet = async (req, res) => {
 
         // Deduct the wallet balance for the wallet total
         let payableAmount = grandTotal;
-        if (useWallet && user.wallet >= grandTotal) {
+        if (user.wallet >= grandTotal) {
+            const transaction = {
+                description: 'Wallet Amount used for placing Order',
+                amount: grandTotal, // You may need to adjust this based on your application logic
+            };
+            user.transactions.push(transaction);
             user.wallet -= grandTotal;
             payableAmount = 0;
+            
         }
 
         await user.save();
@@ -156,8 +163,8 @@ const placeOrderUsingWallet = async (req, res) => {
         console.log("Order placed successfully using wallet.");
         return res.json({ orderPlaced: true });
     } catch (error) {
-        console.error('Error placing the order using wallet:', error);
-        return res.status(500).json({ status: 'error', message: 'Failed to place the order using wallet', error: error.message });
+        console.error(error);
+    res.status(500).render('404');
     }
 };
 
@@ -171,7 +178,13 @@ const placeOrderCOD = async (req, res) => {
             return res.status(400).json({ error: 'Invalid request body' });
         }
         
-        const { addressId, itemsInCart,useWallet } = req.body;
+        const { addressId, itemsInCart,walletChecked } = req.body;
+
+        if(walletChecked){
+            console.log('WalletChecked is getting');
+        }else{
+            console.log('Wallet checked is not getting')
+        }
         const userId = req.session.user_id;
         const paymentMethod = 'COD'; // Set payment method to COD for COD orders
 
@@ -235,13 +248,23 @@ const placeOrderCOD = async (req, res) => {
         }
 
         // Deduct the wallet balance for the wallet total
+       
         let payableAmount = grandTotal;
-        if (user.wallet& useWallet > grandTotal) {
-            user.wallet -= grandTotal;
-            payableAmount = 0;
+        if(walletChecked && user.wallet < payableAmount){
+            const walletBalance = user.wallet;
+            const transaction = {
+                description:'Amount used for placing COD order',
+                amount:walletBalance
+            }
+            user.transactions.push(transaction);
+
+            payableAmount -= user.wallet;
+            user.wallet = 0;
         }
 
         await user.save();
+
+        
 
         const randomOrderId = Math.floor(Math.random() * 1000000); // Generates a random number between 0 and 999999
 
@@ -301,7 +324,15 @@ const placeOrderOnlinePayment = async (req, res) => {
             return res.status(400).json({ error: 'Invalid request body' });
         }
 
-        const { addressId, itemsInCart } = req.body;
+        const { addressId, itemsInCart,walletChecked } = req.body;
+
+        if(walletChecked){
+            console.log('walletcheck   getting');
+        }else{
+            console.log('wallet check not getting ');
+        }
+
+
         const userId = req.session.user_id;
         const paymentMethod = 'Online'; // Set payment method to Online for online payment orders
 
@@ -361,10 +392,7 @@ const placeOrderOnlinePayment = async (req, res) => {
         }
 
         let payableAmount = grandTotal;
-        if (user.wallet > grandTotal) {
-            user.wallet -= grandTotal;
-            payableAmount = 0;
-        } else {
+        if(walletChecked && user.wallet < payableAmount){
             payableAmount -= user.wallet;
             user.wallet = 0;
         }
@@ -415,6 +443,18 @@ const placeOrderOnlinePayment = async (req, res) => {
         // Creating the Razorpay order
         instance.orders.create(options, async (err, razorpayOrder) => {
             if (err) {
+                // Revert wallet balance if payment initialization fails
+                const user = await User.findById(req.session.user_id);
+                if (orderData.payable_amount === 0) {
+                    // If payable amount is 0, add back the grand total amount
+                    user.wallet += orderData.grand_total;
+                } else if (orderData.payable_amount > 0) {
+                    // Add back the difference between grand total and payable amount to the wallet
+                    const difference = orderData.grand_total - orderData.payable_amount;
+                    user.wallet += difference;
+                }
+                await user.save();
+
                 console.error('Error creating Razorpay order:', err);
                 return res.status(500).json({ status: 'error', message: 'Failed to create Razorpay order' });
             } else {
@@ -429,6 +469,7 @@ const placeOrderOnlinePayment = async (req, res) => {
         return res.status(500).json({ status: 'error', message: 'Failed to place the online payment order', error: error.message });
     }
 };
+
 
 
 const verifyPayment = async (req, res) => {
@@ -458,6 +499,17 @@ const verifyPayment = async (req, res) => {
                 // Save the order with updated payment status
                 const newOrder = new Order(orderData);
                 await newOrder.save();
+
+                const user = await User.findById(req.session.user_id);
+                const walletDeduction = newOrder.grand_total - newOrder.payable_amount;
+                const transaction = {
+                    description:'Amount Debited for online payment',
+                    amount:walletDeduction
+                }
+
+                user.transactions.push(transaction);
+
+                await user.save();
 
                 // Reduce stock quantity
                 for (const cartItem of orderData.items) {
@@ -501,10 +553,7 @@ const verifyPayment = async (req, res) => {
 
             // Revert wallet balance if payment verification fails
             const user = await User.findById(req.session.user_id);
-            if (orderData && orderData.payable_amount === 0) {
-                // If payable amount is 0, add back the grand total amount
-                user.wallet += orderData.grand_total;
-            } else if (orderData && orderData.payable_amount > 0) {
+             if (orderData && orderData.payable_amount > 0) {
                 // Add back the difference between grand total and payable amount to the wallet
                 const difference = orderData.grand_total - orderData.payable_amount;
                 user.wallet += difference;
@@ -589,8 +638,8 @@ const getSalesReport = async (timeframe) => {
         const salesData = await Order.find(filter).populate('user').sort({ orderDate: -1 });
         return salesData;
     } catch (error) {
-        console.error('Error fetching sales report:', error);
-        throw error;
+        console.error(error);
+    res.status(500).render('404');
     }
 };
 
@@ -618,8 +667,8 @@ const loadSalesReport = async (req, res) => {
             calculateTotalPrice: (data) => data.reduce((total, val) => total + val.totalPrice, 0),
         });
     } catch (error) {
-        console.log(error.message);
-        res.status(500).json({ message: 'Invalid Session Error' });
+        console.error(error);
+    res.status(500).render('404');
     }
 };
 

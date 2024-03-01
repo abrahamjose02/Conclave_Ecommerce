@@ -1,109 +1,92 @@
 <%- include('../layouts/header.ejs') %>
 <%- include('../users/userHeader.ejs') %>
 
-<body class="goto-here" data-aos-easing="slide" data-aos-duration="800" data-aos-delay="0">
-
-    <!-- Breadcrumb Section Begin -->
-    <section class="breadcrumb-option">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="breadcrumb__text">
-                        <h4>Orders</h4>
-                        <div class="breadcrumb__links">
-                            <a href="./index.html">Home</a>
-                            <span>Orders</span>
-                        </div>
+<!-- Breadcrumb Section Begin -->
+<section class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__text">
+                    <h4>Orders</h4>
+                    <div class="breadcrumb__links">
+                        <a href="./index.html">Home</a>
+                        <span>Orders</span>
                     </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <div class="hero-wrap hero-bread">
-        <div class="container">
-            <div class="row no-gutters slider-text align-items-center justify-content-center">
-                <div class="col-md-9 ftco-animate text-center fadeInUp ftco-animated">
                 </div>
             </div>
         </div>
     </div>
+</section>
 
-    <section class="ftco-section ftco-cart h-100">
-        <div class="container">
-            <div class="row">
+<section class="ftco-section ftco-cart h-100">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 my-lg-0 my-md-1">
+                <%- include('../users/sidebar.ejs') %>
+            </div>
 
-                <div class="col-lg-3 my-lg-0 my-md-1">
-                    <%- include('../users/sidebar.ejs') %>
-                </div>
+            <div class="col-lg-9 mb-5">
+                <div class="cart-list">
+                    <h3 class="my-3 text-center font-weight-bold"><strong>My Orders</strong></h3>
+                    <% if (orderInfo.length > 0) { %>
+                        <table id="orderTable" class="table mt-4 table-striped table-bordered address-entry" style="background-color: #f3f2ee;">
+                            <thead class="thead-primary" style="background-color: #343a40; color: #fff;">
+                                <tr class="text-center">
+                                    <th style="background-color: rgb(141, 140, 140);" scope="col">Ordered On</th>
+                                    <th style="background-color: rgb(141, 140, 140);" scope="col">No Of Products</th>
+                                    <th style="background-color: rgb(141, 140, 140);" scope="col">Total Price</th>
+                                    <th style="background-color: rgb(141, 140, 140);" scope="col">Payment Method</th>
+                                    <th style="background-color: rgb(141, 140, 140);" scope="col">Order Status</th>
+                                    <th style="background-color: rgb(141, 140, 140);" scope="col">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% orderInfo.forEach((order) => { %>
+                                    <tr>
+                                        <td class="text-center">
+                                            <% if (order.orderDate) { %>
+                                                <%= order.orderDate.getDate() + '-' + (order.orderDate.getMonth() + 1) + '-' + order.orderDate.getFullYear() %>
+                                            <% } %>
+                                        </td>
 
-                <div class="col-lg-9 mb-5">
-                    <div class="cart-list">
-                        <h3 class="my-3 text-center font-weight-bold"><strong>My Orders</strong></h3>
-                        <% if (orderInfo.length > 0) { %>
-                            <table id="orderTable" class="table mt-4 table-striped table-bordered  address-entry" style="background-color: #f3f2ee;">
-                                <thead class="thead-primary" style="background-color: #343a40; color: #fff;">
-                                    <tr class="text-center">
-                                        <th style="background-color: rgb(141, 140, 140);" scope="col">Ordered On</th>
-                                        <th style="background-color: rgb(141, 140, 140);" scope="col">No Of Products</th>
-                                        <th style="background-color: rgb(141, 140, 140);" scope="col">Total Price</th>
-                                        <th style="background-color: rgb(141, 140, 140);" scope="col">Payment Method</th>
-                                        <th style="background-color: rgb(141, 140, 140);" scope="col">Order Status</th>
-                                        <th style="background-color: rgb(141, 140, 140);" scope="col">Action</th>
+                                        <td class="text-center"><%= order.items.length %></td>
+
+                                        <td class="text-center">₹<%= order.grand_total %></td>
+                                        <td class="text-center"><%= order.payments.pay_method %></td>
+                                        <td class="text-center text-capitalize"><%= order.orderStatus %></td>
+
+                                        <td class="text-center">
+                                            <a href="/orderItems/<%= order._id %>" class="text-decoration-none">
+                                                <button type="button" class="btn btn-primary">View</button>
+                                            </a>
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    <% orderInfo.forEach((order) => { %>
-                                        <tr>
-                                            <td class="text-center">
-                                                <% if (order.orderDate) { %>
-                                                    <%= order.orderDate.getDate() + '-' + (order.orderDate.getMonth() + 1) + '-' + order.orderDate.getFullYear() %>
-                                                <% } %>
-                                            </td>
-
-                                            <td class="text-center"><%= order.items.length %></td>
-
-                                            <td class="text-center">₹<%= order.grand_total %></td>
-                                            <td class="text-center"><%= order.payments.pay_method %></td>
-                                            <td class="text-center text-capitalize"><%= order.orderStatus %></td>
-
-                                            <td class="text-center">
-                                                <a href="/orderItems/<%= order._id %>" class="text-decoration-none">
-                                                    <button type="button" class="btn btn-primary">View</button>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    <% }) %>
-                                </tbody>
-                            </table>
-                        <% } else { %>
-                            <h3 class="mt-5 text-center">No Orders In Your List</h3>
-                        <% } %>
-                    </div>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    <% } else { %>
+                        <h3 class="mt-5 text-center">No Orders In Your List</h3>
+                    <% } %>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <%- include('../users/userFooter.ejs') %>
-    <%- include('../layouts/footer.ejs') %>
+<%- include('../users/userFooter.ejs') %>
+<%- include('../layouts/footer.ejs') %>
 
-    <!-- Datatables CDN -->
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
-    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
 
-    <script>
-        $(document).ready(function () {
-            $('#orderTable').DataTable({
-                paging: true,
-                searching: false,
-                lengthChange: false,
-                info: false,
-                ordering:false
-            });
+<script>
+    $(document).ready(function () {
+        $('#orderTable').DataTable({
+            paging: true,
+            searching: false,
+            lengthChange: false,
+            info: false,
+            ordering:false
         });
-    </script>
-    
-
-</body>
-</html>
+    });
+</script>

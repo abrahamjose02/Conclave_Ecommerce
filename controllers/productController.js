@@ -87,8 +87,8 @@ const renderProductByCategory = async (req, res) => {
       next
     });
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: 'Failed to load products' });
+    console.error(error);
+    res.status(500).render('404');
   }
 };
 
@@ -142,105 +142,11 @@ const searchProducts = async (req, res) => {
       categoryId
     });
   } catch (error) {
-    console.error(error.message);
-    res.status(500).send('Internal Server Error');
+    console.error(error);
+    res.status(500).render('404');
   }
 };
 
-
-// const sortFeature = async (req, res) => {
-//   try {
-//     let message = '';
-
-//     // Check if the user is blocked
-//     if (req.session.user_id) {
-//       const userData = await User.findById({ _id: req.session.user_id });
-//       if (userData && userData.isblocked) {
-//         message = 'Your Account has been blocked. Kindly signup again';
-//         return res.render('blocked', { message });
-//       }
-//     }
-//     const sortBy = req.query.sortBy;
-// const categoryId = req.query.categoryId; 
-
-//     console.log('Category ID:', categoryId);
-
-//     let sortCriteria = {};
-//     if (sortBy === 'lowPrice') {
-//       sortCriteria = { price: 1 }; // Ascending order
-//     } else if (sortBy === 'highPrice') {
-//       sortCriteria = { price: -1 }; // Descending order
-//     } else {
-//       // Add a default sorting criteria if sortBy is not recognized
-//       sortCriteria = { createdAt: -1 }; // You can change 'createdAt' to any field you want
-//     }
-
-//     const category = await Category.findOne({ _id: categoryId });
-//     console.log('Category:', category);
-
-//     if (!category) {
-//       return res.status(404).json({ error: 'Category not found' });
-//     }
-
-//     const categoryType = category ? category.categoryType : '';
-//     const categoryName = category ? category.name : '';
-
-//     const categoryDeleted = category ? category.isDeleted : false;
-
-//     let products = [];
-
-//     if (!categoryDeleted) {
-
-//       products = await Product.find({ category: categoryId, isDeleted: false }).sort(sortCriteria)
-//       console.log('Products:', products);
-//     }
-
-//     products = products.filter(product => !product.isDeleted);
-
-//     const categories = await Category.find();
-
-    
-
-//     const currentPage = parseInt(req.query.page) || 1;
-//     const itemsPerPage = 9;
-//     const totalItems = 50;
-//     const totalPages = Math.ceil(totalItems / itemsPerPage);
-//     const search = req.query.search || '';
-
-//     const next = Math.random() > 0.5;
-
-//     const menCategories = await Category.find({ categoryType: 'Men', isDeleted: false });
-//     const womenCategories = await Category.find({ categoryType: 'Women', isDeleted: false });
-//     const kidsCategories = await Category.find({ categoryType: 'Kids', isDeleted: false });
-//     const beautyCategories = await Category.find({ categoryType: 'Beauty', isDeleted: false });
-
-//     res.render('viewProducts', {
-//       userID: req.session.user_id,
-//       categoryType,
-//       categoryName,
-//       categoryId,
-//       message,
-//       products,
-//       category,
-//       menCategories,
-//       womenCategories,
-//       kidsCategories,
-//       beautyCategories,
-//       categories,
-//       categoryID: categoryId,
-//       count: 10,
-//       limit: 10,
-//       sortBy,
-//       currentPage,
-//       totalPages,
-//       search,
-//       next
-//     });
-//   } catch (error) {
-//     console.error(error.message);
-//     res.status(500).json({ error: 'Failed to load products' });
-//   }
-// };
 
 // view the product details page
 
@@ -281,7 +187,10 @@ const getProductDetails = async (req, res) => {
       _id: productId 
     })
 
-    const relatedProducts = await Product.find({ category: product.category }).limit(4);
+    const relatedProducts = await Product.find({
+      category: category._id,
+      _id: { $ne: productId } // Exclude the current product
+    }).limit(4);
 
     const categoryType = category ? category.categoryType : '';
     const categoryName = category ? category.name : '';
@@ -299,7 +208,8 @@ const getProductDetails = async (req, res) => {
     })
 
   } catch (error) {
-    console.log(error.message);
+    console.error(error);
+    res.status(500).render('404');
   }
 }
 
@@ -320,8 +230,8 @@ const loadProductList = async (req, res) => {
     const products = await Product.find().populate('category');
     res.render('productList', { products, message });
   } catch (error) {
-    console.log(error.message);
-    res.status(500).send('Internal Server Error');
+    console.error(error);
+    res.status(500).render('404');
   }
 };
 
@@ -335,12 +245,35 @@ const loadaddProduct = async (req, res) => {
     let message = ''
     res.render('addProducts', { categories, message });
   } catch (error) {
-    console.log(error.message);
-    res.status(500).send('Internal Server Error');
+    console.error(error);
+    res.status(500).render('404');
   }
 };
 
 
+
+const applyCategoryOfferToProduct = async (product, discountPercentage) => {
+  try {
+    const oldPrice = parseInt(product.price);
+
+    
+    const discountPrice = parseInt((oldPrice * discountPercentage) / 100);
+
+    
+    const newPrice = parseInt(oldPrice - discountPrice);
+
+    // Update product offer details
+    product.oldPrice = oldPrice;
+    product.discountPercentage = discountPercentage; 
+    product.discountPrice = discountPrice;
+    product.price = newPrice;
+    product.isOfferApplied = true;
+    product.offerType = 'categoryOffer';
+  } catch (error) {
+    console.error('Error applying category offer to product:', error);
+    throw error;
+  }
+};
 
 
 const addProduct = async (req, res) => {
@@ -351,16 +284,26 @@ const addProduct = async (req, res) => {
     const stocks = req.body.stocks;
     let message = '';
 
+    // Fetch all categories from the database
+    const categories = await Category.find();
+
     // Check if all required fields are filled
     if (!name.trim() || !description.trim() || !brand.trim() || !price || !category || !color.trim()) {
       message = 'Please fill in all the required fields.';
-      return res.status(400).render('addProducts', { message });
+      return res.status(400).render('addProducts', { message, categories });
     }
 
     // Check if sizes and stocks have the same length
     if (sizes.length !== stocks.length) {
       message = 'Sizes and stocks must have the same length.';
-      return res.status(400).render('addProducts', { message });
+      return res.status(400).render('addProducts', { message, categories });
+    }
+
+    // Check if product name already exists
+    const existingProduct = await Product.findOne({ name: name.trim() });
+    if (existingProduct) {
+      message = 'A product with this name already exists.';
+      return res.status(400).render('addProducts', { message, categories });
     }
 
     // Process the images
@@ -369,17 +312,25 @@ const addProduct = async (req, res) => {
     // Create an array of size-stock objects
     const sizeStocks = sizes.map((size, index) => ({ size, stock: parseInt(stocks[index]) }));
 
+    // Fetch category offer
+    const categoryOffer = await Category.findById(category);
+
     // Create a new product instance
     const newProduct = new Product({
       name: name.trim(),
       description,
       color: color.trim(),
       brand: brand.trim(),
-      oldPrice:price,
+      price,
       category,
       images: processedImages,
       sizes: sizeStocks,
     });
+
+    // Apply category offer to the product if available
+    if (categoryOffer && categoryOffer.isOfferApplied) {
+      await applyCategoryOfferToProduct(newProduct, categoryOffer.discountPercentage);
+    }
 
     // Save the new product to the database
     await newProduct.save();
@@ -388,10 +339,12 @@ const addProduct = async (req, res) => {
 
     res.status(200).redirect('/admin/productList');
   } catch (error) {
-    console.error(error.message);
-    res.status(500).send('Internal Server Error');
+    console.error(error);
+    res.status(500).render('404');
   }
 };
+
+
 
 const processImages = async (files) => {
   const processedImages = [];
@@ -431,9 +384,37 @@ const loadEditProduct = async (req, res) => {
     res.render('editProducts', { product, categories, message });
   } catch (error) {
     console.error(error);
-    res.status(500).send('Internal Server Error');
+    res.status(500).render('404');
   }
 };
+
+
+
+const recalculateProductOffer = async (product) => {
+  // Retrieve existing discount percentage
+  const existingDiscountPercentage = product.discountPercentage;
+
+  // Convert product price to integer
+  const editedPrice = parseInt(product.price);
+
+  const oldPrice = editedPrice;
+
+  // Calculate discount price based on old price and existing discount percentage
+  const discountPrice = parseInt(oldPrice * (existingDiscountPercentage / 100));
+
+  // Calculate new price by subtracting discount price from old price
+  const newPrice = parseInt(oldPrice - discountPrice);
+
+  // Update product offer details
+  product.oldPrice = editedPrice; // Set edited price as old price
+  product.discountPrice = discountPrice; // Set calculated discount price
+  product.price = newPrice; // Set calculated new price
+
+  // Save the updated product
+  await product.save();
+};
+
+
 
 //Provide the edit function.
 
@@ -442,59 +423,41 @@ const editProduct = async (req, res) => {
     const productId = req.params.id;
     const { name, description, brand, price, category, color } = req.body;
     const productImages = req.files;
-    const sizes = req.body.sizes; // Array of sizes from the form
-    const stocks = req.body.stocks; // Array of stock counts from the form
-
-    let message = '';
+    const sizes = req.body.sizes;
+    const stocks = req.body.stocks;
 
     // Validate form fields
     if (!name || !description || !brand || !price || !category || !color || !sizes || !stocks || !productImages) {
+      // Handle validation errors
       return res.render('editProducts', {
         message: 'Please fill in all the required fields.',
-        product: { _id: productId, name, description, brand, price, category, color },
+        product: { _id: productId, name, description, brand, price, category, color, sizes: [] }, // Ensure sizes is always defined
         categories: await Category.find()
       });
     }
 
-    if (!name || name.trim().length === 0 || name.trim().startsWith(' ')) {
-      return res.render('editProducts', {
-        message: 'Product name should not be empty or start with a space.',
-        product: { _id: productId, name, description, brand, stockinCount, price, category, color },
-        categories: await Category.find()
-      });
-    }
-
-    
-
-
-    if (!brand || brand.trim().length === 0 || brand.trim().startsWith(' ')) {
-      return res.render('editProducts', {
-        message: 'Brand should not be empty or start with a space.',
-        product: { _id: productId, name, description, brand, stockinCount, price, category, color },
-        categories: await Category.find()
-      });
-    }
-
-    // color field validation
-
-    if (!color || color.trim().length === 0 || color.trim().startsWith(' ')) {
-      return res.render('editProducts', {
-        message: 'Color should not be empty or start with a space.',
-        product: { _id: productId, name, description, brand, stockinCount, price, category, color },
-        categories: await Category.find()
-      });
-    }
     // Validate Price
     const validPrice = Number.isFinite(parseFloat(price)) && parseFloat(price) >= 0;
     if (!validPrice) {
+      // Handle invalid price
       return res.render('editProducts', {
         message: 'Price must be a non-negative number',
-        product: { _id: productId, name, description, brand, stockinCount, price, category, color },
+        product: { _id: productId, name, description, brand, price, category, color, sizes: [] }, // Ensure sizes is always defined
         categories: await Category.find()
       });
     }
 
-    
+    // Check if sizes and stocks are negative
+    const negativeSizes = sizes.some(size => size <= 0);
+    const negativeStocks = stocks.some(stock => stock <= 0);
+    if (negativeSizes || negativeStocks) {
+      // Handle negative sizes or stocks
+      return res.render('editProducts', {
+        message: 'Sizes and stocks must be greater than zero.',
+        product: { _id: productId, name, description, brand, price, category, color, sizes: [] }, // Ensure sizes is always defined
+        categories: await Category.find()
+      });
+    }
 
     const product = await Product.findById(productId);
 
@@ -502,11 +465,11 @@ const editProduct = async (req, res) => {
     product.name = name;
     product.description = description;
     product.brand = brand;
-    product.price = price;
+    product.price = parseInt(price);
     product.category = category;
     product.color = color;
 
-    
+    // Update sizes if available
     if (sizes && stocks && sizes.length === stocks.length) {
       const newSizes = sizes.map((size, index) => ({
         size,
@@ -515,7 +478,7 @@ const editProduct = async (req, res) => {
       product.sizes = newSizes;
     }
 
-    
+    // Update images if available
     if (productImages && productImages.length > 0) {
       const processedImages = await processImages(productImages);
       const existingImages = product.images || [];
@@ -523,16 +486,23 @@ const editProduct = async (req, res) => {
       product.images = [...existingImages, ...newImages];
     }
 
-   
     await product.save();
 
-    
+    // Check if product offer is applied and recalculate the offer
+    if (product.isOfferApplied) {
+      await recalculateProductOffer(product);
+    }
+
+    // Redirect to product list
     res.status(200).redirect('/admin/productList');
   } catch (error) {
-    console.log(error.message);
-    res.status(500).send('Internal Server Error');
+    console.error(error);
+    res.status(500).render('404');
   }
 };
+
+
+
 
 
 
@@ -556,8 +526,8 @@ const deleteImage = async (req, res) => {
 
     res.redirect(`/admin/editProduct/${productId}`);
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ message: 'Invalid Session Error' });
+    console.error(error);
+    res.status(500).render('404');
   }
 }
 
@@ -580,8 +550,8 @@ const listProduct = async (req, res) => {
       res.status(404).send('Product not found');
     }
   } catch (error) {
-    console.log(error.message);
-    res.status(500).send('Internal Server Error');
+    console.error(error);
+    res.status(500).render('404');
   }
 };
 
@@ -603,8 +573,8 @@ const unlistProduct = async (req, res) => {
       res.status(404).send('Product not found');
     }
   } catch (error) {
-    console.log(error.message);
-    res.status(500).send('Internal Server Error');
+    console.error(error);
+    res.status(500).render('404');
   }
 };
 
@@ -615,8 +585,8 @@ const loadProductOfferManagement = async(req,res)=>{
     const products = await Product.find().populate('category');
     res.render('productOfferManagement', { products, message });
   } catch (error) {
-    console.log(error.message);
-    res.status(500).send('Internal Server Error');
+    console.error(error);
+    res.status(500).render('404');
   }
 }
 
@@ -660,10 +630,12 @@ const createOffer = async (req, res) => {
 
       await product.save();
 
+      
+
       res.redirect('/admin/productOfferManagement');
   } catch (error) {
-      console.error('Error creating offer:', error);
-      res.status(500).send('Error creating offer');
+    console.error(error);
+    res.status(500).render('404');
   }
 }
 
@@ -689,8 +661,8 @@ const activateOffer = async(req,res)=>{
 
     res.redirect('/admin/productOfferManagement'); // Redirect to product offer management page
 } catch (error) {
-    console.error('Error activating offer:', error);
-    res.status(500).send('Error activating offer');
+  console.error(error);
+  res.status(500).render('404');
 }
 }
 
@@ -717,8 +689,8 @@ const deactivateOffer = async(req,res)=>{
 
     res.redirect('/admin/productOfferManagement'); // Redirect to product offer management page
 } catch (error) {
-    console.error('Error deactivating offer:', error);
-    res.status(500).send('Error deactivating offer');
+  console.error(error);
+  res.status(500).render('404');
 }
 }
 
@@ -745,8 +717,8 @@ const deleteOffer = async (req, res) => {
 
       res.redirect('/admin/productOfferManagement'); 
   } catch (error) {
-      console.error('Error deleting offer:', error);
-      res.status(500).send('Error deleting offer');
+    console.error(error);
+    res.status(500).render('404');
   }
 }
 

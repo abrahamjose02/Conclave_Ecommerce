@@ -40,21 +40,22 @@ const insertSignin = async (req, res) => {
 
       if (passwordMatch) {
         if (userData.isadmin === 0) {
-          res.render('adminLogin', { message: 'Entered Email and password is incorrect' });
+          res.render('adminLogin', { message: 'You are not authorized to access the admin panel.' });
         } else {
           req.session.user_id = userData._id;
           res.redirect('/admin/dashboard');
         }
       } else {
-        res.render('adminLogin', { message: 'Entered Email and password is incorrect' });
+        res.render('adminLogin', { message: 'Incorrect email or password. Please try again.' });
       }
     } else {
-      res.render('adminLogin', { message: 'Entered Email and password is Incorrect.' });
+      res.render('adminLogin', { message: 'Incorrect email or password. Please try again.' });
     }
   } catch (error) {
     console.log(error.message);
   }
 }
+
 
 
 

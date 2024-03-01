@@ -34,8 +34,8 @@ const getCategoryiesByType = async (categoryType) => {
     ]);
     return categories;
   } catch (error) {
-    console.error('Error', error);
-    throw error;
+    console.error(error);
+    res.status(500).render('404');
   }
 }
 
@@ -52,7 +52,8 @@ const loadsignup = async (req, res) => {
 
     res.render('signup', { menCategories, womenCategories, kidsCategories, beautyCategories, userID, message });
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    res.status(500).render('404');
   }
 }
 
@@ -83,8 +84,8 @@ const sendOTPByEmail = async (email, OTP) => {
     console.log('Email sent with OTP Successfully.');
 
   } catch (error) {
-    console.log('Error sending email:', error);
-    throw new Error('Error sending email');
+    console.error(error);
+    res.status(500).render('404');
   }
 };
 
@@ -158,8 +159,8 @@ const userSignup = async (req, res) => {
     res.redirect('/verify');
 
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error(error);
+    res.status(500).render('404');
   }
 };
 
@@ -178,8 +179,8 @@ const getVerify = async (req, res) => {
 
     res.render('verify', { message, menCategories, womenCategories, kidsCategories, beautyCategories, userID });
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error(error);
+    res.status(500).render('404');
   }
 };
 
@@ -236,8 +237,8 @@ const verifyOTP = async (req, res) => {
       res.status(400).render('verify', { message: 'Invalid OTP. Please Try Again', menCategories, womenCategories, kidsCategories, beautyCategories, userID });
     }
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error(error);
+    res.status(500).render('404');
   }
 };
 
@@ -260,7 +261,8 @@ const resendOTP = async (req, res) => {
     res.status(200).send('OTP resent successfully');
 
   } catch (error) {
-    console.log(error.message);
+    console.error(error);
+    res.status(500).render('404');
   }
 }
 
@@ -283,8 +285,8 @@ const loadlogin = async (req, res) => {
 
     res.render('login', { message, userID, menCategories, womenCategories, kidsCategories, beautyCategories });
   } catch (error) {
-    console.log(error.message)
-    res.status(500).json({ error: 'Cannot load Login page' });
+    console.error(error);
+    res.status(500).render('404');
   }
 }
 
@@ -334,8 +336,8 @@ const loginUser = async (req, res) => {
     }
 
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ error: 'Cannot login' });
+    console.error(error);
+    res.status(500).render('404');
   }
 }
 
@@ -344,84 +346,47 @@ const loginUser = async (req, res) => {
 
 const loadHome = async (req, res) => {
   try {
-      let message = '';
+    let message = '';
 
-      if (req.session.user_id) {
-          const userData = await User.findById(req.session.user_id);
-          if (userData) {
-              if (userData.isblocked === true) {
-                  message = 'Your account has been blocked by the admin. Please sign up with a new account.';
-                  return res.redirect('/blockedUser');
-              }
+    if (req.session.user_id) {
+      const userData = await User.findById(req.session.user_id);
+      if (userData) {
+        if (userData.isblocked === true) {
+          message = 'Your account has been blocked by the admin. Please sign up with a new account.';
+          return res.redirect('/blockedUser');
+        }
 
-              // Fetch categories
-              const menCategories = await Category.find({ categoryType: 'Men', isDeleted: false });
-              const womenCategories = await Category.find({ categoryType: 'Women', isDeleted: false });
-              const kidsCategories = await Category.find({ categoryType: 'Kids', isDeleted: false });
-              const beautyCategories = await Category.find({ categoryType: 'Beauty', isDeleted: false });
+        // Fetch categories
+        const menCategories = await Category.find({ categoryType: 'Men', isDeleted: false });
+        const womenCategories = await Category.find({ categoryType: 'Women', isDeleted: false });
+        const kidsCategories = await Category.find({ categoryType: 'Kids', isDeleted: false });
+        const beautyCategories = await Category.find({ categoryType: 'Beauty', isDeleted: false });
 
-              const mostOrderedProducts = await getMostOrderedProducts();
-              const latestProducts = await Product.find().sort({ createdAt: -1 }).limit(4);
+        const latestProducts = await Product.find({ isDeleted: false })
+          .sort({ dateCreated: -1 }) // Sort by creation date in descending order
+          .limit(4); // Limit the results to the latest 4 products
 
-              message = `Welcome back, ${userData.name}!`;
-              return res.render('home', {
-                  user: userData,
-                  mostOrderedProducts,
-                  latestProducts,
-                  userID: req.session.user_id,
-                  message,
-                  menCategories,
-                  womenCategories,
-                  kidsCategories,
-                  beautyCategories
-              });
-          }
-      } else {
-          message = 'Please log in to continue.';
-          return res.redirect('/');
+        message = `Welcome back, ${userData.name}!`;
+        return res.render('home', {
+          user: userData,
+          latestProducts,
+          userID: req.session.user_id,
+          message,
+          menCategories,
+          womenCategories,
+          kidsCategories,
+          beautyCategories
+        });
       }
+    } else {
+      message = 'Please log in to continue.';
+      return res.redirect('/');
+    }
   } catch (error) {
-      console.error("Error loading home page:", error.message);
-      return res.status(500).json({ error: 'Failed to load Home Page' });
+    console.log(error.message)
+    res.status(500).render('404');
   }
 };
-
-
-
-const getMostOrderedProducts = async () => {
-  try {
-    // Aggregate orders to count the number of each product ordered
-    const productOrders = await Order.aggregate([
-      { $unwind: "$items" },
-      { $group: { _id: "$items.product", totalOrdered: { $sum: "$items.quantity" } } },
-      { $sort: { totalOrdered: -1 } }, 
-      { $limit: 5 } 
-    ]);
-
-    // Get product details for the most ordered products
-    const mostOrderedProducts = await Promise.all(productOrders.map(async (productOrder) => {
-      const product = await Product.findById(productOrder._id);
-      return {
-        _id: product._id,
-        name: product.name,
-        images: product.images,
-        totalOrdered: productOrder.totalOrdered,
-        price: product.price, // Add product price
-        oldPrice: product.oldPrice, // Add old price
-        discountPercentage: product.discountPercentage, // Add discount percentage
-        isOfferApplied: product.isOfferApplied, // Add isOfferApplied flag
-        categoryId: product.category
-      };
-    }));
-
-    return mostOrderedProducts;
-  } catch (error) {
-    console.error("Error fetching most ordered products:", error);
-    throw error;
-  }
-};
-
-
 
 // page to render the blocked user
 
@@ -446,8 +411,8 @@ const blockedUser = async (req, res) => {
       res.redirect('/home');
     }
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ error: 'Failed to load Blocked User Page' });
+    console.error(error);
+    res.status(500).render('404');
   }
 };
 
@@ -459,8 +424,8 @@ const logout = async (req, res) => {
     req.session.destroy();
     res.redirect('/');
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ error: 'Error' })
+    console.error(error);
+    res.status(500).render('404');
   }
 }
 
@@ -480,8 +445,8 @@ const loadforgot = async (req, res) => {
 
     res.render('forget', { message, menCategories, womenCategories, kidsCategories, beautyCategories, userID });
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ error: 'Cannot Load the reset page' })
+    console.error(error);
+    res.status(500).render('404');
   }
 }
 
@@ -518,8 +483,8 @@ const resetOTP = async (req, res) => {
 
 
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ error: 'Cannot send OTP' })
+    console.error(error);
+    res.status(500).render('404');
 
   }
 }
@@ -540,8 +505,8 @@ const loadResetVerify = async (req, res) => {
 
     res.render('forgot_verify', { menCategories, womenCategories, kidsCategories, beautyCategories, message, userID });
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ error: 'Cannot load Verification page' })
+    console.error(error);
+    res.status(500).render('404');
   }
 }
 
@@ -583,9 +548,8 @@ const otpVerify = async (req, res) => {
 
     }
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ error: 'Internal Server Error' })
-    res.render('forgot_verify');
+    console.error(error);
+    res.status(500).render('404');
   }
 }
 
@@ -602,8 +566,8 @@ const loadResetPassword = async (req, res) => {
     let message = '';
     res.render('reset_password', { message, menCategories, womenCategories, kidsCategories, beautyCategories, userID });
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ error: 'Cannot load Reset password page' })
+    console.error(error);
+    res.status(500).render('404');
   }
 }
 
@@ -649,8 +613,8 @@ const resetPassword = async (req, res) => {
     res.redirect('/')
 
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ error: 'Invalid Session Error' });
+    console.error(error);
+    res.status(500).render('404');
   }
 }
 
@@ -724,8 +688,8 @@ const loadCheckoutPage = async (req, res) => {
 
     res.render('checkout', { message, userID, menCategories, womenCategories, kidsCategories, beautyCategories, Addresses, itemsInCart, subTotal, productTotal, totalPriceOfCart, req: req, couponDetails, userDetails, userWalletBalance, totalPriceAfterDiscount });
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ error: 'Invalid Session Error' });
+    console.error(error);
+    res.status(500).render('404');
   }
 };
 
@@ -744,8 +708,8 @@ const loadAddAddress = async (req, res) => {
     let message = '';
     res.render('addAddress', { userID, menCategories, womenCategories, kidsCategories, beautyCategories, message });
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ error: 'Invalid Error Session' })
+    console.error(error);
+    res.status(500).render('404');
   }
 }
 
@@ -775,8 +739,8 @@ const saveAddress = async (req, res) => {
     await user.save();
     res.redirect('/checkout');
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({ error: 'Invalid Session Error' });
+    console.error(error);
+    res.status(500).render('404');
   }
 };
 
@@ -803,8 +767,8 @@ const removeAddress = async (req, res) => {
 
     res.status(200).json({ status: 'success', message: 'Address successfully removed.' })
   } catch (error) {
-    console.log(error.message)
-    res.status(500).json({ error: 'Invalid Session Error' });
+    console.error(error);
+    res.status(500).render('404');
   }
 }
 
@@ -827,8 +791,8 @@ const getAddressDetails = async (req, res) => {
     res.status(200).json({ status: 'success', address });
 
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: 'Invalid Server Error' });
+    console.error(error);
+    res.status(500).render('404');
   }
 }
 
@@ -865,8 +829,8 @@ const updateAddress = async (req, res) => {
     // Redirect to the checkout page after successful update
     res.redirect('/checkout');
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+    console.error(error);
+    res.status(500).render('404');
   }
 };
 
@@ -885,7 +849,8 @@ const loadUserAccount = async (req, res) => {
 
     res.render('myAccount', { menCategories, womenCategories, kidsCategories, beautyCategories, message, userID, user, title });
   } catch (error) {
-    console.log(error.message);
+    console.error(error);
+    res.status(500).render('404');
   }
 }
 
@@ -899,8 +864,8 @@ const editMyAccount = async (req, res) => {
     res.json({ success: true, user });
 
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ error: 'Invalid Error Session ' })
+    console.error(error);
+    res.status(500).render('404');
   }
 }
 
@@ -918,8 +883,8 @@ const loadEditMyAccount = async (req, res) => {
 
     res.render('editMyAccount', { menCategories, womenCategories, kidsCategories, beautyCategories, message, userID, user });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: 'Invalid Error Session' });
+    console.error(error);
+    res.status(500).render('404');
   }
 }
 
@@ -945,8 +910,8 @@ const loadMyAddress = async (req, res) => {
 
     res.render('myAddress', { user, userID, message, menCategories, womenCategories, kidsCategories, beautyCategories, Addresses, title });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: 'Invalid Session Error' });
+    console.error(error);
+    res.status(500).render('404');
   }
 }
 
@@ -965,8 +930,8 @@ const loadMyOrders = async (req, res) => {
     const orderInfo = await Order.find({ user: userID }).sort({ orderDate: -1 })
     res.render('myOrders', { menCategories, womenCategories, kidsCategories, beautyCategories, message, user, userID, title, orderInfo })
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ message: 'Invalid Session Error' });
+    console.error(error);
+    res.status(500).render('404');
   }
 }
 
@@ -983,8 +948,8 @@ const loadMyPassword = async (req, res) => {
     const title = 'Settings'
     res.render('myPassword', { userID, user, menCategories, womenCategories, kidsCategories, beautyCategories, title, message });
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ message: 'Invalid Session Error' });
+    console.error(error);
+    res.status(500).render('404');
   }
 }
 
@@ -1020,8 +985,8 @@ const editMyPassword = async (req, res) => {
     res.json({ status: 'success', message: 'Password updated successfully' });
 
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ message: 'Invalid Session Error' })
+    console.error(error);
+    res.status(500).render('404');
   }
 }
 
@@ -1041,8 +1006,8 @@ const loadMyWallet = async(req,res)=>{
 
     res.render('myWallet',{menCategories,womenCategories,kidsCategories,beautyCategories,message,userID,title,user})
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({message:'Invalid Session Error'});
+    console.error(error);
+    res.status(500).render('404');
   }
 }
 
@@ -1063,7 +1028,7 @@ const addtowallet = async (req, res) => {
     res.json(order);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Unable to create Razorpay order.' });
+    res.status(500).render('404');
   }
 };
 
@@ -1101,8 +1066,8 @@ const razorpaySuccess = async (req, res) => {
 
     res.json({ status: 'success' });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Invalid Session Error' });
+    cconsole.error(error);
+    res.status(500).render('404');
   }
 };
 
@@ -1133,8 +1098,8 @@ const loadOrderedItems = async (req, res) => {
     res.render('orderItems', { userID, user, menCategories, womenCategories, kidsCategories, beautyCategories, message, orderId, orderInfo, title, orderInfo: orderInfoArray });
 
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: 'Invalid Session Error' });
+    console.error(error);
+    res.status(500).render('404');
   }
 }
 
@@ -1280,8 +1245,8 @@ const generateInvoicePDF = async (req, res) => {
     pdfDoc.pipe(res);
     pdfDoc.end();
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: 'Error generating PDF invoice' });
+    console.error(error);
+    res.status(500).render('404');
   }
 };
 
@@ -1300,35 +1265,35 @@ const cancelOrder = async (req, res) => {
     }
 
     if (order.orderStatus !== 'cancelled') {
-      
+      // Add back stock to product sizes
       for (const orderItem of order.items) {
         const product = await Product.findById(orderItem.product);
 
         if (product) {
-          product.stockinCount += orderItem.quantity;
-          await product.save();
+          const sizeIndex = product.sizes.findIndex(size => size.size === orderItem.size);
+          if (sizeIndex !== -1) {
+            product.sizes[sizeIndex].stock += orderItem.quantity;
+            await product.save();
+          }
         }
       }
 
-      const grandTotal = order.grand_total;
-
-      
+      // Refund amount to user's wallet
       const user = await User.findById(order.user);
       if (user) {
-        user.wallet += grandTotal;
-
+        user.wallet += order.grand_total;
         const transaction = {
-          description:'Order cancelled',
-          amount:grandTotal,
-          date:new Date()
+          description: 'Refund for cancelled order',
+          amount: order.grand_total,
+          date: new Date()
         };
-        
         user.transactions.push(transaction);
-
+  
+        
         await user.save();
       }
 
-      
+      // Update order status to 'cancelled'
       order.orderStatus = 'cancelled';
       await order.save();
 
@@ -1337,11 +1302,10 @@ const cancelOrder = async (req, res) => {
       return res.status(400).json({ message: 'Order is already Cancelled' });
     }
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json('Invalid Session Error');
+    console.error(error);
+    res.status(500).render('404');
   }
 };
-
 
 const cancelProductInOrder = async (req, res) => {
   try {
@@ -1365,14 +1329,27 @@ const cancelProductInOrder = async (req, res) => {
     const canceledProduct = order.items[index];
     const canceledProductValue = canceledProduct.price * canceledProduct.quantity;
 
-    // Update product stock count
+    // Add back stock to product size
     const product = await Product.findById(canceledProduct.product);
     if (product) {
-      const sizeIndex = product.sizes.findIndex(sizeObj => sizeObj.size === canceledProduct.size);
+      const sizeIndex = product.sizes.findIndex(size => size.size === canceledProduct.size);
       if (sizeIndex !== -1) {
         product.sizes[sizeIndex].stock += canceledProduct.quantity;
         await product.save();
       }
+    }
+
+    // Revert any changes made to the user's wallet
+    const user = await User.findById(order.user);
+    if (user) {
+      user.wallet += canceledProductValue;
+      const transaction = {
+        description: 'Refund for cancelled product in order',
+        amount: canceledProductValue,
+        date: new Date()
+      };
+      user.transactions.push(transaction);
+      await user.save();
     }
 
     // Set the product as cancelled
@@ -1383,57 +1360,15 @@ const cancelProductInOrder = async (req, res) => {
     // If all items are cancelled, update the order status to cancelled
     if (allItemsCancelled) {
       order.orderStatus = 'cancelled';
-      
-
-      const user = await User.findById(order.user);
-      if (user) {
-        // Refund the subtotal amount to user's wallet
-        user.wallet += order.totalPrice;
-        
-        order.discount_amount = 0;
-        order.totalPrice = 0;
-        order.grand_total = 0;
-
-        const transaction = {
-          description: `Refund for cancelled order ID: ${orderId}`,
-          amount: order.totalPrice,
-          date: new Date(),
-        };
-        user.transactions.push(transaction);
-        await user.save();
-      }
-    } else {
-      // Update total price and grand total
-      order.totalPrice -= canceledProductValue;
-      order.grand_total -= canceledProductValue;
+      await order.save();
     }
 
-    // Save the updated order
-    await order.save();
-
-    // Refund amount to user's wallet for the canceled product
-    const user = await User.findById(order.user);
-    if (user) {
-      // Refund the canceled product value to user's wallet
-      user.wallet += canceledProductValue;
-      // Create transaction record for the canceled product refund
-      const transaction = {
-        description: `Refund for cancelled product  in order ID: ${orderId}`,
-        amount: canceledProductValue,
-        date: new Date(),
-      };
-      user.transactions.push(transaction);
-      await user.save();
-    }
-
-    // Redirect the user to the order items page
     return res.redirect(`/orderItems/${orderId}`);
   } catch (error) {
-    console.error('Error cancelling product:', error);
-    return res.status(500).json({ status: 'error', message: 'Failed to cancel product' });
+    console.error(error);
+    res.status(500).render('404');
   }
 };
-
 
 const returnOrder = async (req, res) => {
   try {
@@ -1448,37 +1383,29 @@ const returnOrder = async (req, res) => {
       return res.status(400).json({ status: 'error', message: 'Order is already returned' });
     }
 
-    // Adjust the refunded amount if a coupon is applied
-    let refundedAmount = order.grand_total;
-
-
     // Return products and adjust stock count
     for (const orderItem of order.items) {
-      const productId = orderItem.product;
-      const quantityReturned = orderItem.quantity;
-
-      const product = await Product.findById(productId);
+      const product = await Product.findById(orderItem.product);
 
       if (product) {
-        product.stockinCount += quantityReturned;
-        await product.save();
+        const sizeIndex = product.sizes.findIndex(size => size.size === orderItem.size);
+        if (sizeIndex !== -1) {
+          product.sizes[sizeIndex].stock += orderItem.quantity;
+          await product.save();
+        }
       }
     }
 
     // Refund amount to the user's wallet
     const user = await User.findById(order.user);
-
     if (user) {
-      user.wallet += refundedAmount;
-
+      user.wallet += order.grand_total;
       const transaction = {
-        description :'Order Refunded',
-        amount:refundedAmount,
-        date:new Date(),
-      }
-
-      user.transactions.push(transaction)
-
+        description: 'Refund for returned order',
+        amount: order.grand_total,
+        date: new Date()
+      };
+      user.transactions.push(transaction);
       await user.save();
     }
 
@@ -1488,12 +1415,10 @@ const returnOrder = async (req, res) => {
 
     return res.redirect(`/orderItems/${orderId}`);
   } catch (error) {
-    console.error('Error returning order:', error);
-    return res.status(500).json({ status: 'error', message: 'Failed to return order' });
+    console.error(error);
+    res.status(500).render('404');
   }
 };
-
-
 
 const returnProduct = async (req, res) => {
   try {
@@ -1520,31 +1445,28 @@ const returnProduct = async (req, res) => {
       return res.status(400).json({ status: 'error', message: 'Product is already returned' });
     }
 
-    const returnedProductValue = returnedProduct.price * returnedProduct.quantity;
-
-    // Update user's wallet
-    const user = await User.findById(order.user);
-    if (user) {
-      user.wallet += returnedProductValue;
-
-      const transaction = {
-        description : `Returned Product`,
-        amount: returnedProductValue,
-        date: new Date()
-      };
-      user.transactions.push(transaction);
-
-      await user.save();
-    }
-
-    // Update product stock count
+    // Add back stock to product size
     const product = await Product.findById(returnedProduct.product);
     if (product) {
-      const sizeIndex = product.sizes.findIndex(sizeObj => sizeObj.size === returnedProduct.size);
+      const sizeIndex = product.sizes.findIndex(size => size.size === returnedProduct.size);
       if (sizeIndex !== -1) {
         product.sizes[sizeIndex].stock += returnedProduct.quantity;
         await product.save();
       }
+    }
+
+    // Refund amount to the user's wallet
+    const returnedProductValue = returnedProduct.price * returnedProduct.quantity;
+    const user = await User.findById(order.user);
+    if (user) {
+      user.wallet += returnedProductValue;
+      const transaction = {
+        description: 'Refund for returned product',
+        amount: returnedProductValue,
+        date: new Date()
+      };
+      user.transactions.push(transaction);
+      await user.save();
     }
 
     // Mark the returned product
@@ -1552,37 +1474,35 @@ const returnProduct = async (req, res) => {
 
     // Check if all items are returned
     const allItemsReturned = order.items.every(item => item.returned);
-
     if (allItemsReturned || order.items.length === 1) {
       // Mark the order as returned if all items are returned or if only one item was in the order
       order.orderStatus = 'returned';
-
-      
-
-      const user = await User.findById(order.user);
-      if (user) {
-        user.wallet += order.totalPrice;
-
-        order.discount_amount = 0;
-        order.totalPrice = 0;
-        order.grand_total = 0;
-
-        await user.save();
-      }
+      await order.save();
     }
-
-    // Update order totals
-    order.totalPrice -= returnedProductValue;
-    order.grand_total -= returnedProductValue;
-
-    await order.save();
 
     return res.redirect(`/orderItems/${orderId}`);
   } catch (error) {
-    console.error('Error returning product:', error);
-    return res.status(500).json({ status: 'error', message: 'Failed to return product' });
+    console.error(error);
+    res.status(500).render('404');
   }
 };
+
+const errorPage = async(req,res)=>{
+  try {
+    const menCategories = await getCategoryiesByType('Men');
+    const womenCategories = await getCategoryiesByType('Women');
+    const kidsCategories = await getCategoryiesByType('Kids');
+    const beautyCategories = await getCategoryiesByType('Beauty');
+
+    const userID = req.session.user_id;
+    let message = ''
+
+    res.render('404', { menCategories, womenCategories, kidsCategories, beautyCategories, userID, message });
+  } catch (error) {
+    console.error(error);
+    res.status(500).render('404');
+  }
+}
 
 
 
@@ -1625,7 +1545,8 @@ module.exports = {
   addtowallet,
   razorpaySuccess,
   returnOrder,
-  returnProduct
+  returnProduct,
+  errorPage,
 }
 
 

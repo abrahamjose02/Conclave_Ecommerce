@@ -16,7 +16,8 @@ const categoryList = async(req,res)=>{
       
       res.render('categoriesList',{categories,message});
     } catch (error) {
-      console.log(error.message);
+      console.error(error);
+    res.status(500).render('404');
     }
   };
 
@@ -28,7 +29,8 @@ const loadaddCategory = async (req, res) => {
       let message=''
       res.render('addCategory',{message});
     } catch (error) {
-      console.error('Error loading addCategory:', error);
+      console.error(error);
+    res.status(500).render('404');
       
     }
   };
@@ -59,8 +61,8 @@ const addCategory = async (req, res) => {
   
       res.redirect('/admin/categoriesList');
     } catch (error) {
-      console.log(error.message);
-      res.status(500).send('Internal Server Error');
+      console.error(error);
+    res.status(500).render('404');
     }
   };
   
@@ -80,8 +82,8 @@ const addCategory = async (req, res) => {
         res.redirect('/admin/categoriesList');
       }
     } catch (error) {
-      console.log(error.message);
-      res.status(500).send('Invalid Server Error');
+      console.error(error);
+    res.status(500).render('404');
     }
   };
   
@@ -121,8 +123,8 @@ const addCategory = async (req, res) => {
         const updatedCategory = await category.save();
         res.redirect('/admin/categoriesList');
     } catch (error) {
-        console.error(error.message);
-        res.status(500).render('editCategory', { message: 'Internal Server Error', category });
+      console.error(error);
+      res.status(500).render('404');
     }
 };
 
@@ -142,7 +144,8 @@ const addCategory = async (req, res) => {
         res.status(404).send('Category not found');
       }
     } catch (error) {
-      console.log(error.message);
+      console.error(error);
+    res.status(500).render('404');
     }
   };
   
@@ -161,7 +164,8 @@ const addCategory = async (req, res) => {
         res.status(404).send('Category not found');
       }
     } catch (error) {
-      console.log(error.message);
+      console.error(error);
+    res.status(500).render('404');
     }
   }
 
@@ -172,8 +176,8 @@ const addCategory = async (req, res) => {
       const categories = await Category.find();
       res.render('categoryOfferManagement',{categories,message});
     } catch (error) {
-      console.log(error.message);
-      res.status(500).json({message:'Invalid Session Error'});
+      console.error(error);
+    res.status(500).render('404');
     }
   }
 
@@ -213,8 +217,8 @@ const createCategoryOffer = async (req, res) => {
           res.status(400).json({ status: false, message: 'Category offer discount percentage is not greater than existing product offers' });
       }
   } catch (error) {
-      console.log(error.message);
-      res.status(500).json({ message: 'Internal Server Error' });
+    console.error(error);
+    res.status(500).render('404');
   }
 };
 
@@ -295,8 +299,8 @@ const activateCategoryOffer = async (req, res) => {
 
       res.redirect('/admin/categoryOfferManagement');
   } catch (error) {
-      console.log(error.message);
-      res.status(500).json({ message: 'Internal Server Error' });
+    console.error(error);
+    res.status(500).render('404');
   }
 };
 
@@ -336,8 +340,8 @@ const activateCategoryOffer = async (req, res) => {
 
         res.redirect('/admin/categoryOfferManagement');
     } catch (error) {
-        console.log(error.message);
-        return res.status(500).json({ status: false, message: 'Internal Server Error' });
+      console.error(error);
+      res.status(500).render('404');
     }
 };
 
@@ -373,8 +377,8 @@ const deleteCategoryOffer = async (req, res) => {
 
       res.redirect('/admin/categoryOfferManagement');
   } catch (error) {
-      console.error('Error deleting category offer:', error);
-      res.status(500).send('Error deleting category offer');
+    console.error(error);
+    res.status(500).render('404');
   }
 };
 

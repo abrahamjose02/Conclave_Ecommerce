@@ -1,45 +1,43 @@
 <%- include('../layouts/header.ejs') %>
-
 <%- include('../users/userHeader.ejs') %>
 
 <main class="main h-auto mb-5 d-flex justify-content-center">
-    <div class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17 mt-2 mx-5 w-75 mb-4 d-flex justify-content-center"
-        style="background-image: url('/img/login-bg.jpg');">
+    <div class="login-page bg-image pt-4 pb-4 pt-md-6 pb-md-6 pt-lg-8 pb-lg-8 mt-2 mx-auto w-100 mb-4"
+        style="background-image: url('/img/login-bg.jpg'); background-size: cover; background-position: center;">
 
-        <div class="bg-white w-50 p-5 my-5">
-            <h2 class="text-center font-weight-bold m-3">Verify Your Email Address</h2>
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-8 col-lg-6 col-xl-4 bg-white p-4">
+                    <h2 class="text-center font-weight-bold mb-4">Verify Your Email Address</h2>
 
-            <!-- Display error message if OTP verification fails -->
-            <% if (message && message === 'Invalid OTP. Please Try Again') { %>
-                <div class="alert alert-danger text-center" role="alert">
-                    <%= message %>
-                </div>
-            <% } %>
-
-            <div class="tab-content">
-                <div class="" id="pills-login" role="tabpanel" aria-labelledby="tab-login">
-                    <form action="/verify" method="POST">
-                        <div class="form-outline mb-4">
-                            <label class="form-label mt-2 text-center" for="otp">Enter The OTP</label>
-                            <input type="text" id="otp" name="enteredOTP" class="form-control" />
+                    <!-- Display error message if OTP verification fails -->
+                    <% if (message && message === 'Invalid OTP. Please Try Again') { %>
+                        <div class="alert alert-danger text-center" role="alert">
+                            <%= message %>
                         </div>
+                    <% } %>
 
-                        
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="pills-login" role="tabpanel"
+                            aria-labelledby="tab-login">
+                            <form action="/verify" method="POST">
+                                <div class="form-group">
+                                    <label class="form-label" for="otp">Enter The OTP</label>
+                                    <input type="text" id="otp" name="enteredOTP" class="form-control" />
+                                </div>
 
-                        <button type="submit" class="btn btn-dark btn-block mb-4">Verify</button>
-                    </form>
+                                <button type="submit" class="btn btn-dark btn-block mb-3">Verify</button>
 
-                    <div class="counterDiv d-flex align-content-center justify-content-center">
-                        <p class="font-weight-bold text-success" style="font-size: 1.2rem;">
-                          <span id="timer-minutes">00</span>:<span id="timer-seconds">00</span>
-                        </p>
-                    </div>
-                    
-                    <div class="d-flex justify-content-center">
-                        <button id="resendOtpButton" class="nav-link"
-                          style="color:rgb(35, 92, 190); text-decoration: underline; font-weight: bold;">
-                          RESEND OTP
-                        </button>
+                                <div class="d-flex justify-content-center align-items-center flex-column">
+                                    <div class="counterDiv mb-3">
+                                        <p class="font-weight-bold text-success mb-0" style="font-size: 1.2rem;">
+                                            <span id="timer-minutes">00</span>:<span id="timer-seconds">00</span>
+                                        </p>
+                                    </div>
+                                    <button id="resendOtpButton" class="btn btn-link text-primary">RESEND OTP</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -48,5 +46,4 @@
 </main>
 
 <%- include('../users/userFooter.ejs') %>
-
 <%- include('../layouts/footer.ejs') %>

@@ -8,14 +8,12 @@
             <div class="hero__slider owl-carousel">
                 <div class="hero__items set-bg" data-setbg="img/hero/hero-1.jpg">
                     <div class="container">
-                        <div class="row">
-                            <div class="col-xl-5 col-lg-7 col-md-8">
+                        <div class="row align-items-center">
+                            <div class="col-lg-7 col-md-8">
                                 <div class="hero__text">
                                     <h6>Summer Collection</h6>
                                     <h2>Fall - Winter Collections 2024</h2>
-                                    <p>A specialist label creating luxury essentials. Ethically crafted with an
-                                        unwavering
-                                        commitment to exceptional quality.</p>
+                                    <p>A specialist label creating luxury essentials. Ethically crafted with an unwavering commitment to exceptional quality.</p>
                                     <a href="/products?category=6593b26d36abff3b9a62868c" class="primary-btn">Shop now <span class="arrow_right"></span></a>
                                     <div class="hero__social">
                                         <a href="#"><i class="fa fa-facebook"></i></a>
@@ -30,14 +28,12 @@
                 </div>
                 <div class="hero__items set-bg" data-setbg="img/hero/hero-2.jpg">
                     <div class="container">
-                        <div class="row">
-                            <div class="col-xl-5 col-lg-7 col-md-8">
+                        <div class="row align-items-center">
+                            <div class="col-lg-7 col-md-8">
                                 <div class="hero__text">
                                     <h6>Summer Collection</h6>
                                     <h2>Fall - Winter Collections 2024</h2>
-                                    <p>A specialist label creating luxury essentials. Ethically crafted with an
-                                        unwavering
-                                        commitment to exceptional quality.</p>
+                                    <p>A specialist label creating luxury essentials. Ethically crafted with an unwavering commitment to exceptional quality.</p>
                                     <a href="#" class="primary-btn">Shop now <span class="arrow_right"></span></a>
                                     <div class="hero__social">
                                         <a href="#"><i class="fa fa-facebook"></i></a>
@@ -52,6 +48,7 @@
                 </div>
             </div>
         </section>
+        
         <!-- Hero Section End -->
 
         <!-- Banner Section Begin -->
@@ -96,116 +93,80 @@
         </section>
         <!-- Banner Section End -->
 
-<!-- Most Ordered Products Section Begin -->
-<section class="most-ordered-products">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="section-title">
-                    <h2 class="font-weight-bold">Most Ordered Products</h2>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <% for (let i = 0; i < 4; i++) { %>
-            <div class="col-lg-3 col-md-6 col-sm-6 col-6 mb-4">
-                <div class="product__item" style="border-radius: 10px; overflow: hidden;">
-                    <div class="product__item__pic" style="border-radius: 10px; overflow: hidden;">
-                        <!-- Assuming the product images are stored in an "images" array -->
-                        <% if (mostOrderedProducts[i].images && mostOrderedProducts[i].images.length > 0) { %>
-                        <!-- Load the first image in the product images array -->
-                        <img src="/uploads/<%= mostOrderedProducts[i].images[0] %>" alt="<%= mostOrderedProducts[i].name %>">
-                        <% } else { %>
-                        <!-- Provide a placeholder image if no images are available -->
-                        <img src="/uploads/placeholder.jpg" alt="Placeholder Image">
-                        <% } %>
-                    </div>
-                    <div class="product__item__text">
-                        <!-- Product details -->
-                        <h6><%= mostOrderedProducts[i].name %></h6>
-                        <!-- Other product information -->
-                        <button class="nav-link" onclick="viewProductDetails('<%= mostOrderedProducts[i].categoryId %>', '<%= mostOrderedProducts[i]._id %>')"><a class="">View</a></button>
-                        <br>
-                        <!-- Display prices and discount percentage -->
-                        <% if (mostOrderedProducts[i].isOfferApplied) { %>
-                            <h6>
-                                <!-- Product price in bold -->
-                                <span style="font-weight: bold;">Rs. <%= mostOrderedProducts[i].price %></span>
-                                <!-- Old price in secondary color with line-through -->
-                                <span style="color: #6c757d; text-decoration: line-through;">Rs. <%= mostOrderedProducts[i].oldPrice %></span>
-                                <!-- Discount percentage in danger color -->
-                                <span style="color: #ff6666;">(<%= mostOrderedProducts[i].discountPercentage %>% OFF)</span>
-                            </h6>
-
-                            
-                        <% } else { %>
-                            <h6>
-                                <!-- Only display product price if no offer applied -->
-                                <span style="font-weight: bold;">Rs. <%= mostOrderedProducts[i].price %></span>
-                            </h6>
-                            
-                        <% } %>
-                    </div>
-                </div>
-            </div>
-            <% } %>
-        </div>
-    </div>
-</section>
-
-        
-<!-- Most Ordered Products Section End -->
-
 
 <section class="most-ordered-products">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="section-title">
-                    <h2 class="font-weight-bold">Latest Product</h2>
-                </div>
-            </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="section-title">
+            <h2 class="font-weight-bold">Latest Product</h2>
+          </div>
         </div>
-        <div class="row">
-            <% latestProducts.forEach(product => { %>
-            <div class="col-lg-3 col-md-6 col-sm-6 col-6 mb-4">
-                <div class="product__item" style="border-radius: 10px; overflow: hidden;">
-                    <div class="pro-img">
-                        <a href="/product/<%= product._id %>">
-                            <img src="/uploads/<%= product.images[0] %>" style="width: 100%;">
-                        </a>
-                    </div>
-                    <div class="product__item__text">
-                        <!-- Product details -->
-                        <h6><%= product.name %></h6>
-                        <!-- Other product information -->
-                        <button class="nav-link" onclick="viewProductDetails('<%= product.category._id %>', '<%= product._id %>')">
-                            <a class="">View</a>
-                        </button>
-                        <br>
-                        <!-- Display prices and discount percentage -->
-                        <% if (product.isOfferApplied) { %>
-                            <h6>
-                                <!-- Product price in bold -->
-                                <span style="font-weight: bold;">Rs. <%= product.price %></span>
-                                <!-- Old price in secondary color with line-through -->
-                                <span style="color: #6c757d; text-decoration: line-through;">Rs. <%= product.oldPrice %></span>
-                                <!-- Discount percentage in danger color -->
-                                <span style="color: #ff6666;">(<%= product.discountPercentage %>% OFF)</span>
-                            </h6>
-                        <% } else { %>
-                            <h6>
-                                <!-- Only display product price if no offer applied -->
-                                <span style="font-weight: bold;">Rs. <%= product.price %></span>
-                            </h6>
-                        <% } %>
-                    </div>
-                </div>
+      </div>
+      <div class="row" id="latestProductsContainer">
+        <% latestProducts.forEach(product => { %>
+        <div class="col-lg-3 col-md-6 col-sm-6 col-6 mb-4">
+          <div class="product__item" style="border-radius: 10px; overflow: hidden;">
+            <div class="pro-img" style="position: relative;">
+              <!-- Always display the "New" tag -->
+              <span class="label">New</span>
+              <img src="/uploads/<%= product.images[0] %>" style="width: 100%;" alt="Product Image">
             </div>
-            <% }) %>
+            <div class="product__item__text">
+              <!-- Product details -->
+              <h6><%= product.name %></h6>
+              <!-- Other product information -->
+              <button class="nav-link" onclick="viewProductDetails('<%= product.category._id %>', '<%= product._id %>')">
+                <a class="">View</a>
+              </button>
+              <br>
+              <!-- Display prices and discount percentage -->
+              <% if (product.isOfferApplied) { %>
+              <h6>
+                <!-- Product price in bold -->
+                <span style="font-weight: bold;">Rs. <%= product.price %></span>
+                <!-- Old price in secondary color with line-through -->
+                <span style="color: #6c757d; text-decoration: line-through;">Rs. <%= product.oldPrice %></span>
+                <!-- Discount percentage in danger color -->
+                <span style="color: #ff6666;">(<%= product.discountPercentage %>% OFF)</span>
+              </h6>
+              <% } else { %>
+              <h6>
+                <!-- Only display product price if no offer applied -->
+                <span style="font-weight: bold;">Rs. <%= product.price %></span>
+              </h6>
+              <% } %>
+            </div>
+          </div>
         </div>
+        <% }) %>
+      </div>
     </div>
-</section>
+  </section>
+
+
+<style>
+.pro-img {
+    position: relative;
+}
+
+.label {
+    position: absolute;
+    top: 15px; /* Adjust as needed */
+    left: -25px; /* Adjust to move the tag to the left */
+    padding: 1px 35px; /* Adjust padding as needed */
+    background-color: #ff6363; /* Elegant color */
+    color: #ffffff; /* Text color of the label */
+    font-size: 13px; /* Font size of the text */
+    font-weight: bold; /* Make the text bold */
+     /* Uppercase the text */
+    z-index: 2; /* Ensure the label is above the image */
+    transform: rotate(-45deg); /* Rotate the label for a ribbon-like effect */
+    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%); /* Create a linear shape */
+}
+
+</style>
+
   
         <section class="mx-5">
 
@@ -407,84 +368,6 @@
                 </div> 
             </div>
         </div>
-
-
-
-
-        <!-- Instagram Section Begin -->
-        <section class="instagram spad">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-8">
-                        <div class="instagram__pic">
-                            <div class="instagram__pic__item set-bg" data-setbg="img/instagram/instagram-1.jpg"></div>
-                            <div class="instagram__pic__item set-bg" data-setbg="img/instagram/instagram-2.jpg"></div>
-                            <div class="instagram__pic__item set-bg" data-setbg="img/instagram/instagram-3.jpg"></div>
-                            <div class="instagram__pic__item set-bg" data-setbg="img/instagram/instagram-4.jpg"></div>
-                            <div class="instagram__pic__item set-bg" data-setbg="img/instagram/instagram-5.jpg"></div>
-                            <div class="instagram__pic__item set-bg" data-setbg="img/instagram/instagram-6.jpg"></div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="instagram__text">
-                            <h2>Instagram</h2>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-                                ut
-                                labore et dolore magna aliqua.</p>
-                            <h3>#Urban_Craze</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Instagram Section End -->
-
-        <!-- Latest Blog Section Begin -->
-        <section class="latest spad">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="section-title">
-                            <span>Latest News</span>
-                            <h2>Fashion New Trends</h2>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-4 col-md-6 col-sm-6">
-                        <div class="blog__item">
-                            <div class="blog__item__pic set-bg" data-setbg="img/blog/blog-1.jpg"></div>
-                            <div class="blog__item__text">
-                                <span><img src="img/icon/calendar.png" alt=""> 16 February 2020</span>
-                                <h5>What Curling Irons Are The Best Ones</h5>
-                                <a href="#">Read More</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6 col-sm-6">
-                        <div class="blog__item">
-                            <div class="blog__item__pic set-bg" data-setbg="img/blog/blog-2.jpg"></div>
-                            <div class="blog__item__text">
-                                <span><img src="img/icon/calendar.png" alt=""> 21 February 2020</span>
-                                <h5>Eternity Bands Do Last Forever</h5>
-                                <a href="#">Read More</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6 col-sm-6">
-                        <div class="blog__item">
-                            <div class="blog__item__pic set-bg" data-setbg="img/blog/blog-3.jpg"></div>
-                            <div class="blog__item__text">
-                                <span><img src="img/icon/calendar.png" alt=""> 28 February 2020</span>
-                                <h5>The Health Benefits Of Sunglasses</h5>
-                                <a href="#">Read More</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-        <!-- Latest Blog Section End -->
 
 
 

@@ -32,6 +32,7 @@
       <div class="form-outline mb-4">
         <label class="form-label mt-2" for="name">Product name </label>
         <input type="text" id="name" class="form-control" name="name" required />
+        <div id="nameValidationMessage" class="text-danger"></div>
       </div>
 
       <div class="-outline mb-4 d-flex flex-column">
@@ -45,16 +46,19 @@
         <div class="form-outline mb-4">
           <label class="form-label mt-2" for="brand">brand</label>
           <input type="text" id="brand" class="form-control" name="brand" required />
+          <div id="brandValidationMessage" class="text-danger"></div>
         </div>
 
         <div class="form-outline mb-4">
           <label class="form-label mt-2" for="color">Color</label>
           <input type="text" id="color" class="form-control" name="color" required />
+          <div id="colorValidationMessage" class="text-danger"></div>
         </div>
 
         <div class="form-outline mb-4">
           <label class="form-label mt-2" for="price">Price</label>
           <input type="number" id="price" class="form-control" name="price" required />
+          <div id="priceValidationMessage" class="text-danger"></div>
         </div>
 
         <div class="form-outline mb-4">
@@ -62,9 +66,9 @@
           <div id="sizeSelection">
             
           </div>
+          <div id="sizesStocksValidationMessage" class="text-danger"></div>
         </div>
 
-       
         <button type="button" class="btn btn-primary mb-3" id="addSizeSelection">Add Size</button>
 
         <div class="input-group mb-4">
@@ -132,12 +136,106 @@
             <option value="M">M</option>
             <option value="L">L</option>
             <option value="XL">XL</option>
+            <option value="12 year">12 year</option>
+            <option value="13 year">13 year</option>
+            <option value="14 year">14 year</option>
+            <option value="15 year">15 year</option>
+            <option value="16 year">16 year</option>
             <option value="Single Size">Single Size</option>
           </select>
           <input type="number" class="form-control" name="stocks[]" placeholder="Stock Count" required>
+          <button type="button" class="btn btn-danger btn-sm removeSizeSelection" data-target="#sizeSelection${sizeCounter}">Remove</button>
         </div>`;
       $("#sizeSelection").append(newSizeSelection);
       sizeCounter++;
     });
+
+    // Remove Size Selection
+    $(document).on("click", ".removeSizeSelection", function () {
+      let targetId = $(this).data("target");
+      $(targetId).remove();
+    });
   });
+</script>
+
+<script>
+  $(document).ready(function () {
+    // Function to validate form
+    function validateForm() {
+        let isValid = true;
+
+        // Validate product name
+        const productName = $("#name").val().trim();
+        if (!productName) {
+            $("#nameValidationMessage").text("Product name is required.");
+            isValid = false;
+        } else {
+            $("#nameValidationMessage").text("");
+        }
+
+        // Validate brand
+        const brand = $("#brand").val().trim();
+        if (!brand) {
+            $("#brandValidationMessage").text("Brand is required.");
+            isValid = false;
+        } else {
+            $("#brandValidationMessage").text("");
+        }
+
+        // Validate color
+        const color = $("#color").val().trim();
+        if (!color) {
+            $("#colorValidationMessage").text("Color is required.");
+            isValid = false;
+        } else {
+            $("#colorValidationMessage").text("");
+        }
+
+        // Validate price
+        const price = $("#price").val().trim();
+        if (!price || isNaN(price) || price <= 0) {
+            $("#priceValidationMessage").text("Price must be a valid positive number.");
+            isValid = false;
+        } else {
+            $("#priceValidationMessage").text("");
+        }
+
+        // Validate sizes and stocks
+        let isValidSizesStocks = true;
+        $(".form-outline").each(function () {
+            const size = $(this).find("select").val().trim();
+            const stock = $(this).find("input").val().trim();
+            if (!size || !stock || isNaN(stock) || stock < 0) {
+                isValidSizesStocks = false;
+                $(this).find(".stockValidationMessage").text("Stock count must be a valid non-negative number.");
+                return false; // Exit the loop early
+            } else {
+                $(this).find(".stockValidationMessage").text("");
+            }
+        });
+
+        if (!isValidSizesStocks) {
+            $("#sizesStocksValidationMessage").text("Sizes and stocks must be valid.");
+            isValid = false;
+        } else {
+            $("#sizesStocksValidationMessage").text("");
+        }
+
+        return isValid;
+    }
+
+    // Validate form on submit
+    $("#myForm").submit(function (event) {
+        // Validate form
+        if (!validateForm()) {
+            event.preventDefault();
+        }
+    });
+
+    // Show validation messages on input change
+    $("input, select").change(function () {
+        validateForm();
+    });
+});
+
 </script>

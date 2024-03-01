@@ -16,8 +16,8 @@ const getCategoryiesByType = async (categoryType) => {
       ]);
       return categories;
     } catch (error) {
-      console.error('Error', error);
-      throw error;
+        console.error(error);
+        res.status(500).render('404');
     }
   }
 
@@ -47,8 +47,8 @@ const getCategoryiesByType = async (categoryType) => {
             message,
         });
     } catch (error) {
-        console.error(error.message);
-        res.status(500).json({ message: 'Internal Server Error' });
+        console.error(error);
+        res.status(500).render('404');
     }
 };
 
@@ -102,8 +102,8 @@ const addToWishlist = async (req, res) => {
 
         res.status(201).json({ status: true, message: 'Product added to wishlist', wishlist: wishlist });
     } catch (error) {
-        console.error('Error adding to wishlist:', error);
-        res.status(500).json({ status: false, message: 'Internal Server Error' });
+        console.error(error);
+    res.status(500).render('404');
     }
 };
 
@@ -126,8 +126,8 @@ const removeProduct = async (req, res) => {
 
         res.json({ status: true, message: 'Product removed from wishlist', updatedWishlist: updateWishlist });
     } catch (error) {
-        console.error(error.message);
-        res.status(500).json({ status: false, message: 'Internal Server Error' });
+        console.error(error);
+    res.status(500).render('404');
     }
 };
 
@@ -159,8 +159,8 @@ const removeProductFromWishlisttoAddtoCart = async (req, res) => {
         // Return the updated wishlist data to the client
         res.json({ status: true, message: 'Product removed from wishlist', updatedWishlist: updateWishlist });
     } catch (error) {
-        console.error(error.message);
-        res.status(500).json({ status: false, message: 'Internal Server Error' });
+        console.error(error);
+        res.status(500).render('404');
     }
 };
 

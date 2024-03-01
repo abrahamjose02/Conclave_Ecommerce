@@ -27,12 +27,32 @@
         </div>
         <% } %>
 
-        <form class="container w-50 my-5" action="/admin/editProduct/<%= product._id %>" method="post"
+        <form id="myForm" class="container w-50 my-5" action="/admin/editProduct/<%= product._id %>" method="post"
             enctype="multipart/form-data">
 
+            <!-- Form fields -->
             <div class="form-outline mb-4">
-                <label class="form-label mt-2" for="product-name">Product name </label>
+                <label class="form-label mt-2" for="product-name">Product name</label>
                 <input type="text" id="name" class="form-control" name="name" required value="<%= product.name%>" />
+                <div id="nameValidationMessage" class="text-danger"></div>
+            </div>
+
+            <div class="form-outline mb-4">
+                <label class="form-label mt-2" for="brand">Brand</label>
+                <input type="text" id="brand" class="form-control" name="brand" required value="<%= product.brand%>" />
+                <div id="brandValidationMessage" class="text-danger"></div>
+            </div>
+
+            <div class="form-outline mb-4">
+                <label class="form-label mt-2" for="color">Color</label>
+                <input type="text" id="color" class="form-control" name="color" required value="<%= product.color%>" />
+                <div id="colorValidationMessage" class="text-danger"></div>
+            </div>
+
+            <div class="form-outline mb-4">
+                <label class="form-label mt-2" for="price">Price</label>
+                <input type="number" id="price" class="form-control" name="price" required value="<%= product.price%>" />
+                <div id="priceValidationMessage" class="text-danger"></div>
             </div>
 
             <div class="-outline mb-4 d-flex flex-column">
@@ -42,22 +62,8 @@
                     <option value="<%= category._id %>"
                         <% if (product && product.category.toString() === category._id.toString()) { %>selected<% } %>><%= category.name %></option>
                     <% }) %>
-                </select><br>
-            </div>
-
-            <div class="form-outline mb-4">
-                <label class="form-label mt-2" for="brand">Brand</label>
-                <input type="text" id="brand" class="form-control" name="brand" required value="<%= product.brand%>" />
-            </div>
-
-            <div class="form-outline mb-4">
-                <label class="form-label mt-2" for="color">Color</label>
-                <input type="text" id="color" class="form-control" name="color" required value="<%= product.color%>" />
-            </div>
-
-            <div class="form-outline mb-4">
-                <label class="form-label mt-2" for="price">Price</label>
-                <input type="number" id="price" class="form-control" name="price" required value="<%= product.price%>" />
+                </select>
+                <div id="categoryValidationMessage" class="text-danger"></div>
             </div>
 
             <!-- Render sizes and stock counts if available -->
@@ -70,10 +76,15 @@
                     <option value="M" <% if (size.size === "M") { %> selected <% } %>>M</option>
                     <option value="L" <% if (size.size === "L") { %> selected <% } %>>L</option>
                     <option value="XL" <% if (size.size === "XL") { %> selected <% } %>>XL</option>
-                    <option value="XXL" <% if (size.size === "XXL") { %> selected <% } %>>XXL</option>
+                    <option value="12 year" <% if (size.size === "12 year") { %> selected <% } %>>12 year</option>
+                    <option value="13 year" <% if (size.size === "13 year") { %> selected <% } %>>13 year</option>
+                    <option value="14 year" <% if (size.size === "14 year") { %> selected <% } %>>14 year</option>
+                    <option value="15 year" <% if (size.size === "15 year") { %> selected <% } %>>15 year</option>
+                    <option value="16 year" <% if (size.size === "16 year") { %> selected <% } %>>16 year</option>
                     <option value="Single Size" <% if (size.size === "Single Size") { %> selected <% } %>>Single Size</option>
                 </select>
                 <input type="number" id="stock<%= index %>" class="form-control" name="stocks[]" required value="<%= size.stock %>" />
+                <div class="stockValidationMessage text-danger"></div>
             </div>
             <% }) %>
 
@@ -86,6 +97,7 @@
                 <label class="form-label mt-2" for="description">Description</label>
                 <textarea class="w-100" style="width: auto;" name="description" id="description"
                     required><%= product.description %></textarea>
+                <div id="descriptionValidationMessage" class="text-danger"></div>
             </div>
 
             <!-- Display existing images and allow deletion -->
@@ -116,6 +128,9 @@
                 </div>
             </div>
 
+            <!-- Validation Messages -->
+            <div id="validationMessages" class="text-danger"></div>
+
             <!-- Submit button -->
             <button type="submit" class="btn btn-dark btn-block mb-4"> Edit Product</button>
 
@@ -129,30 +144,129 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        let sizeCounter = <%= product.sizes.length %>; // Initialize counter with the number of existing sizes
-        const addSizeButton = document.getElementById('addSize');
-        const form = document.querySelector('form');
-
-        addSizeButton.addEventListener('click', function () {
-            // Create new size and stock input fields
-            const newSizeField = document.createElement('div');
-            newSizeField.classList.add('form-outline', 'mb-4');
-            newSizeField.innerHTML = `
-                <label class="form-label mt-2" for="size${sizeCounter}">Size</label>
-                <select id="size${sizeCounter}" class="form-control" name="sizes[]" required>
-                    <option value="XS">XS</option>
-                    <option value="S">S</option>
-                    <option value="M">M</option>
-                    <option value="L">L</option>
-                    <option value="XL">XL</option>
-                    <option value="XXL">XXL</option>
-                    <option value="Single Size">Single Size</option>
-                </select>
-                <label class="form-label mt-2" for="stock${sizeCounter}">Stock</label>
-                <input type="number" id="stock${sizeCounter}" class="form-control" name="stocks[]" required>
-            `;
-            form.insertBefore(newSizeField, addSizeButton);
-            sizeCounter++; // Increment the counter for the next size
-        });
+      let sizeCounter = <%= product.sizes.length %>; // Initialize counter with the number of existing sizes
+      const addSizeButton = document.getElementById('addSize');
+      const form = document.querySelector('form');
+  
+      addSizeButton.addEventListener('click', function () {
+        // Create new size and stock input fields
+        const newSizeField = document.createElement('div');
+        newSizeField.classList.add('form-outline', 'mb-4');
+        newSizeField.innerHTML = `
+          <label class="form-label mt-2" for="size${sizeCounter}">Size</label>
+          <select id="size${sizeCounter}" class="form-control" name="sizes[]" required>
+            <option value="XS">XS</option>
+            <option value="S">S</option>
+            <option value="M">M</option>
+            <option value="L">L</option>
+            <option value="XL">XL</option>
+            <option value="12 year">12 year</option>
+            <option value="13 year">13 year</option>
+            <option value="14 year">14 year</option>
+            <option value="15 year">15 year</option>
+            <option value="16 year">16 year</option>
+            <option value="Single Size">Single Size</option>
+          </select>
+          <label class="form-label mt-2" for="stock${sizeCounter}">Stock</label>
+          <input type="number" id="stock${sizeCounter}" class="form-control" name="stocks[]" required>
+        `;
+        form.insertBefore(newSizeField, addSizeButton);
+        sizeCounter++; // Increment the counter for the next size
+      });
     });
-</script>
+  </script>
+  
+  <script>
+    $(document).ready(function () {
+      // Function to validate form
+      function validateForm() {
+        let isValid = true;
+  
+        // Validate product name
+        const productName = $("#name").val().trim();
+        if (!productName) {
+          $("#nameValidationMessage").text("Product name is required.");
+          isValid = false;
+        } else {
+          $("#nameValidationMessage").text("");
+        }
+  
+        // Validate brand
+        const brand = $("#brand").val().trim();
+        if (!brand) {
+          $("#brandValidationMessage").text("Brand is required.");
+          isValid = false;
+        } else {
+          $("#brandValidationMessage").text("");
+        }
+  
+        // Validate color
+        const color = $("#color").val().trim();
+        if (!color) {
+          $("#colorValidationMessage").text("Color is required.");
+          isValid = false;
+        } else {
+          $("#colorValidationMessage").text("");
+        }
+  
+        // Validate price
+        const price = $("#price").val().trim();
+        if (!price || isNaN(price) || price <= 0) {
+          $("#priceValidationMessage").text("Price must be a valid positive number.");
+          isValid = false;
+        } else {
+          $("#priceValidationMessage").text("");
+        }
+  
+        // Validate category
+        const category = $("#category").val();
+        if (!category) {
+          $("#categoryValidationMessage").text("Category is required.");
+          isValid = false;
+        } else {
+          $("#categoryValidationMessage").text("");
+        }
+  
+        // Validate sizes and stocks
+        let isValidSizesStocks = true;
+        $(".form-outline").each(function () {
+          const size = $(this).find("select").val().trim();
+          const stock = $(this).find("input").val().trim();
+          if (!size || !stock || isNaN(stock) || stock < 0) {
+            isValidSizesStocks = false;
+            $(this).find(".stockValidationMessage").text("Stock count must be a valid non-negative number.");
+            return false; // Exit the loop early
+          } else {
+            $(this).find(".stockValidationMessage").text("");
+          }
+        });
+  
+        if (!isValidSizesStocks) {
+          $("#sizesStocksValidationMessage").text("Sizes and stocks must be valid.");
+          isValid = false;
+        } else {
+          $("#sizesStocksValidationMessage").text("");
+        }
+  
+        // Validate description
+        const description = $("#description").val().trim();
+        if (!description) {
+          $("#descriptionValidationMessage").text("Description is required.");
+          isValid = false;
+        } else {
+          $("#descriptionValidationMessage").text("");
+        }
+  
+        return isValid;
+      }
+  
+      // Validate form on submit
+      $("#myForm").submit(function (event) {
+        // Validate form
+        if (!validateForm()) {
+          event.preventDefault();
+          $("#validationMessages").text("Please fix the errors in the form.");
+        }
+      });
+    });
+  </script>

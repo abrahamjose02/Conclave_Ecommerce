@@ -6,8 +6,8 @@ const loadBanner = async(req,res)=>{
         const banners = await Banner.find();
         res.render('bannerManagement',{banners});
     } catch (error) {
-        console.log(error.message);
-        res.status(500).json({message:'Invalid Session Error'});
+        console.error(error);
+    res.status(500).render('404');
     }
 }
 
@@ -16,8 +16,8 @@ const loadAddBanner = async(req,res)=>{
         let message = '';
         res.render('addBanner',{message})
     } catch (error) {
-        console.log(error.message);
-        res.status(500).json({message:'Invalid Session Error'})
+        console.error(error);
+    res.status(500).render('404');
     }
 }
 
@@ -37,8 +37,8 @@ const addBanner = async(req,res)=>{
         res.redirect('/admin/bannerList');
 
     } catch (error) {
-        console.log(error.message);
-        res.status(500).json({message:'Invalid Session Error'});
+        console.error(error);
+        res.status(500).render('404');
     }
 }
 
@@ -52,8 +52,8 @@ const loadEditBanner = async(req,res)=>{
 
         res.render('editBanner',{message,banner})
     } catch (error) {
-        console.log(error.message);
-        res.status(500).json({message:'Invalid Session Error'});
+        console.error(error);
+    res.status(500).render('404');
     }
 }
 
@@ -73,8 +73,8 @@ const editBanner = async(req,res)=>{
         res.redirect('/admin/bannerList');
 
     } catch (error) {
-        console.log(error.message);
-        res.status(500).json({message:'Invalid Session Error'});
+        console.error(error);
+    res.status(500).render('404');
     }
 }
 
@@ -89,11 +89,12 @@ const enableBanner = async(req,res)=>{
             await banner.save();
             res.redirect('/admin/bannerList');
         }else{
-            res.status(404).send('Banner not found');
+            console.error(error);
+    res.status(500).render('404');
         }
     } catch (error) {
-        console.log(error.message);
-        res.status(500).json({message:'Invalid Session Error'});
+        console.error(error);
+    res.status(500).render('404');
     }
 }
 
@@ -108,11 +109,12 @@ const disableBanner = async(req,res)=>{
             await banner.save();
             res.redirect('/admin/bannerList');
         }else{
-            res.status(404).send('Banner not found');
+            console.error(error);
+    res.status(500).render('404');
         }
     } catch (error) {
-        console.log(error.message);
-        res.status(500).json({message:'Invalid Session Error'});
+        console.error(error);
+        res.status(500).render('404');
     }
 }
 
@@ -124,7 +126,8 @@ const deleteBanner = async(req,res)=>{
 
         res.redirect('/admin/bannerList');
     } catch (error) {
-        console.log(error.message);
+        console.error(error);
+    res.status(500).render('404');
     }
 }
 

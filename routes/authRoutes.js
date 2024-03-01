@@ -43,7 +43,6 @@ user_router.get('/reset_password',userController.loadResetPassword);
 user_router.post('/reset_password',userController.resetPassword);
 user_router.get('/products', productController.renderProductByCategory);
 user_router.get('/search', productController.searchProducts);
-// user_router.get('/products/sort', productController.sortFeature);
 user_router.get('/productDetails',productController.getProductDetails);
 user_router.get('/cart',isLogin,cartController.loadCartDetails);
 user_router.get('/add-to-cart/:productId',isLogin, cartController.addToCart);
@@ -79,9 +78,6 @@ user_router.post('/create-razorpay-order',isLogin,userController.addtowallet);
 user_router.post('/razorpay-success', isLogin, userController.razorpaySuccess);
 user_router.get('/returnOrder/:orderId',isLogin,userController.returnOrder);
 user_router.get('/returnProduct/:orderId/:index',isLogin,userController.returnProduct);
-// user_router.post('/remove-product-from-wishlist-to-addToCart/:productId',isLogin,wishlistController.removeProductFromWishlisttoAddtoCart);
-
-
 
 module.exports = user_router;
 

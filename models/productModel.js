@@ -45,7 +45,7 @@ const productSchema = new mongoose.Schema({
     sizes:[{
         size:{
             type:String,
-            enum:['XS','S','M','L','XL','XXL','Single Size'],
+            enum:['XS','S','M','L','XL','Single Size','12 year','13 year','14 year','15 year','16 year'],
             required:true
         },
         stock:{
