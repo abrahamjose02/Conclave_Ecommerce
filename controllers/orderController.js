@@ -512,18 +512,6 @@ const verifyPayment = async (req, res) => {
             } else {
                 // HMAC signature mismatch, payment verification failed.
 
-                // Revert wallet balance if payment verification fails
-                const user = await User.findById(req.session.user_id);
-                if (orderData.payable_amount === 0) {
-                    // If payable amount is 0, add back the grand total amount
-                    user.wallet += orderData.grand_total;
-                } else {
-                    // Add back the difference between grand total and payable amount to the wallet
-                    const difference = orderData.grand_total - orderData.payable_amount;
-                    user.wallet += difference;
-                }
-                await user.save();
-
                 console.log('HMAC signature mismatch. Payment verification failed.');
 
                 // Show SweetAlert and redirect to cart
@@ -533,31 +521,11 @@ const verifyPayment = async (req, res) => {
             // orderData or payments property is undefined, handle the error
             console.error('orderData or payments property is undefined');
 
-            // Revert wallet balance if payment verification fails
-            const user = await User.findById(req.session.user_id);
-             if (orderData && orderData.payable_amount > 0) {
-                // Add back the difference between grand total and payable amount to the wallet
-                const difference = orderData.grand_total - orderData.payable_amount;
-                user.wallet += difference;
-            }
-            await user.save();
-
             return res.status(500).json({ status: 'error', message: 'Internal server error during payment verification', paymentStatus: 'initiated', redirect: '/checkout' }); // Added redirect URL
         }
     } catch (error) {
         console.error('Error during payment verification:', error);
         
-        // Revert wallet balance if payment verification fails
-        const user = await User.findById(req.session.user_id);
-        if (orderData && orderData.payable_amount === 0) {
-            // If payable amount is 0, add back the grand total amount
-            user.wallet += orderData.grand_total;
-        } else if (orderData && orderData.payable_amount > 0) {
-            // Add back the difference between grand total and payable amount to the wallet
-            const difference = orderData.grand_total - orderData.payable_amount;
-            user.wallet += difference;
-        }
-        await user.save();
 
         // Send error response
         return res.status(500).json({ status: 'error', message: 'Internal server error during payment verification', paymentStatus: 'initiated', redirect: '/cart' }); // Added redirect URL
