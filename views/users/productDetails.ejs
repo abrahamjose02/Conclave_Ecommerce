@@ -24,12 +24,26 @@
                         <% productImages.forEach((image, j) => { %>
                             <li class="nav-item">
                                 <a class="nav-link" data-toggle="tab" href="#" onclick="updateMainImage('/uploads/<%= image %>')">
-                                    <img src="/uploads/<%= image || 'no-image.webp' %>" style="background-size: cover; background-repeat: no-repeat; height: 120px; width: 95px;" alt="Product Image <%= j + 1 %>">
+                                    
+                                    <div class="thumbnail-container">
+                                        <img src="/uploads/<%= image || 'no-image.webp' %>" style="background-size: cover; background-repeat: no-repeat; height: 120px; width: 95px;" alt="Product Image <%= j + 1 %>" class="thumbnail-image"> <!-- Added class 'thumbnail-image' -->
+                                    </div>
                                 </a>
                             </li>
                         <% }) %>
                     </ul>
                 </div>
+            
+                <style>
+                   
+                                .thumbnail-container {
+                                    border: 1px solid #ccc; /* Adjust border color and width as needed */
+                                    padding: 5px; /* Adjust padding as needed */
+                                }
+
+                </style>
+             
+
 
                 <div class="col-lg-8 col-md-9 d-flex align-items-left justify-content-left">
                     <div class="tab-content">
@@ -37,15 +51,18 @@
                             <div class="tab-pane <%= k === 0 ? 'active' : '' %>" id="tabs-<%= k + 1 %>" role="tabpanel">
                                 <!-- Display the product image and details in the same row -->
                                 <div class="row">
-                                    <div class="col-lg-6 col-md-6">
+                                    <div class="col-lg-6 col-md-6 product-image-wrapper">
                                         <!-- Display the main product image with zoom and crop -->
                                         <div class="product-image-container">
-                                            <img id="mainProductImage" class="zoom" src="/uploads/<%= product.images[0] || 'no-image.webp' %>" alt="Main Product Image">
+                                            <img id="mainProductImage" class="zoom main-product-image" src="/uploads/<%= product.images[0] || 'no-image.webp' %>" alt="Main Product Image">
                                         </div>
                                     </div>
-                                    <div class="col-lg-6 col-md-6">
+                                                                       
+                                                                    
+                                    <div class="col-lg-6 col-md-6 ">
                                         <!-- Render product details -->
                                         <h3><strong><%= product.name %></strong></h3>
+                                        
                                         <div class="rating my-4">
                                             <% const rating = 4; %> <!-- Set the rating value to 4 -->
                                             <% for (let i = 0; i < 5; i++) { %>
@@ -53,7 +70,10 @@
                                             <% } %>
                                             <!-- Display the rating value -->
                                             <span><%= rating %>/5</span>
-                                        </div>                                        
+                                        </div>
+
+
+                                        <span class="font-weight-bold">Description</span><br>                                        
                                         <p><%= product.description %></p>
                                         <h6 class="my-4"><strong>Select Size:</strong></h6>
                                         <div class="sizes-container">
@@ -221,7 +241,21 @@
         initializeElevateZoom();
     });
 </script>
+<style>
+    .product-image-wrapper {
+        border: 2px solid rgba(125, 125, 126, 0.285); 
+        padding: 0; 
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%; 
+        box-sizing: border-box; 
+    }
 
+    .product-image-container {
+        padding: 5px; 
+    }
+</style>
 
 
 

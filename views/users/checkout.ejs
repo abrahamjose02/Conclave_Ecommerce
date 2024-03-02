@@ -106,8 +106,8 @@
                 class="text-dark font-weight-bolder"
                 id="amountToBePaidValue"
               >
-                ₹ <%= couponDetails ? couponDetails.newTotal || totalPriceOfCart
-                : totalPriceOfCart %>
+              ₹ <%= couponDetails ? couponDetails.newTotal || totalPriceOfCart
+              : totalPriceOfCart %>
               </span>
             </li>
           </ul>
@@ -714,81 +714,84 @@
 <%- include('../layouts/footer.ejs') %>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
-      const useWalletCheckbox = document.getElementById("useWallet");
-      const amountToBePaidValue = document.getElementById("amountToBePaidValue");
-      const placeOrderButton = document.getElementById("placeOrder");
-      const placeOrderWalletButton = document.getElementById("placeOrderWallet");
-      const amountInWallet = parseFloat(<%= userWalletBalance %>); // Assuming userWalletBalance is a variable accessible in EJS
-  
-      // Function to update UI and send request to backend when checkbox state changes
-      function handleCheckboxChange() {
-          const isChecked = useWalletCheckbox.checked;
-          const grandTotal = parseFloat(<%= couponDetails ? couponDetails.newTotal || totalPriceOfCart : totalPriceOfCart %>);
-  
-          if (isChecked && amountInWallet >= grandTotal) {
-              // If user has sufficient balance in wallet
-              amountToBePaidValue.innerText = "₹ 0";
-              placeOrderButton.style.display = "none";
-              placeOrderWalletButton.style.display = "block";
-          } else if (isChecked && amountInWallet < grandTotal) {
-              // If user has insufficient balance in wallet
-              const remainingAmount = grandTotal - amountInWallet;
-              amountToBePaidValue.innerText = "₹ " + remainingAmount.toFixed(2);
-              placeOrderButton.style.display = "block";
-              placeOrderWalletButton.style.display = "none";
-          } else {
-              // If user does not want to use wallet
-              amountToBePaidValue.innerText = "₹ " + grandTotal.toFixed(2);
-              placeOrderButton.style.display = "block";
-              placeOrderWalletButton.style.display = "none";
-          }
-  
-          // Send request to backend with updated walletChecked value
-          sendOrderRequest(isChecked);
-          
-          // Show SweetAlert based on checkbox state
-          if (isChecked) {
-              Swal.fire({
-                  icon: 'success',
-                  title: 'Wallet Selected',
-                  text: 'You have chosen to use your wallet for payment.',
-                  confirmButtonText: 'Okay'
-              });
-          } else {
-              Swal.fire({
-                  icon: 'info',
-                  title: 'Wallet Deselected',
-                  text: 'You have deselected the option to use your wallet for payment.',
-                  confirmButtonText: 'Got it'
-              });
-          }
-      }
-  
-      // Attach event listener to checkbox change event
-      useWalletCheckbox.addEventListener("change", handleCheckboxChange);
-  
-      // Function to send order request to backend using fetch API
-      function sendOrderRequest(walletChecked, amountToBePaid) {
-          fetch("/placeOrder", {
-              method: "POST",
-              headers: {
-                  "Content-Type": "application/json"
-              },
-              body: JSON.stringify({ walletChecked, amountToBePaid })
-          })
-          .then(response => {
-              if (response.ok) {
-                  console.log("Order placed successfully.");
-              } else {
-                  console.error("Failed to place order.");
-              }
-          })
-          .catch(error => {
-              console.error("Error:", error);
-          });
-      }
-  });
+ document.addEventListener("DOMContentLoaded", function() {
+    const useWalletCheckbox = document.getElementById("useWallet");
+    const amountToBePaidValue = document.getElementById("amountToBePaidValue");
+    const placeOrderButton = document.getElementById("placeOrder");
+    const placeOrderWalletButton = document.getElementById("placeOrderWallet");
+    const amountInWallet = parseFloat(<%= userWalletBalance %>); // Assuming userWalletBalance is a variable accessible in EJS
+    const totalAmountElement = document.getElementById("total"); // Get the total amount element
+
+    // Function to update UI and send request to backend when checkbox state changes
+    function handleCheckboxChange() {
+        const isChecked = useWalletCheckbox.checked;
+        let grandTotal = parseFloat(totalAmountElement.innerText.split(' ')[1]); // Get the total amount from the element
+        
+        if (isChecked && amountInWallet >= grandTotal) {
+            // If user has sufficient balance in wallet
+            amountToBePaidValue.innerText = "₹ 0";
+            placeOrderButton.style.display = "none";
+            placeOrderWalletButton.style.display = "block";
+        } else if (isChecked && amountInWallet < grandTotal) {
+            // If user has insufficient balance in wallet
+            const remainingAmount = grandTotal - amountInWallet;
+            amountToBePaidValue.innerText = "₹ " + remainingAmount.toFixed(2);
+            placeOrderButton.style.display = "block";
+            placeOrderWalletButton.style.display = "none";
+        } else {
+            // If user does not want to use wallet or wallet balance is not sufficient
+            amountToBePaidValue.innerText = "₹ " + grandTotal.toFixed(2);
+            placeOrderButton.style.display = "block";
+            placeOrderWalletButton.style.display = "none";
+        }
+
+        // Send request to backend with updated walletChecked value and amountToBePaid
+        sendOrderRequest(isChecked, amountToBePaidValue.innerText);
+        
+        // Show SweetAlert based on checkbox state
+        if (isChecked) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Wallet Selected',
+                text: 'You have chosen to use your wallet for payment.',
+                confirmButtonText: 'Okay'
+            });
+        } else {
+            Swal.fire({
+                icon: 'info',
+                title: 'Wallet Deselected',
+                text: 'You have deselected the option to use your wallet for payment.',
+                confirmButtonText: 'Got it'
+            });
+        }
+    }
+
+    // Attach event listener to checkbox change event
+    useWalletCheckbox.addEventListener("change", handleCheckboxChange);
+
+    // Function to send order request to backend using fetch API
+    function sendOrderRequest(walletChecked, amountToBePaid) {
+        fetch("/placeOrder", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ walletChecked, amountToBePaid })
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log("Order placed successfully.");
+            } else {
+                console.error("Failed to place order.");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+    }
+});
+
+
 </script>
 
 

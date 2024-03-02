@@ -74,7 +74,7 @@ const loadDashboard = async (req, res) => {
     const order = await Order.find().populate('user', 'name').sort({ orderDate: -1 }).limit(5);
 
     const codNum = await Order.countDocuments({ 'payments.pay_method': 'COD' });
-    const onlineNum = await Order.countDocuments({ 'payments.pay_method': 'onlinePayment' });
+    const onlineNum = await Order.countDocuments({ 'payments.pay_method': 'Online' });
     const walletNum = await Order.countDocuments({'payments.pay_method':'Wallet'});
     const paid = await Order.countDocuments({ 'orderStatus': 'placed', 'payments.pay_status': 'success' });
     const paymentPending = await Order.countDocuments({ 'orderStatus': 'placed', 'payments.pay_status': 'pending' });

@@ -137,7 +137,7 @@
   document.addEventListener('DOMContentLoaded', function() {
     var ctx1 = document.getElementById('payment_method').getContext('2d');
     var payMethodData = {
-      labels: ['COD', 'Online Payment', 'Wallet'], 
+      labels: ['COD', 'Online', 'Wallet'], 
       datasets: [{
         label: 'Payment Method',
         data: [`<%= codNum %>`, `<%= onlineNum %>`, `<%= walletNum %>`], 

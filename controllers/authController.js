@@ -1355,13 +1355,18 @@ const cancelProductInOrder = async (req, res) => {
     // Set the product as cancelled
     order.items[index].cancelled = true;
 
+    // Reduce the canceled product's value from the subtotal and total amount
+    order.totalPrice -= canceledProductValue;
+    order.grand_total -= canceledProductValue;
+
     const allItemsCancelled = order.items.every(item => item.cancelled);
 
     // If all items are cancelled, update the order status to cancelled
     if (allItemsCancelled) {
       order.orderStatus = 'cancelled';
-      await order.save();
     }
+
+    await order.save();
 
     return res.redirect(`/orderItems/${orderId}`);
   } catch (error) {
@@ -1440,6 +1445,7 @@ const returnProduct = async (req, res) => {
     }
 
     const returnedProduct = order.items[index];
+    const returnedProductValue = returnedProduct.price * returnedProduct.quantity;
 
     if (returnedProduct.returned) {
       return res.status(400).json({ status: 'error', message: 'Product is already returned' });
@@ -1456,7 +1462,7 @@ const returnProduct = async (req, res) => {
     }
 
     // Refund amount to the user's wallet
-    const returnedProductValue = returnedProduct.price * returnedProduct.quantity;
+   
     const user = await User.findById(order.user);
     if (user) {
       user.wallet += returnedProductValue;
@@ -1470,15 +1476,20 @@ const returnProduct = async (req, res) => {
     }
 
     // Mark the returned product
-    returnedProduct.returned = true;
+    order.items[index].returned = true;
+
+    // Adjust the returned product's value from the totalPrice and grand_total
+    order.totalPrice -= returnedProductValue;
+    order.grand_total -= returnedProductValue;
 
     // Check if all items are returned
     const allItemsReturned = order.items.every(item => item.returned);
     if (allItemsReturned || order.items.length === 1) {
       // Mark the order as returned if all items are returned or if only one item was in the order
-      order.orderStatus = 'returned';
-      await order.save();
+      order.orderStatus = 'returned'; 
     }
+    
+    await order.save();
 
     return res.redirect(`/orderItems/${orderId}`);
   } catch (error) {
@@ -1486,6 +1497,8 @@ const returnProduct = async (req, res) => {
     res.status(500).render('404');
   }
 };
+
+
 
 const errorPage = async(req,res)=>{
   try {
