@@ -12,7 +12,7 @@ const instance = new Razorpay({
     key_secret: KEY_SECRET
 });
 const crypto = require('crypto');
-const { use } = require('../routes/authRoutes');
+
 
 
 const getCategoryiesByType = async (categoryType) => {
@@ -245,8 +245,7 @@ const placeOrderCOD = async (req, res) => {
         }
 
         // Deduct the wallet balance for the wallet total
-       
-        let payableAmount = amountToBePaid;
+        let payableAmount = amountToBePaid !== null ? amountToBePaid : grandTotal;
       
         
 
@@ -383,7 +382,7 @@ const placeOrderOnlinePayment = async (req, res) => {
             discountAmount = req.session.couponDetails.discount || 0;
         }
 
-        let payableAmount = amountToBePaid;
+        let payableAmount = amountToBePaid !== null ? amountToBePaid : grandTotal;
         
 
         const randomOrderId = Math.floor(Math.random() * 1000000); // Generates a random number between 0 and 999999
