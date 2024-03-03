@@ -202,7 +202,7 @@ const getProductDetails = async (req, res) => {
     const kidsCategories = await Category.find({ categoryType: 'Kids', isDeleted: false });
     const beautyCategories = await Category.find({ categoryType: 'Beauty', isDeleted: false });
 
-    res.render('ProductDetails', {
+    res.render('productDetails', {
       userID: req.session.user_id, message, category, products,relatedProducts, productImages: product.images, product, menCategories, womenCategories, kidsCategories, beautyCategories,
       categoryType, categoryName,productName,selectedProductId:productId
     })
