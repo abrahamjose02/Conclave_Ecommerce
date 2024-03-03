@@ -1097,7 +1097,7 @@ const loadOrderedItems = async (req, res) => {
 
     const orderInfoArray = Array.isArray(orderInfo) ? orderInfo : [orderInfo];
 
-    res.render('orderItems', { userID, user, menCategories, womenCategories, kidsCategories, beautyCategories, message, orderId, orderInfo, title, orderInfo: orderInfoArray });
+    res.render('OrderItems', { userID, user, menCategories, womenCategories, kidsCategories, beautyCategories, message, orderId, orderInfo, title, orderInfo: orderInfoArray });
 
   } catch (error) {
     console.error(error);
