@@ -3,7 +3,7 @@ const app = express();
 const morgan = require('morgan');
 const dotenv = require('dotenv');
 const path = require('path');
-const flash = require('express-flash')
+
 
 
 
@@ -24,7 +24,7 @@ app.set('view engine', 'ejs');
 app.set('views', ['./views/users', './views/admin']);
 
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(flash());
+
 
 app.use((req, res, next) => {
   // Set Cache-Control headers to prevent caching
