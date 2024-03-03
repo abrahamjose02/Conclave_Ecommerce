@@ -9,6 +9,7 @@ const Product = require('../models/productModel');
 const Cart = require('../models/cartModel');
 const Order = require('../models/orderModel');
 const Banner = require('../models/bannerModel');
+const Coupon = require('../models/couponModel');
 
 const { KEY_ID, KEY_SECRET } = process.env;
 const Razorpay = require('razorpay');
@@ -685,8 +686,9 @@ const loadCheckoutPage = async (req, res) => {
     }
 
     const userWalletBalance = userDetails.wallet || 0; // Accessing wallet from userDetails
+    const coupons = await Coupon.find();
 
-    res.render('checkout', { message, userID, menCategories, womenCategories, kidsCategories, beautyCategories, Addresses, itemsInCart, subTotal, productTotal, totalPriceOfCart, req: req, couponDetails, userDetails, userWalletBalance, totalPriceAfterDiscount });
+    res.render('checkout', { message, userID,coupons, menCategories, womenCategories, kidsCategories, beautyCategories, Addresses, itemsInCart, subTotal, productTotal, totalPriceOfCart, req: req, couponDetails, userDetails, userWalletBalance, totalPriceAfterDiscount });
   } catch (error) {
     console.error(error);
     res.status(500).render('404');

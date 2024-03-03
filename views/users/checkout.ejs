@@ -116,6 +116,69 @@
 
           <form class="card p-2 mt-3" name="couponsForm">
             <p class="font-weight-bold">Do you have any coupon codes?</p>
+            
+            <button class="btn btn-sm text-white my-3" id="viewCoupons" style="background-color: black" type="button" data-toggle="modal" data-target="#couponModal">
+              View Coupons
+          </button>
+          
+          <!-- Modal -->
+          <div class="modal fade" id="couponModal" tabindex="-1" role="dialog" aria-labelledby="couponModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered" role="document">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <h5 class="modal-title" id="couponModalLabel"><strong>Available Coupons</strong></h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                          </button>
+                      </div>
+                      <div class="modal-body">
+                          <!-- Coupons -->
+                          <% for (let i = 0; i < coupons.length; i++) { %>
+                              <div class="coupon-item d-flex justify-content-between align-items-center mb-3">
+                                  <span class="coupon-name font-weight-bold"><%= coupons[i].name %></span>
+                                  <div class="coupon-code-container d-flex align-items-center">
+                                      <span class="coupon-code" contenteditable="true" data-coupon="<%= coupons[i].code %>" style="border: 1px solid #ced4da; padding: 3px; border-radius: 5px; background-color: #f8f9fa;"><%= coupons[i].code %></span>
+                                      <button class="btn btn-sm btn-secondary copy-button ml-2" data-coupon="<%= coupons[i].code %>">Copy</button>
+                                  </div>
+                              </div>
+                          <% } %>
+                      </div>
+                      <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+                    
+            <script>
+              // Script to copy coupon code to clipboard
+              document.querySelectorAll('.coupon-item').forEach(item => {
+                item.addEventListener('click', event => {
+                  const couponCode = event.target.dataset.coupon;
+                  const copyButton = event.target.closest('.copy-button');
+                  if (copyButton) {
+                    event.stopPropagation(); 
+                    const codeElement = copyButton.previousElementSibling;
+                    navigator.clipboard.writeText(couponCode)
+                      .then(() => {
+                        // Coupon code copied successfully
+                        codeElement.style.backgroundColor = '#d4edda'; 
+                        Swal.fire({
+                          icon: 'success',
+                          title: 'Copied!',
+                          text: 'Coupon code copied to clipboard!',
+                          timer: 1500,
+                          showConfirmButton: false
+                        });
+                      })
+                      .catch(err => {
+                        console.error('Failed to copy coupon code: ', err);
+                      });
+                  }
+                });
+              });
+            </script>
+                     
             <div class="input-group">
               <input
                 type="text"
