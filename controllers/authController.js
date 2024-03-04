@@ -917,6 +917,75 @@ const loadMyAddress = async (req, res) => {
   }
 }
 
+
+const addAddress = async (req, res) => {
+  try {
+    const userID = req.session.user_id;
+    const { fullName, country, addressLine, locality, city, state, pinCode, phone } = req.body;
+
+    
+    const user = await User.findById(userID);
+    if (!user) {
+      return res.status(500).json({ message: 'User not found' });
+    }
+
+    user.addresses.push({
+      fullName,
+      country,
+      addressLine,
+      locality,
+      city,
+      state,
+      pinCode,
+      phone
+    });
+
+    await user.save();
+    res.redirect('/myAddress');
+  } catch (error) {
+    console.error(error);
+    res.status(500).render('404');
+  }
+};
+
+
+const editAddress = async (req, res) => {
+  try {
+    const formData = req.body;
+    const userID = req.session.user_id;
+    const user = await User.findOne({ 'addresses._id': formData.addressId });
+
+    if (!user) {
+      return res.status(404).json({ status: 'error', message: 'Address not found' });
+    }
+
+    const addressIndex = user.addresses.findIndex(address => address._id.toString() === formData.addressId);
+
+    if (addressIndex === -1) {
+      return res.status(404).json({ status: 'error', message: 'Address not found' });
+    }
+
+    // Update the address fields
+    user.addresses[addressIndex].fullName = formData.fullName;
+    user.addresses[addressIndex].country = formData.country;
+    user.addresses[addressIndex].addressLine = formData.addressLine;
+    user.addresses[addressIndex].locality = formData.locality;
+    user.addresses[addressIndex].city = formData.city;
+    user.addresses[addressIndex].state = formData.state;
+    user.addresses[addressIndex].pinCode = formData.pinCode;
+    user.addresses[addressIndex].phone = formData.phone;
+
+    // Save the updated user object
+    await user.save();
+
+    // Redirect to the checkout page after successful update
+    res.redirect('/myAddress');
+  } catch (error) {
+    console.error(error);
+    res.status(500).render('404');
+  }
+};
+
 const loadMyOrders = async (req, res) => {
   try {
     const menCategories = await Category.find({ categoryType: 'Men', isDeleted: false });
@@ -1562,6 +1631,8 @@ module.exports = {
   returnOrder,
   returnProduct,
   errorPage,
+  addAddress,
+  editAddress
 }
 
 

@@ -78,6 +78,8 @@ user_router.post('/create-razorpay-order',isLogin,userController.addtowallet);
 user_router.post('/razorpay-success', isLogin, userController.razorpaySuccess);
 user_router.get('/returnOrder/:orderId',isLogin,userController.returnOrder);
 user_router.get('/returnProduct/:orderId/:index',isLogin,userController.returnProduct);
+user_router.post('/addAddress',isLogin,userController.addAddress);
+user_router.post('/editAddress',isLogin,userController.editAddress);
 
 module.exports = user_router;
 
