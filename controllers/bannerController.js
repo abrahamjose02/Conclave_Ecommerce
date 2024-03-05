@@ -58,25 +58,44 @@ const loadEditBanner = async(req,res)=>{
 }
 
 
-const editBanner = async(req,res)=>{
+const editBanner = async (req, res) => {
     try {
-        const{name,description} = req.body;
-
+        const { name, description } = req.body;
         const bannerId = req.params.bannerId;
 
-        const banner = await Banner.findByIdAndUpdate(bannerId,{
-            name:name,
-            description:description,
-            image:req.file.filename
-        });
+        
+        const banner = await Banner.findById(bannerId);
 
+        if (!banner) {
+            
+            return res.status(404).render('404');
+        }
+
+        
+        updateImageField(req, banner);
+
+        
+        banner.name = name;
+        banner.description = description;
+
+        
+        await banner.save();
+
+        
         res.redirect('/admin/bannerList');
 
     } catch (error) {
         console.error(error);
-    res.status(500).render('404');
+        res.status(500).render('404'); 
     }
-}
+};
+
+
+const updateImageField = (req, banner) => {
+    if (req.file) {
+        banner.image = req.file.filename;
+    }
+};
 
 const enableBanner = async(req,res)=>{
     try {

@@ -212,29 +212,43 @@
             </a>
           </div>
 
-          <div class="mt-4 mb-3">
+          <div class="mt-4 mb-3 payment-options">
             <p class="font-weight-bold">
-              <strong>Choose Your Mode Of Payment</strong>
+                <strong>Choose Your Mode Of Payment</strong>
             </p>
             <div>
-              <input
-                class="paymentMethod"
-                type="radio"
-                value="COD"
-                name="paymentMethod"
-              />
-              <label for="">Cash On Delivery</label>
+                <input class="paymentMethod" type="radio" value="COD" name="paymentMethod" id="codPayment"/>
+                <label for="codPayment">Cash On Delivery</label>
             </div>
             <div>
-              <input
-                class="paymentMethod"
-                type="radio"
-                value="onlinePayment"
-                name="paymentMethod"
-              />
-              <label for="">Online Payment</label>
+                <input class="paymentMethod" type="radio" value="onlinePayment" name="paymentMethod" id="onlinePayment"/>
+                <label for="onlinePayment">Online Payment</label>
             </div>
-          </div>
+        </div>
+        <style>
+              .payment-options {
+        display: flex;
+        flex-direction: column;
+    }
+
+        .payment-options div {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .payment-options input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        .payment-options input[type="radio"]:checked + label {
+            background-color: #ffc107; 
+            color: #212529; 
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        </style>
 
           <button
             class="btn w-100 text-white"

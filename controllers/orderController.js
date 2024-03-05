@@ -475,6 +475,10 @@ const verifyPayment = async (req, res) => {
                 const newOrder = new Order(orderData);
                 await newOrder.save();
 
+                if (orderData.payments.pay_method === 'Online') {
+                    delete req.session.couponDetails;
+                }
+
                 const user = await User.findById(req.session.user_id);
                 if(user){
                     

@@ -85,7 +85,8 @@
                     <% if (products.length > 0) { %>
                         <% for (let i = 0; i < products.length; i++) { %>
                             <div class="col-lg-4 col-md-4 col-sm-6 my-3">
-                                <div class="product__item">
+                                <!-- Attach onclick event handler to the entire product item -->
+                                <div class="product__item" onclick="viewProductDetails('<%= categoryId %>', '<%= products[i]._id %>')">
                                     <div class="product__item__pic set-bg" data-setbg="<%= products[i].images && products[i].images.length > 0 ? '/uploads/' + products[i].images[0] : '/img/no-image.webp' %>">
                                         <!-- Product image and hover elements -->
                                         <ul class="product__hover">
@@ -95,9 +96,8 @@
                                     <div class="product__item__text">
                                         <!-- Product details -->
                                         <h6><%= products[i].name %></h6>
-                                        <!-- Other product information -->
+
                                         <button class="nav-link" onclick="viewProductDetails('<%= categoryId %>', '<%= products[i]._id %>')"><a class="">View</a></button>
-                                        <br>
                                         <!-- Display prices and discount percentage -->
                                         <% if (products[i].isOfferApplied) { %>
                                             <h6>
@@ -122,12 +122,13 @@
                         <div class="col-12">
                             <h3 class="text-danger">No Product to show</h3>
                         </div>
-                    <% } %>
+                    <% } %>                    
                 </div>
             </div>
         </div>
     </div>
 </section>
+
 
 <!-- Pagination section -->
 <nav aria-label="Page navigation" id="pagination">
