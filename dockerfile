@@ -1,12 +1,12 @@
-FROM node:latest
+FROM node:18
 
 WORKDIR /usr/src/app
 
-COPY Conclave-ecommerce/package*.json ./
+COPY package*.json ./
 
 RUN npm install
 
-COPY Conclave-ecommerce/ ./
+COPY . .
 
 EXPOSE 4000
 
